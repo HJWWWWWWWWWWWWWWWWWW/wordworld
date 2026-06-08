@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+saves/*.json
+!saves/.gitkeep
+.idea/workspace.xml
