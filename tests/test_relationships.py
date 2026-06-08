@@ -542,5 +542,18 @@ class TimeScheduleTests(unittest.TestCase):
         self.assertGreaterEqual(game.player["adventure_points"], 2)
 
 
+class ConsoleInputTests(unittest.TestCase):
+    def test_menu_number_accepts_full_width_and_menu_text(self) -> None:
+        self.assertEqual(main.parse_menu_number("１"), 1)
+        self.assertEqual(main.parse_menu_number("2. 移动区域"), 2)
+        self.assertEqual(main.parse_menu_number("三"), 3)
+
+    def test_main_command_accepts_action_names(self) -> None:
+        self.assertEqual(main.parse_main_command("探索区域"), "1")
+        self.assertEqual(main.parse_main_command("查看 状态"), "7")
+        self.assertEqual(main.parse_main_command("存档"), "9")
+        self.assertEqual(main.parse_main_command("退出"), "q")
+
+
 if __name__ == "__main__":
     unittest.main()
