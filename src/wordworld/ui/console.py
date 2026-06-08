@@ -1,22 +1,92 @@
+import re
+import unicodedata
 from typing import Optional
 
 from wordworld.core.engine import GameEngine
 from wordworld.config.paths import SAVE_PATH
 
 
+_CHINESE_NUMBER_MAP = {
+    "零": 0,
+    "〇": 0,
+    "一": 1,
+    "二": 2,
+    "两": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+}
+
+_MAIN_COMMAND_ALIASES = {
+    "探索": "1",
+    "探索区域": "1",
+    "移动": "2",
+    "移动区域": "2",
+    "区域移动": "2",
+    "修炼": "3",
+    "切磋": "4",
+    "推进": "5",
+    "推进主线": "5",
+    "主线": "5",
+    "关键目标": "5",
+    "休息": "6",
+    "状态": "7",
+    "查看状态": "7",
+    "行囊": "8",
+    "背包": "8",
+    "物品": "8",
+    "保存": "9",
+    "存档": "9",
+    "退出": "q",
+    "离开": "q",
+}
+
+
+def normalize_input(raw: str) -> str:
+    """Normalize console input from different input methods and terminals."""
+
+    return unicodedata.normalize("NFKC", raw).strip().lower()
+
+
+def parse_menu_number(raw: str) -> Optional[int]:
+    text = normalize_input(raw)
+    if not text:
+        return -1
+    if text in {"q", "b"}:
+        return None
+    if text in _CHINESE_NUMBER_MAP:
+        return _CHINESE_NUMBER_MAP[text]
+    match = re.match(r"^(\d+)", text)
+    if match:
+        return int(match.group(1))
+    return -1
+
+
+def parse_main_command(raw: str) -> str:
+    text = normalize_input(raw)
+    if text in {"q", "b"}:
+        return "q"
+    number = parse_menu_number(text)
+    if number is None:
+        return "q"
+    if number != -1:
+        return str(number)
+    compact_text = re.sub(r"[\s.。:：、-]+", "", text)
+    return _MAIN_COMMAND_ALIASES.get(compact_text, text)
+
 def line() -> None:
     print("=" * 72)
 
 
 def ask_number(prompt: str = "> ") -> Optional[int]:
-    raw = input(prompt).strip().lower()
-    if raw in {"q", "b"}:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
+    number = parse_menu_number(input(prompt))
+    if number == -1:
         print("请输入有效数字，或输入 b 返回。")
-        return -1
+    return number
 
 
 def show_result(game: GameEngine) -> None:
@@ -208,7 +278,7 @@ def main() -> None:
             resolve_required_schedule(game)
             continue
         show_hub(game)
-        command = input("\n> ").strip().lower()
+        command = parse_main_command(input("\n> "))
         if command == "q":
             print("旅途暂告一段落。")
             break
