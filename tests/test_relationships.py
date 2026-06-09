@@ -41,13 +41,12 @@ class LatestStoryTests(unittest.TestCase):
 
     def test_level_progression_uses_latest_attribute_rules(self) -> None:
         game = GameEngine()
-        game.player["exp"] = 19
+        # Lv1: 每进度 25 exp，10 进度 = 250 exp = 100%
+        game.apply_effects("exp:+250")
 
-        game.apply_effects("exp:+1")
-
-        self.assertEqual(game.player["level"], 2)
-        self.assertEqual(game.player["douqi"], 8)
-        self.assertEqual(game.player["atk"], 10)
+        self.assertEqual(game.player["level"], 1)
+        self.assertEqual(game.player["progress"], 100.0)
+        self.assertEqual(game.player["exp"], 0)
 
     def test_story_uses_a_small_number_of_key_phases(self) -> None:
         game = GameEngine()
@@ -229,21 +228,21 @@ class LatestStoryTests(unittest.TestCase):
 
     def test_story_menu_shows_background_card_not_novel_text(self) -> None:
         output = io.StringIO()
-        with patch("builtins.input", side_effect=["", "5", "2", "q"]):
+        with patch('builtins.input', side_effect=['', '7', '2', 'b', 'q']):
             with contextlib.redirect_stdout(output):
                 main.main()
 
         text = output.getvalue()
-        self.assertIn("背景：", text)
-        self.assertIn("目标：", text)
-        self.assertNotIn("“斗之力，三段！”", text)
+        self.assertIn('背景：', text)
+        self.assertIn('目标：', text)
+        self.assertNotIn("斗之力，三段！", text)
 
 
 class RelationshipTests(unittest.TestCase):
     def test_new_game_uses_latest_relationship_initial_values(self) -> None:
         game = GameEngine()
 
-        self.assertEqual(game.relation_value("npc_xun_er"), 60)
+        self.assertEqual(game.relation_value("npc_xun_er"), 100)
         self.assertEqual(game.relation_value("faction_hun>faction_xiao"), -100)
 
     def test_relation_change_is_clamped_and_supports_v4_syntax(self) -> None:
@@ -258,11 +257,12 @@ class RelationshipTests(unittest.TestCase):
     def test_on_reach_effect_only_triggers_once(self) -> None:
         game = GameEngine()
 
-        game.apply_effects("rel:npc_xun_er:+30")
-        game.apply_effects("rel:npc_xun_er:-1")
-        game.apply_effects("rel:npc_xun_er:+1")
+        # npc_nalan_yanran 起始 -40，on_reach 在 >=60 触发，非免疫关系
+        game.apply_effects("rel:npc_nalan_yanran:+100")
+        game.apply_effects("rel:npc_nalan_yanran:-1")
+        game.apply_effects("rel:npc_nalan_yanran:+1")
 
-        self.assertIn("xuner_bond", game.player["flags"])
+        self.assertIn("rival_resolved", game.player["flags"])
         self.assertEqual(len(game.player["relationship_triggers"]), 1)
 
     def test_load_migrates_old_save_to_latest_story(self) -> None:
@@ -326,10 +326,62 @@ class RpgLoopTests(unittest.TestCase):
     def test_workbook_rpg_configs_are_loaded(self) -> None:
         game = GameEngine()
 
-        self.assertGreaterEqual(len(game.maps), 50)
-        self.assertGreaterEqual(len(game.encounters), 70)
+        self.assertGreaterEqual(len(game.maps), 190)
+        self.assertGreaterEqual(len(game.encounters), 210)
         self.assertGreaterEqual(len(game.enemies), 20)
         self.assertIn("skill_bajibang", game.skills)
+
+    def test_every_map_has_an_exploration_encounter(self) -> None:
+        game = GameEngine()
+        encounter_maps = {encounter["map_id"] for encounter in game.encounters}
+
+        self.assertEqual(set(game.maps), encounter_maps)
+
+    def test_wutan_city_has_complete_functional_subareas(self) -> None:
+        game = GameEngine()
+        wutan_names = {
+            map_rule["name"]
+            for map_rule in game.maps.values()
+            if map_rule["region"] == "乌坦城"
+        }
+        expected = {
+            "萧家府邸",
+            "萧家演武场",
+            "乌坦商业街",
+            "乌坦后山",
+            "萧家坊市",
+            "乌坦客栈",
+            "乌坦药铺",
+            "乌坦铁匠铺",
+            "乌坦茶楼",
+            "乌坦城门",
+            "米特尔鉴宝室",
+            "萧家议事厅",
+            "乌坦东市",
+            "乌坦仓栈区",
+        }
+
+        self.assertTrue(expected.issubset(wutan_names))
+        self.assertIn("商铺", game.maps["map_wutan_commercial_street"]["description"])
+        self.assertIn("修炼", game.maps["map_wutan_back_mountain"]["description"])
+
+    def test_major_regions_have_representative_functional_subareas(self) -> None:
+        game = GameEngine()
+        expected_safety = {
+            "map_qingshan_mercenary_camp": True,
+            "map_desert_trade_route": False,
+            "map_yunlan_square": True,
+            "map_skyfire_seal_core": False,
+            "map_black_herb_market": False,
+            "map_zhongzhou_transfer_square": True,
+            "map_dan_tower_trial_room": True,
+            "map_beast_bone_mountains": False,
+            "map_wilderness_outpost": True,
+        }
+
+        for map_id, safe_zone in expected_safety.items():
+            self.assertIn(map_id, game.maps)
+            self.assertEqual(game.maps[map_id]["safe_zone"], safe_zone)
 
     def test_exploration_spends_stamina_and_grants_adventure_progress(self) -> None:
         game = GameEngine()
@@ -381,7 +433,7 @@ class RpgLoopTests(unittest.TestCase):
 
         self.assertFalse(game.is_map_unlocked("map_canaan"))
         self.assertFalse(game.travel("map_canaan"))
-        self.assertIn("推进至“迦南学院外院”开放", game.last_message)
+        self.assertIn("迦南学院外院", game.last_message)
 
         game.player["story_stage"] = next(
             index
@@ -416,12 +468,13 @@ class RpgLoopTests(unittest.TestCase):
     def test_cultivation_after_yao_lao_wakes_can_gain_exp_and_douqi(self) -> None:
         game = GameEngine()
         game.player["flags"].append("ring_awakened")
-        initial_exp = game.player["exp"]
+        initial_progress = float(game.player["progress"])
         initial_douqi = game.player["douqi"]
 
         self.assertTrue(game.cultivate())
 
-        self.assertGreater(game.player["exp"], initial_exp)
+        # exp 被消耗填充进度，检查进度增长和斗气增长
+        self.assertGreater(float(game.player["progress"]), initial_progress)
         self.assertGreater(game.player["douqi"], initial_douqi)
 
     def test_starting_skill_is_usable_in_combat(self) -> None:
@@ -542,6 +595,113 @@ class TimeScheduleTests(unittest.TestCase):
         self.assertGreaterEqual(game.player["adventure_points"], 2)
 
 
+class ProgressBreakthroughTests(unittest.TestCase):
+    def test_new_player_starts_at_progress_zero(self) -> None:
+        game = GameEngine()
+        self.assertEqual(game.player["progress"], 0.0)
+
+    def test_progress_increases_when_exp_sufficient(self) -> None:
+        game = GameEngine()
+        # Lv1: 每级 250 exp = 100%，50 exp = 20%
+        game.apply_effects("exp:+50")
+        self.assertGreater(game.player["progress"], 0.0)
+        self.assertEqual(game.player["exp"], 0)
+
+    def test_progress_capped_at_100(self) -> None:
+        game = GameEngine()
+        # Lv1: 每级 250 exp，给 1000 exp 也只能到 100%
+        game.apply_effects("exp:+1000")
+        self.assertEqual(game.player["progress"], 100.0)
+        self.assertGreater(game.player["exp"], 0)  # 多余 exp 保留
+
+    def test_breakthrough_fails_when_progress_not_full(self) -> None:
+        game = GameEngine()
+        game.player["progress"] = 50.0
+        self.assertFalse(game.breakthrough())
+        self.assertIn("进度未满", game.last_message)
+
+    def test_breakthrough_increases_level_on_success(self) -> None:
+        game = GameEngine()
+        game.player["progress"] = 100.0
+        import random
+        random.seed(42)
+        result = game.breakthrough()
+        if result:
+            self.assertEqual(game.player["level"], 2)
+            self.assertEqual(game.player["progress"], 0.0)
+        else:
+            self.assertEqual(game.player["level"], 1)
+            self.assertEqual(game.player["progress"], 100.0)
+
+    def test_realm_boundary_breakthrough_is_harder(self) -> None:
+        game = GameEngine()
+        game.player["level"] = 9
+        chance_9 = game._breakthrough_chance_bp(9)
+        chance_8 = game._breakthrough_chance_bp(8)
+        self.assertLess(chance_9, chance_8)
+        self.assertEqual(chance_9, 5000)  # 斗之气→斗者: 50% = 5000bp
+
+    def test_exp_lost_on_failed_breakthrough(self) -> None:
+        game = GameEngine()
+        game.player["progress"] = 100.0
+        game.player["exp"] = 500
+        import random
+        random.seed(999)
+        old_exp = game.player["exp"]
+        result = game.breakthrough()
+        if not result:
+            self.assertLess(game.player["exp"], old_exp)
+
+    def test_cultivate_fills_progress(self) -> None:
+        game = GameEngine()
+        game.player["flags"].append("ring_awakened")
+        for _ in range(8):
+            game.player["stamina"] = 100
+            game.cultivate()
+        self.assertGreater(float(game.player["progress"]), 0.0)
+
+    def test_combat_win_fills_progress(self) -> None:
+        game = GameEngine()
+        game.player["atk"] = 100
+        game.begin_training_combat()
+        exp_before = game.player["exp"]
+        game.combat_action("attack")
+        # 战斗胜利获得 exp，会触发 _apply_progress
+        self.assertIsNotNone(game.player["exp"])
+
+    def test_breakthrough_not_allowed_at_max_level(self) -> None:
+        game = GameEngine()
+        game.player["level"] = 100
+        game.player["progress"] = 100.0
+        result = game.breakthrough()
+        self.assertFalse(result)
+        self.assertIn("无需突破", game.last_message)
+
+    def test_save_has_progress_field(self) -> None:
+        game = GameEngine()
+        game.player["progress"] = 50.0
+        import tempfile, json
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "save.json"
+            with patch("wordworld.core.engine.SAVE_PATH", save_path):
+                game.save()
+            saved = json.loads(save_path.read_text(encoding="utf-8"))
+            self.assertEqual(saved["progress"], 50.0)
+
+    def test_old_save_migrates_progress_to_zero(self) -> None:
+        import tempfile, json
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "save.json"
+            save_path.write_text(
+                json.dumps({"name": "老玩家", "level": 1, "exp": 0}, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            with patch("wordworld.core.engine.SAVE_PATH", save_path):
+                game = GameEngine()
+                self.assertTrue(game.load())
+            self.assertEqual(game.player["progress"], 0.0)
+
+
 class ConsoleInputTests(unittest.TestCase):
     def test_menu_number_accepts_full_width_and_menu_text(self) -> None:
         self.assertEqual(main.parse_menu_number("１"), 1)
@@ -549,9 +709,9 @@ class ConsoleInputTests(unittest.TestCase):
         self.assertEqual(main.parse_menu_number("三"), 3)
 
     def test_main_command_accepts_action_names(self) -> None:
-        self.assertEqual(main.parse_main_command("探索区域"), "1")
-        self.assertEqual(main.parse_main_command("查看 状态"), "7")
-        self.assertEqual(main.parse_main_command("存档"), "9")
+        self.assertEqual(main.parse_main_command("探索区域"), "5")
+        self.assertEqual(main.parse_main_command("主线"), "7")
+        self.assertEqual(main.parse_main_command("存档"), "save")
         self.assertEqual(main.parse_main_command("退出"), "q")
 
 

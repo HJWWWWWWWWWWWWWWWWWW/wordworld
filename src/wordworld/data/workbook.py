@@ -199,6 +199,7 @@ def _parse_level_progression(rows: List[Dict[str, str]]) -> List[Dict[str, Any]]
                 "min_level": _to_int(start),
                 "max_level": _to_int(end),
                 "exp_formula": row.get("Exp_Formula", ""),
+                "progress_exp": _to_int(row.get("Progress_Exp")),
                 "gains": {
                     "douqi": _to_int(row.get("Douqi_Gain")),
                     "hp": _to_int(row.get("HP_Gain")),
@@ -272,6 +273,11 @@ def _parse_enemies(rows: List[Dict[str, str]]) -> Dict[str, Dict[str, Any]]:
             "exp_reward": _to_int(row.get("Exp_Reward"), 10),
             "win_next": row.get("Win_Next", ""),
             "lose_next": row.get("Lose_Next", ""),
+            "notes": row.get("Notes", ""),
+            "can_kill": "non_lethal" not in str(row.get("Notes", "")),
+            "skills": [
+                skill.strip() for skill in row.get("Skills", "").split(",") if skill.strip()
+            ],
         }
         for row in rows
         if row.get("Enemy_ID")

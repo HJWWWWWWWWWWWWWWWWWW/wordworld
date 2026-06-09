@@ -15,6 +15,15 @@ LEGACY_STAT_ALIASES = {
     "neili": "douqi",
 }
 
+# 不受任何事件影响的满值关系（家人与导师）
+IMMUNE_RELATIONSHIPS = {
+    "rel_player_xiao_zhan",  # 萧战-父亲
+    "rel_player_xiao_ding",  # 萧鼎-二哥
+    "rel_player_xiao_li",    # 萧厉-三哥
+    "rel_player_xun_er",     # 萧薰儿
+    "rel_player_yao_lao",    # 药老-导师
+}
+
 COMPARISON_PATTERN = re.compile(r"^(.+?)(>=|<=|==|!=|>|<)(-?\d+)$")
 RELATION_EFFECT_PATTERN = re.compile(r"^rel:([^:=]+):([+-]\d+)$")
 RELATION_SET_PATTERN = re.compile(r"^rel:([^:=]+)=(-?\d+)$")
@@ -27,6 +36,25 @@ LEVEL_SKILL_MILESTONES = {
     30: "skill_flame",
     40: "skill_healing",
     50: "skill_gold_flame",
+}
+
+# 境界突破的 level 分界点（每个境界的最后一级）
+REALM_BOUNDARY_LEVELS = {9, 19, 29, 39, 49, 59, 69, 79, 89, 94, 99}
+
+# 境界突破成功率表：realm_index → chance%
+REALM_BREAKTHROUGH_CHANCE_BP = {
+    # 境界突破概率（万分之一为单位，1bp = 0.01%）
+    0: 5000,  # 斗之气→斗者: 50%
+    1: 3500,  # 斗者→斗师: 35%
+    2: 2500,  # 斗师→大斗师: 25%
+    3: 1500,  # 大斗师→斗灵: 15%  ← 大幅下降起点
+    4: 800,   # 斗灵→斗王: 8%
+    5: 400,   # 斗王→斗皇: 4%
+    6: 200,   # 斗皇→斗宗: 2%
+    7: 80,    # 斗宗→斗尊: 0.8%
+    8: 30,    # 斗尊→斗圣: 0.3%
+    9: 5,     # 斗圣→斗圣高阶: 0.05%
+    10: 1,    # 斗圣高阶→斗帝: 0.01%
 }
 
 TIME_PERIODS = ["清晨", "午后", "傍晚", "深夜"]
@@ -374,6 +402,63 @@ STORY_CHAPTER_ANCHORS = {
 }
 
 # 地图只随剧情开放。推荐等级仅用于提示危险，不参与解锁判断。
+# ── 区域通行方式（与原文一致）──
+# 加玛帝国 → 黑角域：远程陆行/飞行魔兽，穿越数个小国，耗时数月（无空间虫洞直达）
+# 黑角域 → 中州：必须经天涯城空间虫洞（方圆千里唯一虫洞，罗家世代守护）
+# 中州内部：各大城市间有空间虫洞连接，虫洞驿站维护
+# 中州 → 龙岛/虚空：空间船或斗圣强者撕裂空间
+# 中州 → 远古种族空间（古界/魂界/药界等）：特定空间通道/入口
+# 特殊空间（妖火空间/古帝洞府等）：需特定条件/道具方能开启
+# ── 区域归属（用于通行判断）──
+REGION_MAP_GROUPS = {
+    "加玛帝国": {"map_wutan", "map_jia_ma", "map_jia_ma_capital", "map_jia_ma_road",
+                 "map_jia_ma_border", "map_jia_ma_garrison", "map_jia_ma_mountain_pass",
+                 "map_jia_ma_post_station", "map_jia_ma_battle_front", "map_ghost_pass",
+                 "map_black_rock_city", "map_salt_city", "map_magic_mountains",
+                 "map_qingshan", "map_tager", "map_mo_city", "map_stone_mo_city",
+                 "map_miteer_auction", "map_alchemist_guild", "map_yunlan",
+                 "map_yan_alliance_hq"},
+    "黑角域": {"map_black_corner", "map_canaan", "map_canaan_inner", "map_peace_town",
+              "map_feng_city", "map_black_emperor_city", "map_black_seal_city",
+              "map_demon_flame_valley", "map_skyfire_tower", "map_skyfire_magma_world",
+              "map_emperor_cave"},
+    "中州": {"map_zhongzhou", "map_tianbei_city", "map_ye_city",
+            "map_wind_lightning_pavilion", "map_huangquan_pavilion",
+            "map_wanjian_pavilion", "map_star_pavilion", "map_star_realm",
+            "map_burning_flame_valley", "map_ice_river_valley",
+            "map_dan_region", "map_sacred_dan_city", "map_dan_tower",
+            "map_soul_mountains", "map_soul_hall", "map_soul_realm",
+            "map_ancient_ruins", "map_beast_region", "map_wilderness",
+            "map_bodhi_tree", "map_flower_sect", "map_ancient_realm",
+            "map_heaven_tomb", "map_ancient_sacred_city", "map_space_trade_fair",
+            "map_sky_demon_sect", "map_tianmu_mountains",
+            "map_heaven_mountain_blood_pool", "map_death_corpse_mountains",
+            "map_heavenly_gang_hall", "map_demon_flame_space",
+            "map_demon_flame_plain", "map_yao_realm", "map_hun_clan_space",
+            "map_strange_flame_square"},
+    "虚空/龙岛": {"map_dragon_island", "map_east_dragon_island", "map_west_dragon_island",
+                 "map_south_dragon_island", "map_north_dragon_island",
+                 "map_ancient_dragon_island"},
+    "西北大陆": {"map_chuyun_empire", "map_poison_sect", "map_golden_goose_sect",
+                "map_mulan_valley", "map_scorpion_gate", "map_xuanhuang_fortress",
+                "map_northwest_battle_front"},
+    "最终战场": {"map_double_emperor", "map_world_gate", "map_emperor_memorial_peak"},
+    "中转站": {"map_tianya_city"},  # 天涯城：连接黑角域与中州的虫洞枢纽
+}
+REGION_BY_MAP = {}
+for _region, _map_ids in REGION_MAP_GROUPS.items():
+    for _mid in _map_ids:
+        REGION_BY_MAP[_mid] = _region
+
+# 跨区通行需要经过的中转站
+TRANSIT_HUBS = {
+    ("黑角域", "中州"): "map_tianya_city",  # 原文：天涯城是方圆千里唯一通往中州的虫洞
+    ("中州", "黑角域"): "map_tianya_city",  # 反向亦然
+}
+TRANSIT_HUB_NAMES = {
+    "map_tianya_city": "天涯城（空间虫洞）",
+}
+
 MAP_STORY_UNLOCKS = {
     "map_wutan": "fallen_genius",
     "map_jia_ma": "fallen_genius",
@@ -427,7 +512,216 @@ MAP_STORY_UNLOCKS = {
     "map_hun_clan_space": "ancient_clan_war",
     "map_emperor_cave": "ancient_emperor",
     "map_double_emperor": "final_war",
+    # wutan_growth: 加玛帝国城市扩展
+    "map_black_rock_city": "wutan_growth",
+    "map_salt_city": "wutan_growth",
+    "map_ghost_pass": "wutan_growth",
+    # desert_flame: 沙漠剧情关键节点
+    "map_mo_city": "desert_flame",
+    "map_stone_mo_city": "desert_flame",
+    # canaan_outer: 黑角域扩展（黑印城拍卖、天涯城虫洞枢纽）
+    "map_black_seal_city": "canaan_outer",
+    "map_tianya_city": "canaan_outer",
+    # return_black_corner: 黑角域清算战
+    "map_demon_flame_valley": "return_black_corner",
+    # poison_sect_war: 出云帝国万蝎门
+    "map_scorpion_gate": "poison_sect_war",
+    # zhongzhou_arrival: 中州宗门
+    "map_sky_demon_sect": "zhongzhou_arrival",
+    # save_mentor: 天目山脉与葬尸山脉
+    "map_tianmu_mountains": "save_mentor",
+    "map_heaven_mountain_blood_pool": "save_mentor",
+    "map_death_corpse_mountains": "save_mentor",
+    # soul_hall_war: 魂殿总部天罡殿
+    "map_heavenly_gang_hall": "soul_hall_war",
+    # demon_flame: 妖火平原
+    "map_demon_flame_plain": "demon_flame",
+    # ancient_emperor: 古帝异火广场
+    "map_strange_flame_square": "ancient_emperor",
+    # wutan_growth: 边境城市
+    "map_daling_city": "wutan_growth",
+    # canaan_outer: 黑角域入口与势力
+    "map_black_domain_plain": "canaan_outer",
+    "map_blood_sect": "canaan_outer",
+    "map_eight_gates": "canaan_outer",
+    # canaan_inner: 内院组织
+    "map_pan_gate": "canaan_inner",
+    # return_black_corner: 萧门与黑皇阁
+    "map_xiao_gate": "return_black_corner",
+    "map_black_emperor_pavilion": "return_black_corner",
+    # zhongzhou_arrival: 中州扩展
+    "map_scorching_mountains": "zhongzhou_arrival",
+    "map_qi_feng_mountain": "zhongzhou_arrival",
+    "map_tianhuang_city": "zhongzhou_arrival",
+    "map_black_fire_sect": "zhongzhou_arrival",
+    # dan_meeting_flame: 丹域扩展
+    "map_wan_yao_mountains": "dan_meeting_flame",
+    "map_small_dan_tower": "dan_meeting_flame",
+    # bodhi_tree: 莽荒古域扩展
+    "map_manghuang_town": "bodhi_tree",
+    "map_heaven_demon_blood_pool": "bodhi_tree",
+    "map_ancient_domain_platform": "bodhi_tree",
+    # final_war: 葬天山脉
+    "map_burial_sky_mountains": "final_war",
+    # yunlan_war: 重返加玛与云岚宗大战
+    "map_cloud_mountain_peak": "yunlan_war",
+    "map_yan_alliance_hq": "yunlan_war",
+    "map_jia_ma_battle_front": "yunlan_war",
+    # poison_sect_war: 出云帝国与毒宗之战
+    "map_chuyun_empire": "poison_sect_war",
+    "map_poison_sect": "poison_sect_war",
+    "map_golden_goose_sect": "poison_sect_war",
+    "map_mulan_valley": "poison_sect_war",
+    # revisit_tower: 再探天焚炼气塔
+    "map_skyfire_magma_world": "revisit_tower",
+    # northwest_fortress_war: 玄黄要塞与西北大陆大战
+    "map_xuanhuang_fortress": "northwest_fortress_war",
+    "map_northwest_battle_front": "northwest_fortress_war",
+    # tianfu_alliance: 建立天府联盟
+    "map_tianfu_council_hall": "tianfu_alliance",
+    "map_alliance_war_room": "tianfu_alliance",
+    # nether_spring: 九幽黄泉与妖暝
+    "map_nether_spring": "nether_spring",
+    "map_nether_python_tribe": "nether_spring",
+    "map_nether_underground_palace": "nether_spring",
+    # post_demon_wars: 魂殿殿主与北龙王终战
+    "map_soul_emperor_throne": "post_demon_wars",
+    # five_emperors: 五帝破空
+    "map_world_gate": "five_emperors",
+    "map_emperor_memorial_peak": "five_emperors",
 }
+
+# 功能子区域沿用所属主区域的剧情开放阶段，避免等级提前解锁后续地图。
+for _phase_id, _map_ids in {
+    "fallen_genius": """
+        map_xiao_mansion map_xiao_training_ground map_wutan_commercial_street
+        map_wutan_back_mountain map_wutan_inn map_wutan_teahouse map_wutan_gate
+        map_jia_ma_road
+    """,
+    "wutan_growth": """
+        map_xiao_market map_wutan_pharmacy map_wutan_smithy map_miteer_appraisal
+        map_xiao_council_hall map_wutan_east_market map_wutan_warehouse_district
+        map_jia_ma_post_station
+        map_black_rock_market map_black_rock_black_market map_salt_market
+        map_ghost_pass_market map_ghost_pass_barracks
+        map_black_rock_inn map_salt_inn map_daling_market map_daling_inn
+    """,
+    "mountain_training": """
+        map_jia_ma_border map_jia_ma_garrison map_jia_ma_mountain_pass
+        map_magic_inner map_magic_herb_valley map_wolfhead_camp
+        map_magic_hidden_cave map_qingshan_mercenary_camp
+        map_qingshan_medical_hall map_qingshan_market
+    """,
+    "desert_flame": """
+        map_desert_trade_route map_snake_oasis map_desert_camp
+        map_snake_temple_outer map_desert_salt_lake map_desert_ancient_well
+        map_mo_market map_mo_inn map_mo_trade_post
+        map_stone_mo_market map_stone_mo_mercenary map_stone_mo_inn
+    """,
+    "alchemy_conference": """
+        map_capital_commercial map_imperial_palace map_capital_alchemist_market
+        map_capital_nalan_mansion map_capital_miteer_hq map_capital_arena
+    """,
+    "yunlan_duel": """
+        map_yunlan_gate map_yunlan_stairs map_yunlan_square
+        map_yunlan_back_cliff map_yunlan_elder_hall
+    """,
+    "canaan_outer": """
+        map_canaan_outer_square map_canaan_library map_canaan_dormitory
+        map_canaan_mission_hall map_canaan_duel_arena map_black_blood_plain
+        map_black_herb_market map_black_inn
+        map_tianya_wormhole_square map_tianya_market map_tianya_inn
+        map_black_seal_auction map_black_seal_market map_black_seal_inn
+        map_black_emperor_market
+        map_peace_town_inn map_peace_town_market map_canaan_trade_street
+    """,
+    "canaan_inner": "map_inner_arena map_inner_trade_district map_inner_market",
+    "fallen_heart": "map_skyfire_lower map_skyfire_seal_core",
+    "return_black_corner": """
+        map_black_auction_lane map_black_emperor_square
+        map_demon_valley_hall map_demon_valley_archive
+    """,
+    "zhongzhou_arrival": """
+        map_zhongzhou_transfer_square map_zhongzhou_inn_district
+        map_zhongzhou_north_market map_tianbei_han_clan map_tianbei_hong_clan
+        map_zhongzhou_wormhole_station
+        map_sky_demon_gate map_sky_demon_hall
+        map_tianbei_market map_tianbei_inn
+        map_burning_valley_market map_star_pavilion_market
+    """,
+    "ye_ice_valley": "map_ye_mansion map_ye_city_gate map_ye_alchemy_room map_ye_market",
+    "dan_meeting_flame": """
+        map_dan_herb_street map_sacred_dan_market map_dan_tower_outer_square
+        map_dan_tower_trial_room map_dan_beast_enclosure map_star_domain
+        map_tianhuang_market map_tianhuang_inn
+    """,
+    "save_mentor": """
+        map_star_pavilion_back_mountain map_star_pavilion_mission_hall
+        map_soul_hall_prison map_soul_hall_person_hall map_soul_hall_soul_well
+    """,
+    "ancient_ruins": """
+        map_ancient_ruins_gate map_beast_bone_mountains map_beast_market
+        map_ancient_ruins_core map_beast_region_trade_hub
+    """,
+    "bodhi_tree": "map_wilderness_outpost map_wilderness_poison_swamp map_manghuang_inn",
+    "dragon_island_legacy": "map_dragon_island_harbor",
+    "gu_clan_tomb": """
+        map_ancient_city_market map_heaven_tomb_camp
+    """,
+    "black_corner_war": """
+        map_feng_merchant_hall map_feng_alchemy_room map_feng_defense_wall
+        map_feng_market
+    """,
+    "revive_mentor": """
+        map_star_realm_core map_star_realm_training_ground map_star_pavilion_council
+    """,
+    "flower_sect": """
+        map_flower_sect_gate map_flower_sect_garden map_flower_sect_heritage_hall
+        map_flower_sect_market
+    """,
+    "dragon_island_war": """
+        map_west_dragon_palace map_south_dragon_battlefield map_north_dragon_throne
+    """,
+    "demon_flame": """
+        map_demon_flame_illusion_realm map_demon_flame_core
+        map_demon_flame_saint_remains
+    """,
+    "medicine_ceremony": """
+        map_yao_realm_ceremony_square map_yao_realm_herb_garden
+        map_yao_realm_survivor_camp
+    """,
+    "ancient_clan_war": """
+        map_soul_realm_battlefield map_hun_clan_ritual_site map_ancient_alliance_camp
+    """,
+    "ancient_emperor": """
+        map_emperor_cave_gate map_emperor_cave_inner map_emperor_cave_treasure_room
+    """,
+    "final_war": """
+        map_double_emperor_peak map_allied_forces_camp
+    """,
+    "poison_sect_war": """
+        map_chuyun_border map_poison_sect_hall map_poison_sect_herb_cave
+        map_scorpion_hall map_scorpion_cave
+    """,
+    "northwest_fortress_war": """
+        map_xuanhuang_war_hall map_xuanhuang_defense_wall
+    """,
+    "nether_spring": """
+        map_nether_spring_pool map_nether_python_throne
+    """,
+    "tianfu_alliance": """
+        map_star_pavilion_alliance_hub
+    """,
+    "soul_hall_war": """
+        map_heavenly_gang_prison map_heavenly_gang_origin
+    """,
+    "five_emperors": """
+        map_emperor_ascension_platform
+    """,
+}.items():
+    MAP_STORY_UNLOCKS.update(
+        {map_id: _phase_id for map_id in _map_ids.split()}
+    )
 
 SCHEDULE_NODES = [
     {
@@ -540,6 +834,7 @@ class GameEngine:
                 "completed_schedule_nodes": [],
                 "pending_schedule_node": "",
                 "training_wins": 0,
+                "progress": 0.0,
             }
         )
         self._ensure_player_state(player)
@@ -628,12 +923,13 @@ class GameEngine:
         player.setdefault("completed_schedule_nodes", [])
         player.setdefault("pending_schedule_node", "")
         player.setdefault("training_wins", 0)
+        player.setdefault("progress", 0.0)
         self._check_schedule_nodes(player)
         if player.get("current_event") not in self.events:
             player["current_event"] = self.start_event
         self._ensure_relationship_state(player)
         self._clamp_player_stats(player)
-        self._apply_level_progression(player)
+        self._apply_progress(player)
 
     def _ensure_relationship_state(self, player: Optional[Dict[str, Any]] = None) -> None:
         player = player if player is not None else self.player
@@ -688,6 +984,10 @@ class GameEngine:
     ) -> List[str]:
         rule = self.relation_rule(reference)
         relation_id = rule["id"]
+        # 免疫关系：不受任何事件影响，始终保持满值
+        if relation_id in IMMUNE_RELATIONSHIPS:
+            target_name = self.npc_names.get(rule["target"], rule["target"])
+            return [f"与{target_name}的关系坚不可摧，不受此事件影响。"]
         old_value = self.relation_value(reference)
         new_value = max(
             int(rule.get("min_value", -100)),
@@ -703,6 +1003,10 @@ class GameEngine:
     def change_relation_value(
         self, reference: str, delta: int, evaluate_triggers: bool = True
     ) -> List[str]:
+        rule = self.relation_rule(reference)
+        if rule["id"] in IMMUNE_RELATIONSHIPS:
+            target_name = self.npc_names.get(rule["target"], rule["target"])
+            return [f"与{target_name}的关系坚不可摧，不受此事件影响。"]
         return self.set_relation_value(
             reference,
             self.relation_value(reference) + delta,
@@ -884,7 +1188,7 @@ class GameEngine:
                     self._apply_effect_token(token, evaluate_relationship_triggers)
                 )
             self._clamp_player_stats()
-            logs.extend(self._apply_level_progression())
+            logs.extend(self._apply_progress())
             return logs
 
         logs: List[str] = []
@@ -894,7 +1198,7 @@ class GameEngine:
                 self.player[canonical_key] = self.player.get(canonical_key, 0) + value
                 logs.append(f"{self.attribute_rules[canonical_key]['name']} {value:+d}")
         self._clamp_player_stats()
-        logs.extend(self._apply_level_progression())
+        logs.extend(self._apply_progress())
         return logs
 
     def _clamp_player_stats(self, player: Optional[Dict[str, Any]] = None) -> None:
@@ -903,42 +1207,139 @@ class GameEngine:
             value = int(player.get(attribute_id, rule["initial"]))
             player[attribute_id] = max(rule["min"], min(rule["max"], value))
 
-    def _progression_rule(self, level: int) -> Optional[Dict[str, Any]]:
+    def _progress_rule(self, level: int) -> Optional[Dict[str, Any]]:
         for rule in self.level_progression:
             if rule["min_level"] <= level <= rule["max_level"]:
                 return rule
         return None
 
-    @staticmethod
-    def _required_exp(level: int, formula: str) -> Optional[int]:
-        match = EXP_FORMULA_PATTERN.match(formula)
-        return level * int(match.group(1)) if match else None
+    def _exp_for_progress(self, level: int) -> int:
+        rule = self._progress_rule(level)
+        return rule["progress_exp"] if rule else 999999
 
-    def _apply_level_progression(
-        self, player: Optional[Dict[str, Any]] = None
-    ) -> List[str]:
+    def _is_realm_boundary(self, level: int) -> bool:
+        return level in REALM_BOUNDARY_LEVELS
+
+    @staticmethod
+    def _realm_index(level: int) -> int:
+        boundaries = sorted(REALM_BOUNDARY_LEVELS)
+        for i, boundary in enumerate(boundaries):
+            if level <= boundary:
+                return i
+        return len(boundaries)
+
+    def _breakthrough_chance_bp(self, level: int) -> int:
+        """返回突破成功率，单位为万分之一（bp）。10000 = 100%，1 = 0.01%"""
+        if self._is_realm_boundary(level):
+            realm_index = self._realm_index(level)
+            return REALM_BREAKTHROUGH_CHANCE_BP.get(realm_index, 1)
+        else:
+            # 段内突破：80% → 逐渐衰减，最低 0.5%（50bp）
+            return max(50, int((80 - level * 0.78) * 100))
+
+    def _apply_level_gains(self, level: int, player: Optional[Dict[str, Any]] = None) -> List[str]:
+        """应用升级时的属性增益。"""
         player = player if player is not None else self.player
         logs: List[str] = []
-        while True:
-            level = int(player.get("level", 1))
-            rule = self._progression_rule(level)
-            if rule is None:
-                break
-            required_exp = self._required_exp(level, rule["exp_formula"])
-            if required_exp is None or int(player.get("exp", 0)) < required_exp:
-                break
+        rule = self._progress_rule(level)
+        if rule is None:
+            return logs
+        for attribute_id, gain in rule["gains"].items():
+            player[attribute_id] = player.get(attribute_id, 0) + gain
+            if attribute_id == "hp":
+                player["max_hp"] = player.get("max_hp", player["hp"]) + gain
+        self._clamp_player_stats(player)
+        skill_id = LEVEL_SKILL_MILESTONES.get(level)
+        if skill_id and skill_id not in player["known_skills"]:
+            player["known_skills"].append(skill_id)
+            logs.append(f"领悟斗技：{self.skills[skill_id]['name']}")
+        return logs
 
-            player["level"] = level + 1
-            for attribute_id, gain in rule["gains"].items():
-                player[attribute_id] = player.get(attribute_id, 0) + gain
-                if attribute_id == "hp":
-                    player["max_hp"] = player.get("max_hp", player["hp"]) + gain
-            self._clamp_player_stats(player)
-            logs.append(f"境界等级提升至 {level + 1}")
-            skill_id = LEVEL_SKILL_MILESTONES.get(level + 1)
-            if skill_id and skill_id not in player["known_skills"]:
-                player["known_skills"].append(skill_id)
-                logs.append(f"领悟斗技：{self.skills[skill_id]['name']}")
+    def breakthrough(self) -> bool:
+        """尝试突破到下一等级。返回是否成功。"""
+        if float(self.player.get("progress", 0)) < 100.0:
+            self.last_message = "修炼进度未满，还无法尝试突破。"
+            return False
+
+        level = int(self.player["level"])
+        if level >= 100:
+            self.last_message = "你已是斗帝之境，无需突破。"
+            return False
+
+        if not self._can_take_free_action():
+            return False
+
+        chance_bp = self._breakthrough_chance_bp(level)
+        success = random.randint(1, 10000) <= chance_bp
+
+        boundary_text = "境界" if self._is_realm_boundary(level) else "段内"
+        exp_lost = self._exp_for_progress(level) // 2
+
+        # 格式化概率显示
+        if chance_bp >= 100:
+            chance_text = f"{chance_bp / 100:.0f}%"
+        elif chance_bp >= 10:
+            chance_text = f"{chance_bp / 100:.1f}%"
+        else:
+            chance_text = f"{chance_bp / 100:.2f}%"
+
+        if success:
+            self.player["level"] = level + 1
+            self.player["progress"] = 0.0
+            realm = self.realm_name()
+            logs = self._apply_level_gains(level + 1)
+            self.last_message = (
+                f"{boundary_text}突破成功！你晋升至 {realm} Lv.{level + 1}。"
+                f"（成功率 {chance_text}）"
+            )
+            if logs:
+                self.last_message += "；" + "；".join(logs)
+        else:
+            self.player["exp"] = max(0, self.player["exp"] - exp_lost)
+            self.last_message = (
+                f"{boundary_text}突破失败！（成功率 {chance_text}）\n"
+                f"你损失了 {exp_lost} 点经验，进度仍为 100.00%，可再次尝试。"
+            )
+
+        self.advance_time()
+        return success
+
+    def _apply_progress(
+        self, player: Optional[Dict[str, Any]] = None
+    ) -> List[str]:
+        """按百分比消耗 exp 填充修炼进度。"""
+        player = player if player is not None else self.player
+        logs: List[str] = []
+        level = int(player.get("level", 1))
+        total_exp_needed = self._exp_for_progress(level) * 10
+        if total_exp_needed <= 0:
+            return logs
+
+        progress = float(player.get("progress", 0.0))
+        if progress >= 100.0:
+            return logs  # 已满，需要突破
+
+        exp = int(player.get("exp", 0))
+        if exp <= 0:
+            return logs
+
+        # 计算填满到 100% 还差多少 exp
+        exp_to_full = max(1, int((100.0 - progress) / 100.0 * total_exp_needed))
+        consume = min(exp, exp_to_full)
+        progress_gained = consume / total_exp_needed * 100.0
+        new_progress = min(100.0, progress + progress_gained)
+
+        player["exp"] = exp - consume
+        old_pct = int(progress)
+        player["progress"] = round(new_progress, 2)
+        new_pct = int(player["progress"])
+
+        if player["progress"] >= 100.0:
+            player["progress"] = 100.0
+            logs.append("修炼进度已满（100.00%）！可以尝试突破。")
+        elif new_pct > old_pct:
+            logs.append(f"修炼进度 {player['progress']:.2f}%")
+
         return logs
 
     def eligible_random_events(self) -> List[Dict[str, Any]]:
@@ -1128,20 +1529,56 @@ class GameEngine:
         if self.player["time_period"] == 3 and not map_rule["safe_zone"]:
             self.last_message = "深夜无法安全前往危险区域，请等到天亮。"
             return False
+
+        # 跨区通行检查（与原文通行方式一致）
+        current_region = REGION_BY_MAP.get(self.player["last_map"], "未知")
+        target_region = REGION_BY_MAP.get(map_id, "未知")
+        transit_map_id = TRANSIT_HUBS.get((current_region, target_region))
+        if transit_map_id:
+            transit_name = TRANSIT_HUB_NAMES.get(transit_map_id, transit_map_id)
+            visited = self.player.setdefault("visited", {})
+            if not visited.get(transit_map_id):
+                hub_rule = self.maps.get(transit_map_id, {})
+                self.last_message = (
+                    f"从{current_region}前往{target_region}需要经由{transit_name}中转。\n"
+                    f"请先抵达{hub_rule.get('name', transit_map_id)}，再尝试前往{target_region}。"
+                )
+                return False
+
+        # 根据区域间距计算通行耗时
+        if current_region != target_region and current_region != "中转站":
+            # 跨区通行耗时更久
+            periods = 2
+        else:
+            periods = 1
+
         self.player["last_map"] = map_id
         self.active_encounter = None
-        self.advance_time()
-        self.last_message = f"你抵达了{map_rule['name']}。{map_rule['description']}"
+        self.advance_time(periods)
+
+        # 通行描述与原文一致
+        if transit_map_id:
+            self.last_message = (
+                f"你通过{TRANSIT_HUB_NAMES.get(transit_map_id, '中转站')}"
+                f"抵达了{map_rule['name']}。{map_rule['description']}"
+            )
+        else:
+            self.last_message = f"你抵达了{map_rule['name']}。{map_rule['description']}"
         return True
 
-    def rest(self) -> None:
+    def rest(self) -> bool:
         if not self._can_take_free_action():
-            return
+            return False
+        map_rule = self.current_map()
+        if not map_rule["safe_zone"]:
+            self.last_message = "此处危机四伏，不宜休息。请前往城镇、客栈或据点等安全区域。"
+            return False
         self.player["hp"] = self.player["max_hp"]
         self.player["stamina"] = self.attribute_rules["stamina"]["initial"]
         periods = len(TIME_PERIODS) - int(self.player["time_period"])
         self.advance_time(periods)
         self.last_message = f"你休整到{self.time_text()}，生命与体力已经恢复。"
+        return True
 
     def cultivate(self) -> bool:
         if not self._can_take_free_action():
@@ -1655,7 +2092,8 @@ class GameEngine:
             else ""
         )
         return (
-            f"{self.player['name']}｜{self.realm_name()}｜{attribute_text}\n"
+            f"{self.player['name']}｜{self.realm_name()} Lv.{self.player['level']}｜"
+            f"进度 {self.player['progress']:.2f}%｜{attribute_text}\n"
             f"{self.time_text()}｜所在区域：{self.current_map()['name']}｜"
             f"冒险阅历 {self.player['adventure_points']}"
             f"｜关键阶段 {self.player['story_stage']}/{len(STORY_PHASES)}"
