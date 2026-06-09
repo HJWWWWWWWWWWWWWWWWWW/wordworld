@@ -1,0 +1,31 @@
+# RPG 剧情设定模板
+
+## 1. 世界观摘要
+
+## 2. 核心矛盾
+
+## 3. 玩家身份
+
+## 4. 阵营/门派
+| Faction_ID | Name | 目标 | 冲突 | 玩法作用 |
+|---|---|---|---|---|
+
+## 5. 人物表
+| Character_ID | Name | Role | Faction_ID | Goal | Secret | Quest_Role |
+|---|---|---|---|---|---|---|
+
+## 6. 关系表
+| Relation_ID | Source | Target | Type | 初始关系 | 变化触发 | 玩法效果 |
+|---|---|---|---|---|---|---|
+
+## 7. 主线任务链
+| Quest_ID | Chapter | Start_Condition | Steps | Reward | Flags |
+|---|---|---|---|---|---|
+
+## 8. 支线任务
+
+## 9. 对白节点样例
+
+## 10. 剧情 flag 清单
+| Flag_ID | Scope | Type | Default | Set_By | Meaning |
+|---|---|---|---|---|---|

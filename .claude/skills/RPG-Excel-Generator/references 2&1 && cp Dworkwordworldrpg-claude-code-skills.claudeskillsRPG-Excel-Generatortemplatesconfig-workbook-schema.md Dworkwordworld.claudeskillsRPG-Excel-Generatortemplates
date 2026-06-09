@@ -1,0 +1,44 @@
+# RPG 配置 DSL 参考
+
+## 条件 Condition
+
+```text
+level>=5
+quest:quest_ch01_intro=completed
+flag:story_ch01_met_master=true
+item:item_wolf_fang>=3
+faction:fac_qingyun_rep>=100
+```
+
+组合：
+
+```text
+level>=5 && flag:map_blackwood_unlocked=true
+quest:quest_a=completed || quest:quest_b=completed
+```
+
+## 奖励 Reward_List
+
+```text
+xp:100|silver:50|item:item_heal_pill:2|equipment:equip_iron_sword:1|reputation:fac_qingyun:20
+```
+
+## 效果 Effect_List
+
+```text
+damage:physical:1.2|status:status_bleed:3:60|heal:hp:0.3
+```
+
+## 属性修正 Stat_Modifier_List
+
+```text
+ATK:+10|DEF:-5|SPD:*1.1|CRIT_RATE:+5
+```
+
+## 掉落 Drop 简写
+
+```text
+silver:10:80|item:iron_sword:1:10|equipment:equip_bronze_blade:1:5
+```
+
+推荐长期拆成 `Loot_Tables` + `Loot_Entries`，简写只适合原型阶段。
