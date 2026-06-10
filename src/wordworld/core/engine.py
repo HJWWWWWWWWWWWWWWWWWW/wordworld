@@ -59,7 +59,93 @@ REALM_BREAKTHROUGH_CHANCE_BP = {
 
 TIME_PERIODS = ["清晨", "午后", "傍晚", "深夜"]
 
+EXPLORATION_ACTIONS = {
+    "roam": {
+        "name": "随性游历",
+        "description": "均衡探索当前区域，遭遇类型不受偏向影响。",
+        "cost_modifier": 0,
+    },
+    "scout": {
+        "name": "侦察地形",
+        "description": "少消耗 1 点体力，优先发现尚未处理过的遭遇，并锤炼灵魂感知。",
+        "cost_modifier": -1,
+    },
+    "gather": {
+        "name": "采集资源",
+        "description": "多消耗 1 点体力，优先寻找非战斗机会，并收集可交易素材。",
+        "cost_modifier": 1,
+    },
+    "hunt": {
+        "name": "追猎强敌",
+        "description": "多消耗 2 点体力，优先触发战斗遭遇。",
+        "cost_modifier": 2,
+    },
+    "investigate": {
+        "name": "调查线索",
+        "description": "多消耗 1 点体力，优先调查较少处理的事件，并积累额外阅历。",
+        "cost_modifier": 1,
+    },
+}
+
 # 自动战斗中的终结类斗技只会在敌方生命不高于该比例时使用。
+# ── 属性克制系统 ───────────────────────────────────────────
+# 五大斗气属性，克制链：火→风→毒→冰→雷→火
+ELEMENT_TYPES = ["火", "冰", "雷", "风", "毒"]
+ELEMENT_WEAKNESS = {"火": "风", "风": "毒", "毒": "冰", "冰": "雷", "雷": "火"}
+ELEMENT_ADVANTAGE = {v: k for k, v in ELEMENT_WEAKNESS.items()}
+
+# ── 技能元素自动分配 ───────────────────────────────────────
+_ELEMENT_KW = {
+    "火": ["火","炎","焚","焰","烧","熔","烬","灼","阳","热","赤","烈","flame","fire","burn","inferno","magma","meteor"],
+    "冰": ["冰","寒","冻","霜","雪","凝","冷","晶","ice","frost","frozen","blizzard","chill"],
+    "雷": ["雷","电","霆","闪","霹","雳","轰","thunder","lightning","bolt","arc"],
+    "风": ["风","云","飘","岚","飓","卷","翔","wind","gale","tempest","cyclone","gust"],
+    "毒": ["毒","蛇","蝎","蛊","腐","瘴","瘟","紫","poison","venom","toxic","corrosive"],
+}
+_HAND_ASSIGNED = {
+    "skill_bajibang": "火", "skill_flame_mantra": "火",
+    "skill_alchemy": "毒", "skill_wind_thunder": "雷",
+    "skill_flame": "火", "skill_healing": "冰", "skill_gold_flame": "火",
+}
+
+def _build_skill_elements(skills: Dict[str, Any]) -> Dict[str, str]:
+    result = dict(_HAND_ASSIGNED)
+    for sid, s in skills.items():
+        if sid not in result:
+            combined = s.get("name","") + s.get("description","")
+            for elem, kws in _ELEMENT_KW.items():
+                if any(kw in combined for kw in kws):
+                    result[sid] = elem
+                    break
+    return result
+
+SKILL_ELEMENTS: Dict[str, str] = {}
+
+ENEMY_ELEMENTS: Dict[str, Dict[str, str]] = {}
+
+# ── 物品定价（按类型） ─────────────────────────────────────
+ITEM_PRICE_TABLE: Dict[str, Tuple[int, int]] = {
+    "consumable": (10, 30),     # 消耗品：(买价, 卖价) 基础
+    "equipment": (50, 25),
+    "book": (40, 20),
+    "quest": (100, 50),
+    "heavenly_flame": (500, 250),
+    "material": (15, 7),
+    "currency": (1, 1),
+    "key": (30, 15),
+}
+ITEM_PRICE_DEFAULT = (20, 10)
+
+def item_price(item_type: str) -> Tuple[int, int]:
+    """返回物品的 (买入价, 卖出价)。"""
+    return ITEM_PRICE_TABLE.get(item_type, ITEM_PRICE_DEFAULT)
+
+# ── 连击 & 蓄力 ───────────────────────────────────────────
+COMBO_MAX = 10
+COMBO_DAMAGE_PER_STACK = 0.12
+CHARGE_DAMAGE_MULTIPLIER = 2.0
+CHARGE_DOUQI_PER_TURN = 5
+
 FINISHER_SKILLS = {
     "skill_buddha_lotus": 0.30,
     "skill_great_silence_finger": 0.30,
@@ -767,6 +853,7 @@ class GameEngine:
         self.attribute_rules: Dict[str, Dict[str, Any]] = data["attributes"]
         self.flag_defaults: Dict[str, int] = data["flag_defaults"]
         self.npc_names: Dict[str, str] = data["npc_names"]
+        self.npc_profiles: Dict[str, Dict[str, str]] = data["npc_profiles"]
         relationship_list: List[Dict[str, Any]] = data["relationships"]
         self.relationship_rules: Dict[str, Dict[str, Any]] = {
             rule["id"]: rule for rule in relationship_list
@@ -778,14 +865,19 @@ class GameEngine:
         self.enemies: Dict[str, Dict[str, Any]] = data["enemies"]
         self.item_rules: Dict[str, Dict[str, Any]] = data["items"]
         self.skills: Dict[str, Dict[str, Any]] = data["skills"]
+        SKILL_ELEMENTS.update(_build_skill_elements(self.skills))
         self.realms: List[Dict[str, Any]] = data["realms"]
         self.active_encounter: Optional[Dict[str, Any]] = None
+        self.active_exploration: Optional[Dict[str, Any]] = None
         self.combat: Optional[Dict[str, Any]] = None
         self.player: Dict[str, Any] = self._create_new_player()
         self.last_message: str = ""
 
     def new_game(self, name: Optional[str] = None) -> None:
         self.player = self._create_new_player()
+        self.active_encounter = None
+        self.active_exploration = None
+        self.combat = None
         if name:
             self.player["name"] = name
         self.last_message = "斗气大陆的故事由此开始。"
@@ -801,6 +893,9 @@ class GameEngine:
             return False
         self.player = load_json(SAVE_PATH)
         self._ensure_player_state()
+        self.active_encounter = None
+        self.active_exploration = None
+        self.combat = None
         self.last_message = "存档已读取，并已迁移到最新剧情数据。"
         return True
 
@@ -819,6 +914,7 @@ class GameEngine:
                 ],
                 "items": [],
                 "visited": {},
+                "exploration_counts": {},
                 "relationships": {},
                 "relationship_triggers": [],
                 "active_statuses": [],
@@ -880,6 +976,7 @@ class GameEngine:
             "max_hp", max(self.attribute_rules["hp"]["initial"], player["hp"])
         )
         player.setdefault("visited", {})
+        player.setdefault("exploration_counts", {})
         player.setdefault("relationships", {})
         player.setdefault("relationship_triggers", [])
         player.setdefault("active_statuses", [])
@@ -1554,6 +1651,7 @@ class GameEngine:
 
         self.player["last_map"] = map_id
         self.active_encounter = None
+        self.active_exploration = None
         self.advance_time(periods)
 
         # 通行描述与原文一致
@@ -1601,16 +1699,82 @@ class GameEngine:
             self.last_message += "；" + "；".join(logs)
         return True
 
-    def explore(self) -> Optional[Dict[str, Any]]:
+    def exploration_actions(self) -> List[Dict[str, Any]]:
+        map_rule = self.current_map()
+        night_cost = 2 if self.is_night() else 0
+        return [
+            {
+                "id": action_id,
+                **rule,
+                "cost": max(
+                    1,
+                    int(map_rule["stamina_cost"])
+                    + night_cost
+                    + int(rule["cost_modifier"]),
+                ),
+            }
+            for action_id, rule in EXPLORATION_ACTIONS.items()
+        ]
+
+    @staticmethod
+    def _encounter_has_combat(encounter: Dict[str, Any]) -> bool:
+        return any(
+            str(option.get("next", "")).startswith("combat:")
+            for option in encounter.get("options", [])
+        )
+
+    def _exploration_weight(self, encounter: Dict[str, Any], action_id: str) -> int:
+        weight = max(1, int(encounter["weight"]))
+        visited = int(self.player.get("visited", {}).get(encounter["id"], 0))
+        has_combat = self._encounter_has_combat(encounter)
+        if action_id == "scout":
+            return weight * max(1, 4 - min(visited, 3))
+        if action_id == "gather":
+            return weight * (4 if not has_combat else 1)
+        if action_id == "hunt":
+            return weight * (5 if has_combat else 1)
+        if action_id == "investigate":
+            return weight * max(1, 5 - min(visited, 4))
+        return weight
+
+    def explore(self, action_id: str = "roam") -> Optional[Dict[str, Any]]:
         if not self._can_take_free_action():
+            return None
+        action = EXPLORATION_ACTIONS.get(action_id)
+        if action is None:
+            self.last_message = "没有这种探索方式。"
             return None
         map_rule = self.current_map()
         night_cost = 2 if self.is_night() else 0
-        cost = map_rule["stamina_cost"] + night_cost
+        cost = max(
+            1,
+            int(map_rule["stamina_cost"]) + night_cost + int(action["cost_modifier"]),
+        )
         if self.player["stamina"] < cost:
-            self.last_message = "体力不足，无法继续探索。"
+            self.last_message = (
+                f"体力不足，无法进行“{action['name']}”。"
+                f"需要 {cost} 点体力，当前只有 {self.player['stamina']} 点。"
+            )
             return None
         self.player["stamina"] -= cost
+        action_logs = [f"体力 -{cost}"]
+        if action_id == "scout":
+            action_logs.extend(self.apply_effects("soul:+1"))
+        elif action_id == "gather":
+            silver_gain = random.randint(2, 6)
+            action_logs.extend(self.apply_effects(f"silver:+{silver_gain},alchemy:+1"))
+        elif action_id == "investigate":
+            self.player["adventure_points"] += 1
+            action_logs.append("冒险阅历 +1")
+
+        counts = self.player.setdefault("exploration_counts", {})
+        counts[action_id] = int(counts.get(action_id, 0)) + 1
+        self.active_exploration = {
+            "action_id": action_id,
+            "action_name": action["name"],
+            "cost": cost,
+            "logs": action_logs,
+        }
         candidates = [
             encounter
             for encounter in self.encounters
@@ -1620,14 +1784,25 @@ class GameEngine:
         if not candidates:
             self.player["adventure_points"] += 1
             self.advance_time()
-            self.last_message = f"你探索了{map_rule['name']}，但没有特别发现。"
+            action_logs.append("冒险阅历 +1")
+            self.last_message = (
+                f"你在{map_rule['name']}进行了“{action['name']}”，虽然没有触发特别遭遇，"
+                f"但熟悉了周边环境。结果：" + "；".join(action_logs)
+            )
+            self.active_exploration = None
             return None
         self.active_encounter = random.choices(
             candidates,
-            weights=[max(1, encounter["weight"]) for encounter in candidates],
+            weights=[
+                self._exploration_weight(encounter, action_id)
+                for encounter in candidates
+            ],
             k=1,
         )[0]
-        self.last_message = self.active_encounter["text"]
+        self.last_message = (
+            f"你在{map_rule['name']}进行“{action['name']}”。"
+            f"即时结果：" + "；".join(action_logs) + f"。随后发现：{self.active_encounter['text']}"
+        )
         return self.active_encounter
 
     def encounter_options(self) -> List[Tuple[int, Dict[str, Any]]]:
@@ -1647,20 +1822,57 @@ class GameEngine:
         option = option_map[option_number]
         logs = self.apply_effects(option.get("effects"))
         next_id = option.get("next", "")
-        encounter_text = self.active_encounter["text"] if self.active_encounter else ""
+        encounter = self.active_encounter
+        if encounter:
+            self.mark_visited(encounter["id"])
+        action_name = (
+            self.active_exploration.get("action_name", "探索")
+            if self.active_exploration
+            else "探索"
+        )
         self.active_encounter = None
+        self.active_exploration = None
         self.player["adventure_points"] += 1
+        logs.append("冒险阅历 +1")
         if self.is_night():
             self.player["adventure_points"] += 1
             logs.append("夜间探索额外获得 1 点冒险阅历")
+        response = (
+            f"你在“{action_name}”中选择了“{option['text']}”。"
+            f"这次行动让你处理了当前遭遇。结果：" + "；".join(logs)
+        )
         if next_id.startswith("combat:"):
             self.combat_time_cost = 1
             self.begin_combat(next_id[7:])
-            if logs:
-                self.last_message = "；".join(logs) + "；" + self.last_message
+            self.last_message = response + "；" + self.last_message
         else:
             self.advance_time()
-            self.last_message = "；".join(logs) if logs else f"你处理了这次遭遇：{encounter_text}"
+            self.last_message = response
+        return True
+
+    def leave_encounter(self) -> bool:
+        if self.active_encounter is None:
+            self.last_message = "当前没有需要离开的探索遭遇。"
+            return False
+        encounter = self.active_encounter
+        action_name = (
+            self.active_exploration.get("action_name", "探索")
+            if self.active_exploration
+            else "探索"
+        )
+        self.mark_visited(encounter["id"])
+        self.active_encounter = None
+        self.active_exploration = None
+        self.player["adventure_points"] += 1
+        logs = ["冒险阅历 +1"]
+        if self.is_night():
+            self.player["adventure_points"] += 1
+            logs.append("夜间探索额外获得 1 点冒险阅历")
+        self.advance_time()
+        self.last_message = (
+            f"你在“{action_name}”中判断继续介入风险过高，于是记下"
+            f"“{encounter['text']}”的情况后离开。结果：" + "；".join(logs)
+        )
         return True
 
     def begin_training_combat(self) -> bool:
@@ -1673,16 +1885,23 @@ class GameEngine:
             "enemy_id": "training_opponent",
             "name": "萧家陪练弟子",
             "level": level,
-            "hp": 30 + level * 8,
-            "max_hp": 30 + level * 8,
-            "atk": 5 + level * 2,
-            "def": 2 + level,
-            "spd": 5 + level,
-            "exp_reward": 10 + level * 4,
+            "hp": 25 + level * 10,
+            "max_hp": 25 + level * 10,
+            "atk": 4 + level * 2,
+            "def": 1 + level,
+            "spd": 4 + level,
+            "exp_reward": 8 + level * 4,
             "drop_table": "",
             "round": 1,
             "defending": False,
             "can_escape": True,
+            "element": "火",
+            "weakness": "风",
+            "shield_broken": False,
+            "intent": "attack",
+            "combo": 0,
+            "charged": False,
+            "charge_used": False,
         }
         self.last_message = "陪练弟子摆开架势，回合战斗开始。"
         return True
@@ -1694,34 +1913,129 @@ class GameEngine:
             return False
         level = int(self.player["level"])
         enemy_level = max(level, min(enemy["level"], level + 4))
-        hp = max(35, min(enemy["hp"], 35 + enemy_level * 18))
+        # 敌人属性钳制——保证各等级段 TTK 在 3-12 回合
+        hp = max(30, min(enemy["hp"], 25 + enemy_level * 12))
+        atk_c = max(4, min(enemy["atk"], 5 + enemy_level * 2))
+        def_c = max(1, min(enemy["def"], 1 + enemy_level))
+        spd_c = max(3, min(enemy["spd"], 4 + enemy_level))
+        exp_c = max(8, min(enemy["exp_reward"], 10 + enemy_level * 5))
+        # Boss/精英额外 HP 倍率
+        if enemy["type"] == "final_boss":
+            hp = hp * 5
+            atk_c = int(atk_c * 1.5)
+        elif enemy["type"] == "boss":
+            hp = int(hp * 3)
+            atk_c = int(atk_c * 1.3)
+
+        # 属性克制
+        if enemy_id not in ENEMY_ELEMENTS:
+            elem = random.choice(ELEMENT_TYPES)
+            weakness = ELEMENT_WEAKNESS[elem]
+            ENEMY_ELEMENTS[enemy_id] = {"element": elem, "weakness": weakness}
+
+        # 意图预判
+        intent = random.choice(["attack", "attack", "defend", "skill"])
+
         self.combat = {
             "enemy_id": enemy_id,
             "name": enemy["name"],
             "level": enemy_level,
             "hp": hp,
             "max_hp": hp,
-            "atk": max(5, min(enemy["atk"], 7 + enemy_level * 3)),
-            "def": max(1, min(enemy["def"], 3 + enemy_level * 2)),
-            "spd": max(4, min(enemy["spd"], 6 + enemy_level * 2)),
-            "exp_reward": max(10, min(enemy["exp_reward"], 12 + enemy_level * 8)),
+            "atk": atk_c,
+            "def": def_c,
+            "spd": spd_c,
+            "exp_reward": exp_c,
             "drop_table": enemy["drop_table"],
+            "type": enemy["type"],
+            "notes": enemy.get("notes", ""),
             "round": 1,
             "defending": False,
             "can_escape": enemy["type"] not in {"boss", "final_boss"},
+            # 新机制
+            "element": ENEMY_ELEMENTS[enemy_id]["element"],
+            "weakness": ENEMY_ELEMENTS[enemy_id]["weakness"],
+            "shield_broken": False,
+            "intent": intent,
+            "combo": 0,
+            "charged": False,
+            "charge_used": False,
         }
         self.combat_is_training = False
-        self.last_message = f"{enemy['name']}挡住了去路，回合战斗开始。"
+        self.last_message = (
+            f"{enemy['name']}（{ENEMY_ELEMENTS[enemy_id]['element']}属性）挡住了去路，回合战斗开始。"
+        )
         return True
 
     def combat_text(self) -> str:
         if self.combat is None:
             return ""
+        c = self.combat
+        intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+        intent_text = intent_names.get(c.get("intent", "attack"), "?")
+        soul = int(self.player.get("soul", 0))
+        intent_line = f"  意图预判：{intent_text}" if soul >= 20 else ""
+        combo = c.get("combo", 0)
+        combo_line = f"  连击：{combo}" if combo >= 2 else ""
+        poison = c.get("poison", 0)
+        poison_line = f"  中毒：{poison}层(-{c.get('poison_dmg', 0)}/回)" if poison > 0 else ""
+        shield = " [护盾已破]" if c.get("shield_broken") else ""
         return (
-            f"第{self.combat['round']}回合｜{self.combat['name']} "
-            f"生命 {self.combat['hp']}/{self.combat['max_hp']}\n"
+            f"第{c['round']}回合｜{c['name']}{shield}（{c.get('element', '?')}属性）\n"
+            f"生命 {c['hp']}/{c['max_hp']}\n"
             f"{self.player['name']} 生命 {self.player['hp']}｜斗气 {self.player['douqi']}"
+            f"{intent_line}{combo_line}{poison_line}"
         )
+
+    def combat_intent_text(self) -> str:
+        """返回敌人意图文本（用于 UI 渲染），技能意图显示具体技能名。"""
+        if self.combat is None:
+            return ""
+        intent = self.combat.get("intent", "attack")
+        intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+        text = intent_names.get(intent, "?")
+        if intent == "skill":
+            enemy_data = self.enemies.get(self.combat["enemy_id"], {})
+            enemy_skills = enemy_data.get("skills", [])
+            if enemy_skills:
+                skill_data = self.skills.get(enemy_skills[0], {})
+                text = f"斗技「{skill_data.get('name', enemy_skills[0])}」"
+        return text
+
+    def enemy_skill_list(self) -> List[str]:
+        """返回当前敌人的技能名称列表。"""
+        if self.combat is None:
+            return []
+        enemy_data = self.enemies.get(self.combat["enemy_id"], {})
+        return [
+            self.skills.get(sid, {}).get("name", sid)
+            for sid in enemy_data.get("skills", [])
+        ]
+
+    def enemy_element(self) -> str:
+        if self.combat is None:
+            return ""
+        return self.combat.get("element", "")
+
+    def enemy_weakness(self) -> str:
+        if self.combat is None:
+            return ""
+        return self.combat.get("weakness", "")
+
+    def combat_combo(self) -> int:
+        if self.combat is None:
+            return 0
+        return self.combat.get("combo", 0)
+
+    def combat_charged(self) -> bool:
+        if self.combat is None:
+            return False
+        return self.combat.get("charged", False)
+
+    def combat_shield_broken(self) -> bool:
+        if self.combat is None:
+            return False
+        return self.combat.get("shield_broken", False)
 
     def combat_skills(self) -> List[Dict[str, Any]]:
         return [
@@ -1838,6 +2152,17 @@ class GameEngine:
         combat = self.combat
         logs: List[str] = []
         combat["defending"] = False
+        soul = int(self.player.get("soul", 0))
+
+        # ── 中毒伤害（回合开始时触发）──
+        if combat.get("poison", 0) > 0:
+            poison_dmg = combat.get("poison_dmg", 3)
+            combat["hp"] = max(0, combat["hp"] - poison_dmg)
+            logs.append(f"☠️ 中毒伤害 -{poison_dmg}")
+            combat["poison"] = combat["poison"] - 1
+            if combat["poison"] <= 0:
+                combat.pop("poison", None)
+                combat.pop("poison_dmg", None)
 
         if action == "escape":
             chance = 0.35 + max(0, self.player["spd"] - combat["spd"]) * 0.02
@@ -1847,6 +2172,7 @@ class GameEngine:
                 self.last_message = "你抓住空隙脱离了战斗。"
                 return "escaped"
             logs.append("你试图撤退，但被对方拦下")
+            combat["combo"] = 0
         elif action == "item":
             item_id = skill_id or "item_elixir"
             item = self.item_rules.get(item_id, {})
@@ -1867,12 +2193,41 @@ class GameEngine:
             logs.append(f"你服下{self.item_name(item_id)}，恢复 {actual_heal} 点生命")
             if actual_douqi:
                 logs.append(f"恢复 {actual_douqi} 点斗气")
+            combat["combo"] = 0
         elif action == "defend":
             combat["defending"] = True
             logs.append("你凝聚斗气防守")
+            combat["combo"] = 0
+        elif action == "charge":
+            if combat.get("charge_used"):
+                self.last_message = "本场战斗已无法再次蓄力。"
+                return "invalid"
+            combat["charged"] = True
+            combat["combo"] = 0
+            self.player["douqi"] = min(
+                self.attribute_rules["douqi"]["max"],
+                self.player["douqi"] + CHARGE_DOUQI_PER_TURN,
+            )
+            logs.append(f"你凝神蓄力，斗气恢复 {CHARGE_DOUQI_PER_TURN} 点，下一击将威力倍增！")
         else:
+            # ── 攻击（普攻/斗技） ──
             bonus = 0
             multiplier = 1.0
+
+            # 蓄力加成
+            if combat.get("charged"):
+                multiplier *= CHARGE_DAMAGE_MULTIPLIER
+                combat["charged"] = False
+                combat["charge_used"] = True
+                logs.append("⚡ 蓄力一击，威力倍增！")
+
+            # 连击加成
+            combo = combat.get("combo", 0)
+            combo_mult = 1.0 + min(combo, COMBO_MAX) * COMBO_DAMAGE_PER_STACK
+            if combo >= 2:
+                logs.append(f"🔥 {combo}连击！伤害+{int((combo_mult - 1) * 100)}%")
+            multiplier *= combo_mult
+
             if action == "skill":
                 skill = self.skills.get(skill_id or "")
                 if skill is None:
@@ -1884,36 +2239,126 @@ class GameEngine:
                     return "invalid"
                 self.player["douqi"] -= cost
                 bonus = self._skill_attack_bonus(skill["effect"])
-                multiplier = 1.25
-                logs.append(f"你施展了{skill['name']}")
+                multiplier *= 1.25
+                logs.append(f"你施展了{skill['name']}（{SKILL_ELEMENTS.get(skill['id'], '?')}属性）")
                 finisher_threshold = FINISHER_SKILLS.get(skill["id"])
                 enemy_ratio = combat["hp"] / max(1, combat["max_hp"])
                 if finisher_threshold is not None and enemy_ratio <= finisher_threshold:
                     multiplier *= 2
-                    logs.append("斗技命中虚弱破绽，触发暴击")
+                    logs.append("斗技命中虚弱破绽，触发暴击！")
+
+                # ── 属性克制判断 ──
+                skill_element = SKILL_ELEMENTS.get(skill["id"], "")
+                enemy_weakness = combat.get("weakness", "")
+                if skill_element and skill_element == enemy_weakness:
+                    multiplier *= 1.5
+                    logs.append(f"💥 属性克制！{skill_element}克{combat.get('element', '?')}")
+                    if not combat.get("shield_broken"):
+                        combat["shield_broken"] = True
+                        multiplier *= 1.3
+                        logs.append(f"🛡️ 击破{combat['name']}的元素护盾！")
+            else:
+                # 普通攻击也有微弱元素效果
+                logs.append(f"你挥拳攻向{combat['name']}")
+
+            # 破盾后的额外伤害
+            if combat.get("shield_broken"):
+                multiplier *= 1.1
+
             damage = max(
                 1,
                 int((self.player["atk"] + bonus) * multiplier)
                 - combat["def"]
                 + random.randint(-2, 3),
             )
+            # 暴击判定
+            crit_rate = int(self.player.get("crit_rate", 5))
+            if random.randint(1, 100) <= crit_rate:
+                damage = int(damage * 2)
+                logs.append("💥 暴击！伤害翻倍！")
             actual_damage = min(damage, combat["hp"])
             combat["hp"] = max(0, combat["hp"] - actual_damage)
             logs.append(f"对{combat['name']}造成 {actual_damage} 点伤害")
 
+            # 中毒判定：毒属性技能命中施加中毒
+            if action == "skill":
+                se = SKILL_ELEMENTS.get(skill_id or "", "")
+                if se == "毒":
+                    poison_stacks = combat.get("poison", 0) + 1
+                    combat["poison"] = min(poison_stacks, 5)
+                    combat["poison_dmg"] = 3 + int(self.player.get("poison", 0)) // 10
+                    logs.append(f"☠️ 中毒 +{combat['poison_dmg']}/回合 ({combat['poison']}层)")
+
+            # 连击递增
+            combat["combo"] = combo + 1
+
+        # ── 敌回合：意图预判 ──
         if combat["hp"] <= 0:
             logs.extend(self._finish_combat_win())
             self.last_message = "；".join(logs)
             return "won"
 
-        enemy_damage = max(
-            1,
-            combat["atk"] - self.player["def"] + random.randint(-2, 3),
-        )
-        if combat["defending"]:
+        enemy_intent = combat.get("intent", "attack")
+        if soul >= 20:
+            intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+            logs.append(f"👁️ 灵魂感知：{combat['name']}下回合将[{intent_names.get(enemy_intent, '?')}]")
+
+        # 敌执行意图（不影响玩家防御标记）
+        hp_ratio = combat["hp"] / max(1, combat["max_hp"])
+        if enemy_intent == "defend":
+            enemy_damage = max(1, (combat["atk"] - self.player["def"] + random.randint(-2, 3)) // 2)
+        elif enemy_intent == "skill":
+            # 从 Excel 敌人配置中随机选取技能
+            enemy_data = self.enemies.get(combat["enemy_id"], {})
+            enemy_skills = enemy_data.get("skills", [])
+            skill_bonus = 0
+            skill_name = "强力斗技"
+            if enemy_skills:
+                chosen = random.choice(enemy_skills)
+                skill_data = self.skills.get(chosen, {})
+                skill_name = skill_data.get("name", chosen)
+                skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
+                # 低血量可能用更强技能
+                if hp_ratio < 0.3 and len(enemy_skills) >= 2:
+                    best = max(enemy_skills, key=lambda s: self._skill_attack_bonus(
+                        self.skills.get(s, {}).get("effect", "")))
+                    chosen = best
+                    skill_data = self.skills.get(chosen, {})
+                    skill_name = skill_data.get("name", chosen)
+                    skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
+            enemy_damage = max(
+                1,
+                int(combat["atk"] * 1.3) + skill_bonus - self.player["def"] + random.randint(-1, 5),
+            )
+            logs.append(f"{combat['name']}施展了「{skill_name}」！")
+            combat["combo"] = 0
+        else:
+            enemy_damage = max(1, combat["atk"] - self.player["def"] + random.randint(-2, 3))
+
+        # 玩家闪避判定
+        dodge_rate = int(self.player.get("dodge_rate", 5))
+        if random.randint(1, 100) <= dodge_rate:
+            enemy_damage = 0
+            logs.append(f"✨ 你灵巧地躲过了{combat['name']}的攻击！")
+        # 玩家防御减少伤害
+        elif combat.get("defending"):
             enemy_damage = max(1, enemy_damage // 2)
-        self.player["hp"] = max(0, self.player["hp"] - enemy_damage)
-        logs.append(f"{combat['name']}反击，造成 {enemy_damage} 点伤害")
+
+        if enemy_damage > 0:
+            self.player["hp"] = max(0, self.player["hp"] - enemy_damage)
+            logs.append(f"{combat['name']}反击，造成 {enemy_damage} 点伤害")
+        else:
+            logs.append(f"{combat['name']}的攻击落空了！")
+
+        # 更新敌人下回合意图
+        hp_ratio = combat["hp"] / max(1, combat["max_hp"])
+        if hp_ratio < 0.3:
+            combat["intent"] = random.choice(["attack", "defend", "skill", "skill"])
+        elif hp_ratio < 0.6:
+            combat["intent"] = random.choice(["attack", "attack", "defend", "skill"])
+        else:
+            combat["intent"] = random.choice(["attack", "attack", "attack", "defend"])
+
         combat["round"] += 1
         if self.player["hp"] <= 0:
             self.player["hp"] = max(1, self.attribute_rules["hp"]["initial"] // 3)

@@ -140,13 +140,30 @@ def encounter_loop(game: GameEngine) -> None:
     thin()
     choice = ask_number()
     if choice is None:
-        game.active_encounter = None
-        game.last_message = "你谨慎地离开了现场。"
+        game.leave_encounter()
+        show_result(game)
         return
     game.choose_encounter_option(choice)
     show_result(game)
     if game.combat is not None:
         combat_loop(game)
+
+
+def exploration_menu(game: GameEngine) -> None:
+    bar()
+    print(f"  当前区域：{game.current_map()['name']}  当前体力：{game.player['stamina']}")
+    thin()
+    actions = game.exploration_actions()
+    for index, action in enumerate(actions, start=1):
+        print(f"  {index}.{action['name']}（体力 -{action['cost']}）")
+        print(f"    {action['description']}")
+    print("  b.返回")
+    choice = ask_number()
+    if choice is None or not 1 <= choice <= len(actions):
+        return
+    game.explore(actions[choice - 1]["id"])
+    encounter_loop(game)
+    press_enter()
 
 
 def resolve_required_schedule(game: GameEngine) -> None:
@@ -575,9 +592,7 @@ def main() -> None:
         elif command == "4":
             menu_cultivation(game)
         elif command == "5":
-            game.explore()
-            encounter_loop(game)
-            press_enter()
+            exploration_menu(game)
         elif command == "6":
             _travel_menu(game)
         elif command == "7":

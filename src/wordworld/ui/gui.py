@@ -56,6 +56,7 @@ class GameWindow(tk.Tk):
 
         # ── 界面状态 ──
         self._screen_stack: list[Callable[[], None]] = []
+        self._screen_id = "hub"
 
         # ── 构建界面 ──
         self._build_top_bar()
@@ -64,6 +65,8 @@ class GameWindow(tk.Tk):
 
         # ── 全局快捷键 ──
         self.bind("<Escape>", lambda e: self._go_back())
+        self.bind("<BackSpace>", lambda e: self._go_back())
+        self.bind("q", lambda e: self._keyboard_back_or_quit())
         self.bind("<F5>", lambda e: self._save_game())
 
         # ── 启动游戏 ──
@@ -139,6 +142,13 @@ class GameWindow(tk.Tk):
         self.menu_list.pack(side="left", fill="y", padx=(0, 10))
         self.menu_list.bind("<Double-Button-1>", lambda e: self._on_menu_select())
         self.menu_list.bind("<Return>", lambda e: self._on_menu_select())
+        self.menu_list.bind("<space>", lambda e: self._on_menu_select())
+        self.menu_list.bind("<Up>", lambda e: self._move_menu_focus(-1))
+        self.menu_list.bind("<Left>", lambda e: self._move_menu_focus(-1))
+        self.menu_list.bind("<Down>", lambda e: self._move_menu_focus(1))
+        self.menu_list.bind("<Right>", lambda e: self._move_menu_focus(1))
+        self.menu_list.bind("<Home>", lambda e: self._focus_menu_edge(False))
+        self.menu_list.bind("<End>", lambda e: self._focus_menu_edge(True))
 
         # 右侧详情面板
         self.detail_frame = tk.Frame(self.content_frame, bg=BG_PANEL)
@@ -241,11 +251,40 @@ class GameWindow(tk.Tk):
             self.menu_list.focus_set()
         self._menu_callback = callback
 
-    def _on_menu_select(self) -> None:
+    def _on_menu_select(self) -> str:
         """菜单选择回调。"""
         sel = self.menu_list.curselection()
         if sel and hasattr(self, "_menu_callback") and self._menu_callback:
             self._menu_callback(sel[0])
+        return "break"
+
+    def _select_menu_index(self, index: int) -> None:
+        self.menu_list.selection_clear(0, "end")
+        self.menu_list.selection_set(index)
+        self.menu_list.activate(index)
+        self.menu_list.see(index)
+
+    def _move_menu_focus(self, delta: int) -> str:
+        """方向键循环移动焦点，并跳过空白分隔项。"""
+        size = self.menu_list.size()
+        if size == 0:
+            return "break"
+        selected = self.menu_list.curselection()
+        index = selected[0] if selected else (0 if delta > 0 else size - 1)
+        for _ in range(size):
+            index = (index + delta) % size
+            if str(self.menu_list.get(index)).strip():
+                self._select_menu_index(index)
+                break
+        return "break"
+
+    def _focus_menu_edge(self, from_end: bool) -> str:
+        indexes = range(self.menu_list.size() - 1, -1, -1) if from_end else range(self.menu_list.size())
+        for index in indexes:
+            if str(self.menu_list.get(index)).strip():
+                self._select_menu_index(index)
+                break
+        return "break"
 
     def _set_detail(self, *lines: str) -> None:
         """设置右侧详情区文本。"""
@@ -267,12 +306,25 @@ class GameWindow(tk.Tk):
     # 导航
     # ═══════════════════════════════════════════════════════════
 
-    def _go_back(self) -> None:
+    def _go_back(self) -> str:
         """返回上一屏。"""
-        if self._screen_stack:
-            self._screen_stack.pop()()
+        if self._screen_id == "encounter":
+            self.game.leave_encounter()
+            self._after_action()
+        elif self._screen_id == "skill_select":
+            self._show_combat()
+        elif self._screen_id == "combat":
+            self._do_combat_action("escape")
         else:
             self._show_hub()
+        return "break"
+
+    def _keyboard_back_or_quit(self) -> str:
+        if self._screen_id == "hub":
+            self._quit_game()
+        else:
+            self._go_back()
+        return "break"
 
     def _push_screen(self, screen_func: Callable[[], None]) -> None:
         self._screen_stack.append(self._current_screen)
@@ -312,6 +364,7 @@ class GameWindow(tk.Tk):
         """显示主 Hub。"""
         self._screen_stack.clear()
         self._current_screen = self._show_hub
+        self._screen_id = "hub"
         self._refresh_top_bar()
 
         menu_items = [
@@ -327,7 +380,7 @@ class GameWindow(tk.Tk):
             "q. 退出游戏",
         ]
         self._set_menu(menu_items, self._hub_select)
-        self.lbl_hint.config(text="↑↓ 选择  ↵ 回车确认  数字键 1-8 快捷  Esc 返回")
+        self.lbl_hint.config(text="方向键选择  ↵/空格确认  数字键 1-8 快捷  Esc/退格返回")
 
         # 数字快捷键
         for i in range(1, 9):
@@ -354,6 +407,7 @@ class GameWindow(tk.Tk):
         }
         action = actions.get(num)
         if action:
+            self._screen_id = "submenu"
             action()
 
     def _quit_game(self) -> None:
@@ -502,21 +556,25 @@ class GameWindow(tk.Tk):
 
     def _do_explore(self) -> None:
         m = self.game.current_map()
-        cost = m.get("stamina_cost", 5)
-        night_cost = 2 if self.game.is_night() else 0
-        total = cost + night_cost
-        night_text = f"（夜间 +{night_cost}）" if night_cost else ""
-
-        self._set_detail(
+        actions = self.game.exploration_actions()
+        lines = [
             f"当前区域：{m['name']}",
-            f"体力消耗：{total} {night_text}",
             f"当前体力：{self.game.player['stamina']}",
+            "",
+            "选择探索取向：",
+        ]
+        for action in actions:
+            lines.append(f"{action['name']}｜体力 -{action['cost']}")
+            lines.append(f"  {action['description']}")
+        self._set_detail(*lines)
+        self._set_menu(
+            [f"{action['name']}（体力 -{action['cost']}）" for action in actions] + ["返回"],
+            lambda idx: self._explore_select(idx, actions),
         )
-        self._set_menu(["开始探索", "返回"], self._explore_select)
 
-    def _explore_select(self, index: int) -> None:
-        if index == 0:
-            encounter = self.game.explore()
+    def _explore_select(self, index: int, actions: list[dict]) -> None:
+        if index < len(actions):
+            encounter = self.game.explore(actions[index]["id"])
             if encounter:
                 self._show_encounter()
             else:
@@ -635,6 +693,7 @@ class GameWindow(tk.Tk):
 
     def _show_combat(self) -> None:
         """显示战斗界面。"""
+        self._screen_id = "combat"
         self._refresh_combat_view()
 
         actions = ["普通攻击", "施展斗技", "防御", "使用丹药", "逃跑", "自动战斗"]
@@ -703,6 +762,7 @@ class GameWindow(tk.Tk):
 
     def _show_skill_select(self, skills: list[dict]) -> None:
         """战斗中选斗技。"""
+        self._screen_id = "skill_select"
         self._set_detail("选择斗技：", "")
         for skill in skills:
             self._set_detail(
@@ -732,6 +792,7 @@ class GameWindow(tk.Tk):
     # ═══════════════════════════════════════════════════════════
 
     def _show_encounter(self) -> None:
+        self._screen_id = "encounter"
         enc = self.game.active_encounter
         if enc is None:
             self._after_action()
@@ -751,8 +812,7 @@ class GameWindow(tk.Tk):
             else:
                 self._after_action()
         else:
-            self.game.active_encounter = None
-            self.game.last_message = "你谨慎地离开了现场。"
+            self.game.leave_encounter()
             self._after_action()
 
 

@@ -366,6 +366,11 @@ def _load_game_data_cached(path_text: str) -> Dict[str, Any]:
             for row in sheets["NPCs_人物表"]
             if row.get("Character_ID")
         },
+        "npc_profiles": {
+            row["Character_ID"]: dict(row)
+            for row in sheets["NPCs_人物表"]
+            if row.get("Character_ID")
+        },
         "relationships": _parse_relationships(sheets["Relationships_关系表"]),
         "level_progression": _parse_level_progression(
             sheets["Level_Progression_等级成长"]

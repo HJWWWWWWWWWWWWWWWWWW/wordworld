@@ -13,6 +13,7 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, Vertical, VerticalScroll
+from textual.events import Key, Mount
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Label, RichLog, Static
 
@@ -44,11 +45,56 @@ def _hp_bar(current: int, maximum: int, width: int = 12) -> str:
     return f"{'█' * filled}{'░' * (width - filled)} {current}/{maximum}"
 
 
+class _KeyboardNavigation:
+    """让所有按钮界面都可用方向键循环移动焦点。"""
+
+    @on(Mount)
+    def _focus_first_keyboard_target(self) -> None:
+        self.call_after_refresh(self._ensure_button_focus)
+
+    def _ensure_button_focus(self) -> None:
+        if isinstance(self.focused, Button):
+            return
+        first_button = next(
+            (
+                button
+                for button in self.query(Button)
+                if not button.disabled and button.display
+            ),
+            None,
+        )
+        if first_button is not None:
+            first_button.focus()
+
+    def _focus_button(self, delta: int) -> None:
+        buttons = [
+            button
+            for button in self.query(Button)
+            if not button.disabled and button.display
+        ]
+        if not buttons:
+            return
+        focused = self.focused
+        try:
+            index = buttons.index(focused)
+        except ValueError:
+            index = -1 if delta > 0 else 0
+        buttons[(index + delta) % len(buttons)].focus()
+
+    def on_key(self, event: Key) -> None:
+        if event.key in {"up", "left"}:
+            self._focus_button(-1)
+            event.stop()
+        elif event.key in {"down", "right"}:
+            self._focus_button(1)
+            event.stop()
+
+
 # ═══════════════════════════════════════════════════════════════
 # 子屏幕基类
 # ═══════════════════════════════════════════════════════════════
 
-class _SubScreen(Screen[None]):
+class _SubScreen(_KeyboardNavigation, Screen[None]):
     """所有子菜单和功能屏幕的基类。q/Esc 返回 Hub。"""
 
     BINDINGS = [
@@ -266,33 +312,39 @@ class CultivationScreen(_SubScreen):
 class ExploreScreen(_SubScreen):
     def compose(self) -> ComposeResult:
         map_rule = self.game.current_map()
-        cost = map_rule.get("stamina_cost", 5)
-        night_cost = 2 if self.game.is_night() else 0
-        total_cost = cost + night_cost
-
-        night_text = f"（夜间 +{night_cost}）" if night_cost else ""
-        yield Static(
-            f"[bold]当前区域：{map_rule['name']}[/]\n"
-            f"体力消耗：{total_cost} {night_text}\n"
-            f"当前体力：{self.game.player['stamina']}"
-        )
-        with Horizontal():
-            yield Button("开始探索", id="btn-explore", variant="primary")
-            yield Button("返回", id="btn-back")
+        actions = self.game.exploration_actions()
+        lines = [
+            f"[bold]当前区域：{map_rule['name']}[/]",
+            f"当前体力：{self.game.player['stamina']}",
+            "",
+            "[bold]选择探索取向：[/]",
+        ]
+        for action in actions:
+            lines.append(f"{action['name']}｜体力 -{action['cost']}｜{action['description']}")
+        yield Static("\n".join(lines))
+        for action in actions:
+            yield Button(
+                f"{action['name']}（体力 -{action['cost']}）",
+                id=f"explore-{action['id']}",
+                variant="primary" if action["id"] == "roam" else "default",
+            )
+        yield Button("返回", id="btn-back")
         yield Static("", id="sub-msg")
         yield Footer()
-
-    @on(Button.Pressed, "#btn-explore")
-    def _explore(self) -> None:
-        encounter = self.game.explore()
-        if encounter:
-            self.app.push_screen(EncounterScreen(self.game))
-        else:
-            self._after_action()
 
     @on(Button.Pressed, "#btn-back")
     def _back(self) -> None:
         self.dismiss()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        button_id = event.button.id or ""
+        if not button_id.startswith("explore-"):
+            return
+        encounter = self.game.explore(button_id.replace("explore-", "", 1))
+        if encounter:
+            self.app.push_screen(EncounterScreen(self.game))
+        else:
+            self._after_action()
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -449,7 +501,7 @@ class SystemScreen(_SubScreen):
 # 战斗
 # ═══════════════════════════════════════════════════════════════
 
-class CombatScreen(ModalScreen[None]):
+class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
     """回合战斗模态屏。"""
 
     BINDINGS = [
@@ -545,8 +597,12 @@ class CombatScreen(ModalScreen[None]):
     def action_auto(self) -> None: self._auto()
 
 
-class SkillSelectScreen(ModalScreen[None]):
+class SkillSelectScreen(_KeyboardNavigation, ModalScreen[None]):
     """战斗中选择斗技的弹出屏。"""
+
+    BINDINGS = [
+        Binding("escape,q", "cancel", "取消"),
+    ]
 
     def __init__(self, game: GameEngine, skills: list[dict], callback: Callable) -> None:
         super().__init__()
@@ -581,13 +637,20 @@ class SkillSelectScreen(ModalScreen[None]):
         except Exception:
             pass
 
+    def action_cancel(self) -> None:
+        self.dismiss()
+
 
 # ═══════════════════════════════════════════════════════════════
 # 探索遭遇
 # ═══════════════════════════════════════════════════════════════
 
-class EncounterScreen(ModalScreen[None]):
+class EncounterScreen(_KeyboardNavigation, ModalScreen[None]):
     """探索遭遇模态屏。"""
+
+    BINDINGS = [
+        Binding("escape,q", "leave", "离开"),
+    ]
 
     def __init__(self, game: GameEngine) -> None:
         super().__init__()
@@ -613,8 +676,7 @@ class EncounterScreen(ModalScreen[None]):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id or ""
         if btn_id == "enc-leave":
-            self.game.active_encounter = None
-            self.game.last_message = "你谨慎地离开了现场。"
+            self.game.leave_encounter()
             self.dismiss()
             return
         num = btn_id.replace("enc-opt-", "")
@@ -624,12 +686,16 @@ class EncounterScreen(ModalScreen[None]):
             if self.game.combat is not None:
                 self.app.push_screen(CombatScreen(self.game))
 
+    def action_leave(self) -> None:
+        self.game.leave_encounter()
+        self.dismiss()
+
 
 # ═══════════════════════════════════════════════════════════════
 # 强制日程
 # ═══════════════════════════════════════════════════════════════
 
-class ScheduleScreen(ModalScreen[None]):
+class ScheduleScreen(_KeyboardNavigation, ModalScreen[None]):
     """强制日程节点。"""
 
     def __init__(self, game: GameEngine) -> None:
@@ -656,7 +722,7 @@ class ScheduleScreen(ModalScreen[None]):
 # Hub 主屏幕
 # ═══════════════════════════════════════════════════════════════
 
-class HubScreen(Screen[None]):
+class HubScreen(_KeyboardNavigation, Screen[None]):
     """主 Hub 界面。定时刷新顶栏，通过按钮导航到子屏幕。"""
 
     BINDINGS = [
@@ -709,6 +775,7 @@ class HubScreen(Screen[None]):
 
     def on_mount(self) -> None:
         self._refresh()
+        self.query_one("#hub-btn-1", Button).focus()
         self.set_interval(1.0, self._check_schedule)
         self.set_interval(0.5, self._refresh)
 

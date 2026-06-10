@@ -228,9 +228,12 @@ class LatestStoryTests(unittest.TestCase):
 
     def test_story_menu_shows_background_card_not_novel_text(self) -> None:
         output = io.StringIO()
-        with patch('builtins.input', side_effect=['', '7', '2', 'b', 'q']):
-            with contextlib.redirect_stdout(output):
-                main.main()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "save.json"
+            with patch.object(main, "SAVE_PATH", save_path):
+                with patch('builtins.input', side_effect=['', '7', '2', 'b', 'q']):
+                    with contextlib.redirect_stdout(output):
+                        main.main()
 
         text = output.getvalue()
         self.assertIn('背景：', text)
@@ -392,6 +395,34 @@ class RpgLoopTests(unittest.TestCase):
         self.assertLess(game.player["stamina"], stamina)
         self.assertTrue(game.choose_encounter_option(1))
         self.assertGreaterEqual(game.player["adventure_points"], 1)
+        self.assertIn("你在“随性游历”中选择了", game.last_message)
+        self.assertIn("结果：", game.last_message)
+
+    def test_exploration_actions_have_distinct_costs_and_meaningful_rewards(self) -> None:
+        game = GameEngine()
+        actions = {action["id"]: action for action in game.exploration_actions()}
+
+        self.assertLess(actions["scout"]["cost"], actions["roam"]["cost"])
+        self.assertGreater(actions["hunt"]["cost"], actions["roam"]["cost"])
+
+        soul = game.player["soul"]
+        game.explore("scout")
+        self.assertGreater(game.player["soul"], soul)
+        self.assertIn("侦察地形", game.last_message)
+        self.assertIn("灵魂", game.last_message)
+
+    def test_leaving_encounter_explains_result_and_advances_time(self) -> None:
+        game = GameEngine()
+        game.explore("investigate")
+        before_time = game.time_text()
+        before_adventure = game.player["adventure_points"]
+
+        self.assertTrue(game.leave_encounter())
+
+        self.assertNotEqual(game.time_text(), before_time)
+        self.assertGreater(game.player["adventure_points"], before_adventure)
+        self.assertIn("风险过高", game.last_message)
+        self.assertIn("冒险阅历 +1", game.last_message)
 
     def test_turn_based_training_combat_can_be_won(self) -> None:
         game = GameEngine()
@@ -713,6 +744,165 @@ class ConsoleInputTests(unittest.TestCase):
         self.assertEqual(main.parse_main_command("主线"), "7")
         self.assertEqual(main.parse_main_command("存档"), "save")
         self.assertEqual(main.parse_main_command("退出"), "q")
+
+
+class NewCombatMechanicsTests(unittest.TestCase):
+    """测试新增的三套战斗机制：属性克制、意图预判、连击蓄力。"""
+
+    def test_enemy_gets_element_and_weakness(self) -> None:
+        game = GameEngine()
+        game.begin_combat("mob_magic_beast")
+        self.assertIsNotNone(game.combat)
+        self.assertIn(game.combat["element"], engine_module.ELEMENT_TYPES)
+        self.assertIn(game.combat["weakness"], engine_module.ELEMENT_TYPES)
+        self.assertEqual(
+            game.combat["weakness"],
+            engine_module.ELEMENT_WEAKNESS[game.combat["element"]],
+        )
+
+    def test_element_weakness_chain_is_cyclic(self) -> None:
+        for elem in engine_module.ELEMENT_TYPES:
+            weakness = engine_module.ELEMENT_WEAKNESS[elem]
+            self.assertIn(weakness, engine_module.ELEMENT_TYPES)
+            self.assertNotEqual(elem, weakness)
+        self.assertEqual(len(engine_module.ELEMENT_WEAKNESS), 5)
+
+    def test_combat_has_new_state_fields(self) -> None:
+        game = GameEngine()
+        game.begin_combat("mob_magic_beast")
+        self.assertIsNotNone(game.combat)
+        c = game.combat
+        for field in ["element", "weakness", "shield_broken", "intent", "combo",
+                       "charged", "charge_used"]:
+            self.assertIn(field, c)
+        self.assertEqual(c["combo"], 0)
+        self.assertFalse(c["shield_broken"])
+        self.assertFalse(c["charged"])
+
+    def test_intent_text_returns_correct_chinese(self) -> None:
+        game = GameEngine()
+        game.begin_training_combat()
+        game.combat["intent"] = "attack"
+        self.assertEqual(game.combat_intent_text(), "攻击")
+        game.combat["intent"] = "defend"
+        self.assertEqual(game.combat_intent_text(), "防御")
+        game.combat["intent"] = "skill"
+        self.assertEqual(game.combat_intent_text(), "斗技")
+
+    def test_soul_below_20_hides_intent(self) -> None:
+        game = GameEngine()
+        game.player["soul"] = 10
+        game.begin_training_combat()
+        self.assertNotIn("意图预判", game.combat_text())
+
+    def test_soul_above_20_shows_intent(self) -> None:
+        game = GameEngine()
+        game.player["soul"] = 20
+        game.begin_training_combat()
+        game.combat["intent"] = "attack"
+        self.assertIn("意图预判", game.combat_text())
+
+    def test_combo_increases_on_consecutive_attacks(self) -> None:
+        game = GameEngine()
+        game.player["atk"] = 5
+        game.begin_training_combat()
+        game.combat["hp"] = 200
+        game.combat["max_hp"] = 200
+        self.assertEqual(game.combat_combo(), 0)
+        game.combat_action("attack")
+        if game.combat:
+            self.assertEqual(game.combat_combo(), 1)
+
+    def test_combo_resets_on_defend(self) -> None:
+        game = GameEngine()
+        game.begin_training_combat()
+        game.combat["hp"] = 200
+        game.combat["max_hp"] = 200
+        game.combat["combo"] = 3
+        game.combat_action("defend")
+        if game.combat:
+            self.assertEqual(game.combat_combo(), 0)
+
+    def test_charge_gives_douqi_and_sets_flag(self) -> None:
+        game = GameEngine()
+        game.begin_training_combat()
+        douqi_before = game.player["douqi"]
+        game.combat_action("charge")
+        self.assertTrue(game.combat_charged())
+        self.assertGreaterEqual(game.player["douqi"], douqi_before)
+
+    def test_charge_cannot_be_used_twice(self) -> None:
+        game = GameEngine()
+        game.player["atk"] = 5
+        game.begin_training_combat()
+        game.combat["hp"] = 500
+        game.combat["max_hp"] = 500
+        game.combat["def"] = 0
+        game.combat_action("charge")
+        self.assertTrue(game.combat_charged())
+        game.combat_action("attack")
+        self.assertFalse(game.combat_charged())
+        if game.combat:
+            game.combat_action("charge")
+            self.assertIn("无法再次", game.last_message)
+
+    def test_enemy_element_displayed_in_combat_text(self) -> None:
+        game = GameEngine()
+        game.begin_training_combat()
+        self.assertIn("属性", game.combat_text())
+
+    def test_integrated_combat_all_mechanics(self) -> None:
+        """集成测试：蓄力→攻击→连击→属性克制全程。"""
+        game = GameEngine()
+        game.player["atk"] = 30
+        game.player["douqi"] = 100
+        game.player["soul"] = 25
+        game.begin_combat("mob_magic_beast")
+        self.assertIsNotNone(game.combat)
+        game.combat["hp"] = 500
+        game.combat["max_hp"] = 500
+        game.combat["def"] = 5
+
+        self.assertIn("element", game.combat)
+        game.combat_action("charge")
+        self.assertTrue(game.combat_charged())
+
+        if game.combat:
+            game.combat_action("attack")
+        self.assertFalse(game.combat_charged())
+
+        if game.combat:
+            self.assertGreaterEqual(game.combat_combo(), 1)
+            game.combat_action("skill", "skill_bajibang")
+
+        if game.combat and game.combat["hp"] > 0:
+            self.assertIn("意图预判", game.combat_text())
+
+    def test_defend_reduces_damage(self) -> None:
+        game = GameEngine()
+        game.player["dodge_rate"] = 0
+        game.player["hp"] = 500
+        game.player["max_hp"] = 500
+        game.begin_training_combat()
+        game.combat["hp"] = 200
+        game.combat["max_hp"] = 200
+        game.combat["atk"] = 20
+        game.combat["intent"] = "attack"
+        game.combat_action("defend")
+        dmg_defend = 500 - game.player["hp"]
+
+        game.combat = None
+        game.begin_training_combat()
+        game.combat["hp"] = 200
+        game.combat["max_hp"] = 200
+        game.combat["atk"] = 20
+        game.combat["intent"] = "attack"
+        game.player["hp"] = 500
+        game.player["max_hp"] = 500
+        game.player["dodge_rate"] = 0
+        game.combat_action("attack")
+        dmg_attack = 500 - game.player["hp"]
+        self.assertLessEqual(dmg_defend, dmg_attack)
 
 
 if __name__ == "__main__":
