@@ -1,0 +1,2485 @@
+"""
+WordWorld Pygame UI — 斗破苍穹：瓦片地图探索 + 回合制战斗。
+
+运行：python run_pygame.py
+"""
+
+from __future__ import annotations
+
+import math
+import random
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import pygame
+
+from wordworld.core.engine import (
+    GameEngine, STORY_PHASES, COMBO_MAX, COMBO_DAMAGE_PER_STACK, SKILL_ELEMENTS,
+    ELEMENT_TYPES, ELEMENT_WEAKNESS, REGION_BY_MAP, item_price,
+)
+from wordworld.config.paths import SAVE_PATH
+
+# ═══════════════════════════════════════════════════════════════════
+# 常量
+# ═══════════════════════════════════════════════════════════════════
+
+TILE_SIZE = 32
+MAP_VIEW_W = 20
+MAP_VIEW_H = 15
+PANEL_W = 280
+WIN_W = MAP_VIEW_W * TILE_SIZE + PANEL_W
+WIN_H = MAP_VIEW_H * TILE_SIZE
+FPS = 30
+
+# 瓦片类型
+TILE_FLOOR = 0
+TILE_WALL = 1
+TILE_DOOR = 2
+TILE_COUNTER = 3
+
+# 实体类型
+ENTITY_PLAYER = 10
+ENTITY_SHOP = 11
+ENTITY_INN = 12
+ENTITY_GUILD = 13
+ENTITY_NPC = 14
+ENTITY_TREASURE = 15
+ENTITY_ENEMY = 16
+ENTITY_EXIT = 17
+
+# 颜色
+C_BG = (18, 18, 24)
+C_FLOOR = (42, 42, 54)
+C_WALL = (65, 65, 80)
+C_DOOR = (80, 50, 30)
+C_COUNTER = (100, 70, 40)
+C_PLAYER = (80, 210, 120)
+C_ENEMY = (220, 60, 60)
+C_NPC = (60, 140, 220)
+C_SHOP = (240, 180, 40)
+C_INN = (100, 200, 200)
+C_GUILD = (200, 140, 240)
+C_TREASURE = (240, 200, 40)
+C_EXIT = (100, 220, 160)
+C_PANEL = (24, 24, 32)
+C_TEXT = (220, 220, 230)
+C_ACCENT = (200, 160, 40)
+C_HP_BAR = (200, 50, 50)
+C_QI_BAR = (50, 120, 200)
+C_HP_BG = (40, 15, 15)
+C_QI_BG = (15, 25, 40)
+C_BUTTON = (50, 50, 70)
+C_BUTTON_HOVER = (70, 70, 100)
+
+ENTITY_COLORS = {
+    ENTITY_ENEMY: C_ENEMY, ENTITY_TREASURE: C_TREASURE, ENTITY_NPC: C_NPC,
+    ENTITY_SHOP: C_SHOP, ENTITY_INN: C_INN, ENTITY_GUILD: C_GUILD,
+    ENTITY_EXIT: C_EXIT,
+}
+ENTITY_LABELS = {
+    ENTITY_ENEMY: "敌", ENTITY_TREASURE: "宝", ENTITY_NPC: "人",
+    ENTITY_SHOP: "商", ENTITY_INN: "栈", ENTITY_GUILD: "会", ENTITY_EXIT: "出",
+}
+
+_NPC_CANONICAL_VISUALS: Dict[str, Dict[str, Any]] = {
+    # 原文重点人物：颜色与标志物优先依据人物首次登场和长期形象。
+    "npc_xun_er": {"robe": (91, 63, 139), "trim": (224, 184, 62), "hair": (26, 24, 34), "hair_style": "long", "accessory": "gold_flame"},
+    "npc_yao_lao": {"robe": (35, 35, 43), "trim": (205, 208, 214), "hair": (220, 220, 224), "hair_style": "elder", "accessory": "staff"},
+    "npc_xiao_zhan": {"robe": (94, 92, 99), "trim": (196, 151, 72), "hair": (39, 31, 28), "hair_style": "short", "accessory": "brows"},
+    "npc_nalan_yanran": {"robe": (118, 183, 178), "trim": (230, 240, 233), "hair": (35, 31, 39), "hair_style": "long", "accessory": "sword"},
+    "npc_yun_yun": {"robe": (112, 164, 191), "trim": (218, 235, 240), "hair": (38, 35, 42), "hair_style": "long", "accessory": "sword"},
+    "npc_cai_lin": {"robe": (155, 48, 70), "trim": (235, 176, 67), "hair": (41, 25, 54), "hair_style": "long", "accessory": "crown"},
+    "npc_xiao_yixian": {"robe": (224, 229, 220), "trim": (132, 186, 132), "hair": (42, 39, 47), "hair_style": "long", "accessory": "medicine"},
+    "npc_ya_fei": {"robe": (176, 48, 62), "trim": (231, 174, 76), "hair": (66, 37, 30), "hair_style": "long", "accessory": "jewel"},
+    "npc_hai_bodong": {"robe": (72, 116, 151), "trim": (183, 222, 231), "hair": (207, 214, 218), "hair_style": "elder", "accessory": "ice"},
+    "npc_ziyan": {"robe": (139, 75, 166), "trim": (238, 174, 220), "hair": (63, 35, 76), "hair_style": "twin", "accessory": "dragon"},
+    "npc_han_feng": {"robe": (45, 101, 137), "trim": (83, 207, 218), "hair": (35, 35, 39), "hair_style": "short", "accessory": "blue_flame"},
+    "npc_qing_lin": {"robe": (74, 147, 117), "trim": (139, 225, 184), "hair": (41, 48, 42), "hair_style": "long", "accessory": "snake_eye"},
+    "npc_hun_tiandi": {"robe": (42, 35, 49), "trim": (177, 47, 64), "hair": (28, 24, 31), "hair_style": "long", "accessory": "crown"},
+}
+
+_FACTION_VISUALS = {
+    "faction_xiao": ((66, 104, 126), (183, 151, 79)),
+    "faction_gu": ((92, 70, 132), (224, 184, 62)),
+    "faction_yunlan": ((111, 166, 177), (224, 237, 232)),
+    "faction_snake": ((139, 59, 78), (224, 167, 67)),
+    "faction_miteer": ((137, 72, 58), (224, 174, 74)),
+    "faction_canaan": ((63, 120, 130), (151, 211, 196)),
+    "faction_black_corner": ((91, 55, 65), (198, 100, 67)),
+    "faction_star_pavilion": ((71, 92, 137), (170, 182, 224)),
+    "faction_dan_tower": ((139, 72, 54), (230, 166, 72)),
+    "faction_hun": ((47, 39, 55), (166, 52, 67)),
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 地图模板系统
+# ═══════════════════════════════════════════════════════════════════
+
+def _make_border(w: int, h: int, doors: list) -> list:
+    """围墙+城门。"""
+    tiles = []
+    for x in range(w):
+        if (x, 0) not in doors:
+            tiles.append((x, 0, TILE_WALL))
+        if (x, h - 1) not in doors:
+            tiles.append((x, h - 1, TILE_WALL))
+    for y in range(h):
+        if (0, y) not in doors:
+            tiles.append((0, y, TILE_WALL))
+        if (w - 1, y) not in doors:
+            tiles.append((w - 1, y, TILE_WALL))
+    return tiles
+
+
+def _add_town_building(
+    tiles: list,
+    entities: list,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    etype: int,
+    label: str,
+    door_side: str = "bottom",
+) -> None:
+    """添加多格城镇建筑，并在面向街道的一侧保留可交互入口。"""
+    door_x = x + width // 2
+    door_y = y if door_side == "top" else y + height - 1
+    for by in range(y, y + height):
+        for bx in range(x, x + width):
+            tiles.append((bx, by, TILE_FLOOR if (bx, by) == (door_x, door_y) else TILE_WALL))
+    entities.append((door_x, door_y, etype, label))
+
+
+_TOWN_STYLE_PROFILES = {
+    "wutan": ("族坊", ["萧家坊", "药铺", "铁匠铺", "茶楼", "客栈", "米特尔行", "演武馆"]),
+    "desert": ("沙城", ["水站", "佣兵会", "香料铺", "地图铺", "商栈", "药铺", "驼队行"]),
+    "capital": ("帝都", ["皇都客栈", "炼药师会", "米特尔行", "珍宝阁", "药材行", "茶楼", "商会"]),
+    "black_corner": ("黑角", ["黑店", "拍卖行", "药材铺", "佣兵会", "情报馆", "酒馆", "黑市"]),
+    "academy": ("学院", ["食堂", "任务厅", "交易所", "炼药房", "宿舍", "藏书楼", "竞技馆"]),
+    "dan": ("丹城", ["丹药铺", "药材行", "炼药师会", "鉴宝阁", "丹塔驿馆", "药鼎行", "灵药斋"]),
+    "zhongzhou": ("中州", ["虫洞驿站", "商会", "灵宝阁", "酒楼", "药材行", "拍卖行", "客栈"]),
+    "sect": ("宗门", ["任务殿", "功法阁", "丹房", "弟子居", "执事堂", "灵药园", "修炼堂"]),
+    "ancient": ("古族", ["古族客舍", "血脉堂", "灵药阁", "传承殿", "族库", "议事堂", "古市"]),
+    "frontier": ("边城", ["驿站", "粮行", "兵器铺", "佣兵会", "药铺", "酒馆", "商栈"]),
+}
+
+
+def _town_style(map_id: str) -> Tuple[str, List[str]]:
+    """根据城市身份选择店铺组合，子地图也继承所属城市气质。"""
+    text = map_id.lower()
+    if any(key in text for key in ("wutan", "xiao_")):
+        key = "wutan"
+    elif any(key in text for key in ("mo_city", "stone_mo", "desert", "tager")):
+        key = "desert"
+    elif any(key in text for key in ("capital", "jia_ma", "miteer", "nalan")):
+        key = "capital"
+    elif any(key in text for key in ("black_", "feng_", "peace_town", "emperor_city")):
+        key = "black_corner"
+    elif any(key in text for key in ("canaan", "inner_", "pan_gate")):
+        key = "academy"
+    elif any(key in text for key in ("dan_", "sacred_dan", "yao_", "alchemy", "small_dan")):
+        key = "dan"
+    elif any(key in text for key in ("ancient", "gu_", "heaven_tomb")):
+        key = "ancient"
+    elif any(key in text for key in (
+        "sect", "pavilion", "yunlan", "star_", "flower_", "burning_", "valley",
+    )):
+        key = "sect"
+    elif any(key in text for key in ("tianya", "zhongzhou", "wormhole", "transfer", "tianbei", "ye_city")):
+        key = "zhongzhou"
+    else:
+        key = "frontier"
+    return _TOWN_STYLE_PROFILES[key]
+
+
+def _town_seed(map_id: str) -> int:
+    """返回跨进程稳定的城市种子。"""
+    value = 2166136261
+    for char in map_id:
+        value ^= ord(char)
+        value = (value * 16777619) & 0xFFFFFFFF
+    return value
+
+
+def _npc_visual(npc_id: str, profile: Dict[str, str]) -> Dict[str, Any]:
+    """结合原文重点档案与 Excel 身份字段生成稳定人物造型。"""
+    if npc_id in _NPC_CANONICAL_VISUALS:
+        return dict(_NPC_CANONICAL_VISUALS[npc_id])
+
+    seed = _town_seed(npc_id)
+    faction = profile.get("Faction_ID", "")
+    robe, trim = _FACTION_VISUALS.get(
+        faction,
+        (
+            (62 + seed % 70, 70 + (seed >> 4) % 65, 78 + (seed >> 9) % 70),
+            (155 + seed % 70, 155 + (seed >> 5) % 70, 145 + (seed >> 10) % 80),
+        ),
+    )
+    gender = profile.get("Gender", "")
+    role = profile.get("Role", "")
+    char_type = profile.get("Char_Type", "")
+    skills = profile.get("Skills", "")
+    hair_style = "long" if gender == "female" else "short"
+    if any(key in role for key in ("长老", "族长", "会长", "尊者", "老人")):
+        hair_style = "elder"
+    elif seed % 7 == 0:
+        hair_style = "twin"
+
+    accessory = ""
+    if "炼药" in role or "alchemy" in skills:
+        accessory = "medicine"
+    elif any(key in role for key in ("宗主", "女王", "皇", "族长")):
+        accessory = "crown"
+    elif any(key in role for key in ("强者", "护法", "将", "佣兵", "宿敌")):
+        accessory = "sword"
+    elif char_type == "enemy_npc":
+        accessory = "red_aura"
+    elif "ice" in skills:
+        accessory = "ice"
+    hair_palette = [(31, 28, 35), (66, 45, 35), (39, 45, 55), (104, 91, 75)]
+    return {
+        "robe": robe,
+        "trim": trim,
+        "hair": hair_palette[(seed >> 13) % len(hair_palette)],
+        "hair_style": hair_style,
+        "accessory": accessory,
+    }
+
+
+def _town_square_template(map_id: str) -> Tuple[int, int, list, list]:
+    """按城市身份生成具有稳定特色的城镇街区。"""
+    w, h = 20, 15
+    doors = [(w//2, h-1), (w//2-1, h-1)]
+    tiles = _make_border(w, h, doors)
+    entities = []
+    seed = _town_seed(map_id)
+    style_name, shop_names = _town_style(map_id)
+    shop_names = shop_names[seed % len(shop_names):] + shop_names[:seed % len(shop_names)]
+
+    # 每个地图 ID 会稳定选择街区结构和建筑尺寸，同区域城市也不会完全相同。
+    variants = [
+        [(1, 1, 5, 3), (8, 1, 5, 3), (14, 1, 5, 3), (1, 6, 5, 3), (14, 6, 5, 3), (1, 10, 5, 3), (14, 10, 5, 3)],
+        [(1, 1, 6, 3), (8, 1, 4, 3), (13, 1, 6, 3), (1, 6, 4, 3), (15, 6, 4, 3), (1, 10, 6, 3), (13, 10, 6, 3)],
+        [(1, 1, 4, 3), (6, 1, 6, 3), (14, 1, 5, 3), (1, 6, 6, 3), (13, 6, 6, 3), (1, 10, 4, 3), (15, 10, 4, 3)],
+        [(1, 1, 6, 3), (8, 1, 5, 3), (15, 1, 4, 3), (1, 6, 5, 3), (14, 6, 5, 3), (1, 10, 6, 3), (13, 10, 6, 3)],
+    ]
+    building_types = [ENTITY_INN, ENTITY_GUILD] + [ENTITY_SHOP] * 5
+    for index, (bx, by, building_w, building_h) in enumerate(variants[seed % len(variants)]):
+        _add_town_building(
+            tiles,
+            entities,
+            bx,
+            by,
+            building_w,
+            building_h,
+            building_types[index],
+            shop_names[index],
+            "top" if by >= 10 else "bottom",
+        )
+
+    # 摊位形状和位置随城市变化，强化集市、宗门或边城的空间差异。
+    stall_patterns = [
+        [(7, 6), (11, 6), (7, 9), (11, 9)],
+        [(7, 5), (11, 5), (7, 9), (11, 9)],
+        [(7, 6), (11, 6), (7, 10), (11, 10)],
+        [(6, 5), (12, 5), (6, 9), (12, 9)],
+    ]
+    for stall_x, stall_y in stall_patterns[(seed // 7) % len(stall_patterns)]:
+        tiles.append((stall_x, stall_y, TILE_COUNTER))
+        if (seed + stall_x + stall_y) % 2:
+            tiles.append((stall_x + 1, stall_y, TILE_COUNTER))
+
+    # 由地图 ID 编码的街景陈设，使每座城镇拥有稳定且独立的细节组合。
+    decor_spots = [
+        (6, 4), (13, 4), (6, 5), (13, 5), (6, 8), (13, 8),
+        (6, 9), (13, 9), (7, 4), (12, 4), (7, 8), (12, 8),
+    ]
+    for bit, spot in enumerate(decor_spots):
+        if seed & (1 << bit):
+            tiles.append((*spot, TILE_COUNTER))
+
+    npcs = _pick_npcs_for_map(map_id)
+    entities.extend([
+        (8, 7, ENTITY_TREASURE, f"{style_name}摊"),
+        (w // 2, 12, ENTITY_EXIT, "离开"),
+    ])
+    # 区域 NPC
+    for j, npc_id in enumerate(npcs[:2]):
+        entities.append((8 + j * 4, 11, ENTITY_NPC, npc_id))
+    return w, h, tiles, entities
+
+
+def _mansion_template(map_id: str = "") -> Tuple[int, int, list, list]:
+    """府邸/室内——萧家、纳兰家等。"""
+    w, h = 16, 12
+    tiles = _make_border(w, h, [(w//2, h-1), (w//2-1, h-1)])
+    # 内部房间隔断
+    for y in [3, 7]:
+        for x in range(2, w - 2):
+            if x not in (w // 2, w // 2 + 1, w // 2 - 1):
+                tiles.append((x, y, TILE_COUNTER))
+    # 竖向隔断
+    for mid_x in [w // 3, 2 * w // 3]:
+        for y in range(4, 7):
+            tiles.append((mid_x, y, TILE_WALL))
+    npcs = _pick_npcs_for_map(map_id)
+    entities = [
+        (w // 2, 1, ENTITY_NPC, npcs[0] if npcs else "族长"),
+        (3, 5, ENTITY_TREASURE, "功法架"),
+        (w - 4, 5, ENTITY_NPC, npcs[1] if len(npcs) > 1 else "族人"),
+        (w // 2, 10, ENTITY_EXIT, "出门"),
+    ]
+    return w, h, tiles, entities
+
+
+def _training_ground_template(map_id: str = "") -> Tuple[int, int, list, list]:
+    """演武场——切磋训练。"""
+    w, h = 16, 12
+    tiles = _make_border(w, h, [(w//2, h-1)])
+    # 中央擂台
+    for x in range(w // 2 - 3, w // 2 + 3):
+        tiles.append((x, h // 2 - 2, TILE_COUNTER))
+        tiles.append((x, h // 2 + 2, TILE_COUNTER))
+    for y in range(h // 2 - 2, h // 2 + 3):
+        tiles.append((w // 2 - 3, y, TILE_COUNTER))
+        tiles.append((w // 2 + 2, y, TILE_COUNTER))
+    npcs = _pick_npcs_for_map(map_id)
+    entities = [
+        (w // 2, 1, ENTITY_NPC, npcs[0] if npcs else "教头"),
+        (3, h - 2, ENTITY_NPC, "陪练弟子"),
+        (w // 2, h // 2, ENTITY_ENEMY, "切磋对手"),
+        (w - 4, h - 2, ENTITY_TREASURE, "武器架"),
+        (w // 2, h - 2, ENTITY_EXIT, "离开"),
+    ]
+    return w, h, tiles, entities
+
+
+def _wilderness_forest(map_id: str) -> Tuple[int, int, list, list]:
+    """森林/山脉野外——曲折路径+散落敌人。"""
+    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    w, h = 20 + rng.randint(0, 3), 15 + rng.randint(0, 2)
+    tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
+    # 散落树木
+    for _ in range(w * h // 6):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        tiles.append((x, y, TILE_WALL))
+    # 蜿蜒通道
+    for y in range(2, h - 2, 2):
+        cx = w // 2 + (rng.randint(-3, 3) if y % 4 == 0 else rng.randint(-5, 5))
+        for dx in range(-2, 3):
+            tx = max(1, min(w - 2, cx + dx))
+            tiles.append((tx, y, TILE_FLOOR))
+
+    entities = [(1, h//2, ENTITY_EXIT, "返回"), (w-2, h//2, ENTITY_EXIT, "前进")]
+    for _ in range(rng.randint(3, 6)):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        entities.append((x, y, ENTITY_ENEMY, "魔兽"))
+    for _ in range(rng.randint(1, 3)):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        entities.append((x, y, ENTITY_TREASURE, "药材"))
+    return w, h, tiles, entities
+
+
+def _wilderness_desert(map_id: str) -> Tuple[int, int, list, list]:
+    """沙漠/荒原野外——开阔+散落敌人。"""
+    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    w, h = 22, 14
+    tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
+    # 稀疏障碍
+    for _ in range(w * h // 10):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        tiles.append((x, y, TILE_WALL))
+    entities = [(1, h//2, ENTITY_EXIT, "返回"), (w-2, h//2, ENTITY_EXIT, "深入")]
+    for _ in range(rng.randint(4, 7)):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        entities.append((x, y, ENTITY_ENEMY, "蛇人"))
+    for _ in range(rng.randint(1, 2)):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        entities.append((x, y, ENTITY_TREASURE, "沙中遗物"))
+    return w, h, tiles, entities
+
+
+def _wilderness_cave(map_id: str) -> Tuple[int, int, list, list]:
+    """洞穴/遗迹——狭窄通道+Boss。"""
+    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    w, h = 14 + rng.randint(0, 2), 12 + rng.randint(0, 2)
+    tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
+    # 狭窄通道
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            if abs(x - w // 2) > 4:
+                tiles.append((x, y, TILE_WALL))
+    # 开洞——房间
+    for room_cx in [w // 4, 3 * w // 4]:
+        for dx in range(-2, 3):
+            for dy in range(-2, 3):
+                rx, ry = room_cx + dx, h // 2 + dy
+                if 1 <= rx < w - 1 and 1 <= ry < h - 1:
+                    tiles.append((rx, ry, TILE_FLOOR))
+    entities = [(1, h//2, ENTITY_EXIT, "出口")]
+    for _ in range(rng.randint(2, 4)):
+        x, y = rng.randint(1, w - 2), rng.randint(1, h - 2)
+        entities.append((x, y, ENTITY_ENEMY, "守护兽"))
+    entities.append((3 * w // 4, h // 2, ENTITY_TREASURE, "宝物"))
+    return w, h, tiles, entities
+
+
+# ── 地图连接表：基于原文地理的完整路线网 ─────────────────
+
+_MAP_CONNECTIONS: Dict[str, List[str]] = {
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 乌坦城区域
+    # ═══════════════════════════════════════════════════════════
+    "map_wutan": [
+        "map_xiao_mansion", "map_xiao_training_ground",
+        "map_wutan_commercial_street", "map_wutan_inn",
+        "map_wutan_back_mountain", "map_wutan_gate",
+        "map_jia_ma_road",
+    ],
+    "map_xiao_mansion": ["map_wutan"],
+    "map_xiao_training_ground": ["map_wutan"],
+    "map_wutan_commercial_street": [
+        "map_wutan", "map_xiao_market", "map_wutan_pharmacy",
+        "map_wutan_smithy", "map_wutan_east_market",
+        "map_wutan_warehouse_district", "map_miteer_auction",
+    ],
+    "map_xiao_market": ["map_wutan_commercial_street"],
+    "map_wutan_pharmacy": ["map_wutan_commercial_street"],
+    "map_wutan_smithy": ["map_wutan_commercial_street"],
+    "map_wutan_east_market": ["map_wutan_commercial_street"],
+    "map_wutan_warehouse_district": ["map_wutan_commercial_street"],
+    "map_wutan_inn": ["map_wutan", "map_wutan_teahouse"],
+    "map_wutan_teahouse": ["map_wutan_inn"],
+    "map_wutan_back_mountain": ["map_wutan"],
+    "map_wutan_gate": ["map_wutan", "map_jia_ma_road"],
+    "map_xiao_council_hall": ["map_xiao_mansion"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 官道沿线城市
+    # ═══════════════════════════════════════════════════════════
+    "map_jia_ma_road": [
+        "map_wutan", "map_black_rock_city", "map_salt_city",
+        "map_ghost_pass", "map_jia_ma_post_station",
+        "map_qingshan", "map_jia_ma_capital", "map_daling_city",
+    ],
+    "map_black_rock_city": [
+        "map_jia_ma_road", "map_black_rock_market",
+        "map_black_rock_black_market", "map_black_rock_inn",
+    ],
+    "map_black_rock_market": ["map_black_rock_city"],
+    "map_black_rock_black_market": ["map_black_rock_city"],
+    "map_black_rock_inn": ["map_black_rock_city"],
+    "map_salt_city": ["map_jia_ma_road", "map_salt_market", "map_salt_inn"],
+    "map_salt_market": ["map_salt_city"],
+    "map_salt_inn": ["map_salt_city"],
+    "map_ghost_pass": [
+        "map_jia_ma_road", "map_ghost_pass_market", "map_ghost_pass_barracks",
+    ],
+    "map_ghost_pass_market": ["map_ghost_pass"],
+    "map_ghost_pass_barracks": ["map_ghost_pass"],
+    "map_daling_city": ["map_jia_ma_road", "map_daling_market", "map_daling_inn"],
+    "map_daling_market": ["map_daling_city"],
+    "map_daling_inn": ["map_daling_city"],
+    "map_jia_ma_post_station": ["map_jia_ma_road"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 魔兽山脉 & 青山镇
+    # ═══════════════════════════════════════════════════════════
+    "map_qingshan": [
+        "map_jia_ma_road", "map_magic_mountains",
+        "map_qingshan_mercenary_camp", "map_qingshan_medical_hall",
+        "map_qingshan_market",
+    ],
+    "map_qingshan_mercenary_camp": ["map_qingshan"],
+    "map_qingshan_medical_hall": ["map_qingshan"],
+    "map_qingshan_market": ["map_qingshan"],
+    "map_magic_mountains": [
+        "map_qingshan", "map_jia_ma_capital", "map_jia_ma_mountain_pass",
+        "map_magic_inner", "map_magic_herb_valley", "map_wolfhead_camp",
+        "map_magic_hidden_cave", "map_tager",
+    ],
+    "map_magic_inner": ["map_magic_mountains"],
+    "map_magic_herb_valley": ["map_magic_mountains"],
+    "map_wolfhead_camp": ["map_magic_mountains"],
+    "map_magic_hidden_cave": ["map_magic_mountains"],
+    "map_jia_ma_mountain_pass": [
+        "map_magic_mountains", "map_jia_ma_border", "map_jia_ma_garrison",
+    ],
+    "map_jia_ma_garrison": ["map_jia_ma_mountain_pass"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 塔戈尔沙漠
+    # ═══════════════════════════════════════════════════════════
+    "map_tager": [
+        "map_magic_mountains", "map_mo_city", "map_stone_mo_city",
+        "map_snake_temple_outer", "map_desert_trade_route",
+        "map_snake_oasis", "map_desert_camp",
+        "map_desert_salt_lake", "map_desert_ancient_well",
+    ],
+    "map_mo_city": [
+        "map_tager", "map_mo_market", "map_mo_inn", "map_mo_trade_post",
+    ],
+    "map_mo_market": ["map_mo_city"],
+    "map_mo_inn": ["map_mo_city"],
+    "map_mo_trade_post": ["map_mo_city"],
+    "map_stone_mo_city": [
+        "map_tager", "map_stone_mo_market", "map_stone_mo_mercenary",
+        "map_stone_mo_inn",
+    ],
+    "map_stone_mo_market": ["map_stone_mo_city"],
+    "map_stone_mo_mercenary": ["map_stone_mo_city"],
+    "map_stone_mo_inn": ["map_stone_mo_city"],
+    "map_snake_temple_outer": ["map_tager"],
+    "map_desert_trade_route": ["map_tager"],
+    "map_snake_oasis": ["map_tager"],
+    "map_desert_camp": ["map_tager"],
+    "map_desert_salt_lake": ["map_tager"],
+    "map_desert_ancient_well": ["map_tager"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 帝都 & 云岚宗
+    # ═══════════════════════════════════════════════════════════
+    "map_jia_ma_capital": [
+        "map_jia_ma_road", "map_magic_mountains",
+        "map_alchemist_guild", "map_miteer_auction",
+        "map_capital_commercial", "map_imperial_palace",
+        "map_capital_alchemist_market", "map_capital_nalan_mansion",
+        "map_capital_miteer_hq", "map_capital_arena",
+        "map_yunlan",
+    ],
+    "map_alchemist_guild": ["map_jia_ma_capital"],
+    "map_capital_commercial": ["map_jia_ma_capital"],
+    "map_imperial_palace": ["map_jia_ma_capital"],
+    "map_capital_alchemist_market": ["map_jia_ma_capital"],
+    "map_capital_nalan_mansion": ["map_jia_ma_capital"],
+    "map_capital_miteer_hq": ["map_jia_ma_capital"],
+    "map_capital_arena": ["map_jia_ma_capital"],
+    "map_miteer_auction": [
+        "map_jia_ma_capital", "map_wutan_commercial_street",
+        "map_miteer_appraisal",
+    ],
+    "map_miteer_appraisal": ["map_miteer_auction"],
+    "map_yunlan": [
+        "map_jia_ma_capital", "map_yunlan_gate", "map_yunlan_stairs",
+        "map_yunlan_square", "map_yunlan_back_cliff", "map_yunlan_elder_hall",
+        "map_cloud_mountain_peak", "map_jia_ma_battle_front",
+    ],
+    "map_yunlan_gate": ["map_yunlan"],
+    "map_yunlan_stairs": ["map_yunlan"],
+    "map_yunlan_square": ["map_yunlan"],
+    "map_yunlan_back_cliff": ["map_yunlan"],
+    "map_yunlan_elder_hall": ["map_yunlan"],
+    "map_cloud_mountain_peak": ["map_yunlan"],
+    "map_yan_alliance_hq": ["map_jia_ma_battle_front", "map_jia_ma_border"],
+    "map_jia_ma_battle_front": ["map_yunlan", "map_yan_alliance_hq"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 加玛帝国 —— 边境 → 黑角域
+    # ═══════════════════════════════════════════════════════════
+    "map_jia_ma_border": [
+        "map_jia_ma_mountain_pass", "map_yan_alliance_hq",
+        "map_peace_town",
+    ],
+
+    # ═══════════════════════════════════════════════════════════
+    # 黑角域
+    # ═══════════════════════════════════════════════════════════
+    "map_peace_town": [
+        "map_jia_ma_border", "map_black_corner", "map_canaan",
+        "map_peace_town_inn", "map_peace_town_market",
+    ],
+    "map_peace_town_inn": ["map_peace_town"],
+    "map_peace_town_market": ["map_peace_town"],
+    "map_black_corner": [
+        "map_peace_town", "map_canaan", "map_feng_city",
+        "map_black_seal_city", "map_black_emperor_city",
+        "map_black_domain_plain", "map_blood_sect", "map_eight_gates",
+    ],
+    "map_black_domain_plain": ["map_black_corner"],
+    "map_blood_sect": ["map_black_corner"],
+    "map_eight_gates": ["map_black_corner"],
+    "map_black_seal_city": [
+        "map_black_corner", "map_black_seal_auction",
+        "map_black_seal_market", "map_black_seal_inn",
+    ],
+    "map_black_seal_auction": ["map_black_seal_city"],
+    "map_black_seal_market": ["map_black_seal_city"],
+    "map_black_seal_inn": ["map_black_seal_city"],
+    "map_canaan": [
+        "map_peace_town", "map_black_corner", "map_canaan_inner",
+        "map_canaan_outer_square", "map_canaan_library",
+        "map_canaan_dormitory", "map_canaan_mission_hall",
+        "map_canaan_duel_arena", "map_canaan_trade_street",
+    ],
+    "map_canaan_outer_square": ["map_canaan"],
+    "map_canaan_library": ["map_canaan"],
+    "map_canaan_dormitory": ["map_canaan"],
+    "map_canaan_mission_hall": ["map_canaan"],
+    "map_canaan_duel_arena": ["map_canaan"],
+    "map_canaan_trade_street": ["map_canaan"],
+    "map_canaan_inner": [
+        "map_canaan", "map_skyfire_tower",
+        "map_inner_arena", "map_inner_trade_district",
+        "map_inner_market", "map_pan_gate",
+    ],
+    "map_inner_arena": ["map_canaan_inner"],
+    "map_inner_trade_district": ["map_canaan_inner"],
+    "map_inner_market": ["map_canaan_inner"],
+    "map_pan_gate": ["map_canaan_inner"],
+    "map_skyfire_tower": [
+        "map_canaan_inner", "map_skyfire_lower",
+        "map_skyfire_seal_core", "map_skyfire_magma_world",
+    ],
+    "map_skyfire_lower": ["map_skyfire_tower"],
+    "map_skyfire_seal_core": ["map_skyfire_tower"],
+    "map_skyfire_magma_world": ["map_skyfire_tower"],
+    "map_feng_city": [
+        "map_black_corner", "map_black_emperor_city",
+        "map_tianya_city", "map_feng_merchant_hall",
+        "map_feng_alchemy_room", "map_feng_defense_wall",
+        "map_feng_market", "map_black_herb_market", "map_black_inn",
+    ],
+    "map_feng_merchant_hall": ["map_feng_city"],
+    "map_feng_alchemy_room": ["map_feng_city"],
+    "map_feng_defense_wall": ["map_feng_city"],
+    "map_feng_market": ["map_feng_city"],
+    "map_black_herb_market": ["map_feng_city"],
+    "map_black_inn": ["map_feng_city"],
+    "map_black_emperor_city": [
+        "map_black_corner", "map_feng_city", "map_tianya_city",
+        "map_black_emperor_market", "map_black_emperor_square",
+        "map_black_auction_lane", "map_black_emperor_pavilion",
+        "map_xiao_gate",
+    ],
+    "map_black_emperor_market": ["map_black_emperor_city"],
+    "map_black_emperor_square": ["map_black_emperor_city"],
+    "map_black_auction_lane": ["map_black_emperor_city"],
+    "map_black_emperor_pavilion": ["map_black_emperor_city"],
+    "map_xiao_gate": ["map_black_emperor_city"],
+    "map_demon_flame_valley": [
+        "map_black_corner", "map_demon_valley_hall", "map_demon_valley_archive",
+    ],
+    "map_demon_valley_hall": ["map_demon_flame_valley"],
+    "map_demon_valley_archive": ["map_demon_flame_valley"],
+    "map_emperor_cave": [
+        "map_black_corner", "map_strange_flame_square",
+        "map_emperor_cave_gate", "map_emperor_cave_inner",
+        "map_emperor_cave_treasure_room",
+    ],
+    "map_emperor_cave_gate": ["map_emperor_cave"],
+    "map_emperor_cave_inner": ["map_emperor_cave"],
+    "map_emperor_cave_treasure_room": ["map_emperor_cave"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 天涯城 —— 连接黑角域 ↔ 中州的中转站
+    # ═══════════════════════════════════════════════════════════
+    "map_tianya_city": [
+        "map_feng_city", "map_black_emperor_city",
+        "map_zhongzhou",
+        "map_tianya_wormhole_square", "map_tianya_market", "map_tianya_inn",
+    ],
+    "map_tianya_wormhole_square": ["map_tianya_city"],
+    "map_tianya_market": ["map_tianya_city"],
+    "map_tianya_inn": ["map_tianya_city"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 中州
+    # ═══════════════════════════════════════════════════════════
+    "map_zhongzhou": [
+        "map_tianya_city", "map_tianbei_city", "map_ye_city",
+        "map_wind_lightning_pavilion", "map_huangquan_pavilion",
+        "map_wanjian_pavilion", "map_burning_flame_valley",
+        "map_star_pavilion", "map_dan_region",
+        "map_soul_mountains", "map_beast_region",
+        "map_ancient_realm", "map_wilderness",
+        "map_demon_flame_space", "map_sky_demon_sect",
+        "map_flower_sect", "map_ancient_ruins",
+        "map_heavenly_gang_hall", "map_death_corpse_mountains",
+        "map_tianmu_mountains", "map_yao_realm",
+        "map_zhongzhou_transfer_square", "map_zhongzhou_inn_district",
+        "map_zhongzhou_north_market", "map_zhongzhou_wormhole_station",
+        "map_scorching_mountains", "map_qi_feng_mountain",
+        "map_tianhuang_city", "map_black_fire_sect",
+        "map_space_trade_fair",
+    ],
+    "map_zhongzhou_transfer_square": ["map_zhongzhou"],
+    "map_zhongzhou_inn_district": ["map_zhongzhou"],
+    "map_zhongzhou_north_market": ["map_zhongzhou"],
+    "map_zhongzhou_wormhole_station": ["map_zhongzhou"],
+    "map_scorching_mountains": ["map_zhongzhou"],
+    "map_qi_feng_mountain": ["map_zhongzhou"],
+    "map_tianhuang_city": [
+        "map_zhongzhou", "map_tianhuang_market", "map_tianhuang_inn",
+    ],
+    "map_tianhuang_market": ["map_tianhuang_city"],
+    "map_tianhuang_inn": ["map_tianhuang_city"],
+    "map_black_fire_sect": ["map_zhongzhou"],
+
+    # 天北城
+    "map_tianbei_city": [
+        "map_zhongzhou", "map_tianbei_han_clan",
+        "map_tianbei_hong_clan", "map_tianbei_market", "map_tianbei_inn",
+    ],
+    "map_tianbei_han_clan": ["map_tianbei_city"],
+    "map_tianbei_hong_clan": ["map_tianbei_city"],
+    "map_tianbei_market": ["map_tianbei_city"],
+    "map_tianbei_inn": ["map_tianbei_city"],
+
+    # 叶城
+    "map_ye_city": [
+        "map_zhongzhou", "map_ice_river_valley",
+        "map_ye_mansion", "map_ye_city_gate",
+        "map_ye_alchemy_room", "map_ye_market",
+    ],
+    "map_ye_mansion": ["map_ye_city"],
+    "map_ye_city_gate": ["map_ye_city"],
+    "map_ye_alchemy_room": ["map_ye_city"],
+    "map_ye_market": ["map_ye_city"],
+    "map_ice_river_valley": ["map_ye_city"],
+
+    # 四方阁
+    "map_wind_lightning_pavilion": ["map_zhongzhou"],
+    "map_huangquan_pavilion": ["map_zhongzhou"],
+    "map_wanjian_pavilion": ["map_zhongzhou"],
+    "map_burning_flame_valley": [
+        "map_zhongzhou", "map_burning_valley_market",
+    ],
+    "map_burning_valley_market": ["map_burning_flame_valley"],
+    "map_sky_demon_sect": [
+        "map_zhongzhou", "map_sky_demon_gate", "map_sky_demon_hall",
+    ],
+    "map_sky_demon_gate": ["map_sky_demon_sect"],
+    "map_sky_demon_hall": ["map_sky_demon_sect"],
+
+    # 丹域
+    "map_dan_region": [
+        "map_zhongzhou", "map_sacred_dan_city",
+        "map_dan_herb_street", "map_wan_yao_mountains",
+        "map_small_dan_tower",
+    ],
+    "map_dan_herb_street": ["map_dan_region"],
+    "map_wan_yao_mountains": ["map_dan_region"],
+    "map_small_dan_tower": ["map_dan_region"],
+    "map_sacred_dan_city": [
+        "map_dan_region", "map_dan_tower",
+        "map_sacred_dan_market",
+    ],
+    "map_sacred_dan_market": ["map_sacred_dan_city"],
+    "map_dan_tower": [
+        "map_sacred_dan_city", "map_dan_tower_outer_square",
+        "map_dan_tower_trial_room", "map_dan_beast_enclosure",
+    ],
+    "map_dan_tower_outer_square": ["map_dan_tower"],
+    "map_dan_tower_trial_room": ["map_dan_tower"],
+    "map_dan_beast_enclosure": ["map_dan_tower"],
+
+    # 星陨阁
+    "map_star_pavilion": [
+        "map_zhongzhou", "map_star_realm",
+        "map_star_pavilion_back_mountain", "map_star_pavilion_mission_hall",
+        "map_star_pavilion_market", "map_star_pavilion_council",
+        "map_star_pavilion_alliance_hub",
+    ],
+    "map_star_pavilion_back_mountain": ["map_star_pavilion"],
+    "map_star_pavilion_mission_hall": ["map_star_pavilion"],
+    "map_star_pavilion_market": ["map_star_pavilion"],
+    "map_star_pavilion_council": ["map_star_pavilion"],
+    "map_star_realm": [
+        "map_star_pavilion", "map_star_realm_core",
+        "map_star_realm_training_ground",
+    ],
+    "map_star_realm_core": ["map_star_realm"],
+    "map_star_realm_training_ground": ["map_star_realm"],
+
+    # 天府联盟
+    "map_star_pavilion_alliance_hub": [
+        "map_star_pavilion", "map_tianfu_council_hall",
+        "map_alliance_war_room",
+    ],
+    "map_tianfu_council_hall": ["map_star_pavilion_alliance_hub"],
+    "map_alliance_war_room": ["map_star_pavilion_alliance_hub"],
+
+    # 花宗
+    "map_flower_sect": [
+        "map_zhongzhou", "map_flower_sect_gate",
+        "map_flower_sect_garden", "map_flower_sect_heritage_hall",
+        "map_flower_sect_market",
+    ],
+    "map_flower_sect_gate": ["map_flower_sect"],
+    "map_flower_sect_garden": ["map_flower_sect"],
+    "map_flower_sect_heritage_hall": ["map_flower_sect"],
+    "map_flower_sect_market": ["map_flower_sect"],
+
+    # 魂殿区域 —— 山脉→魂殿→魂界 链式
+    "map_soul_mountains": ["map_zhongzhou", "map_soul_hall"],
+    "map_soul_hall": [
+        "map_soul_mountains", "map_soul_realm",
+        "map_soul_hall_prison", "map_soul_hall_person_hall",
+        "map_soul_hall_soul_well",
+    ],
+    "map_soul_hall_prison": ["map_soul_hall"],
+    "map_soul_hall_person_hall": ["map_soul_hall"],
+    "map_soul_hall_soul_well": ["map_soul_hall"],
+    "map_soul_realm": [
+        "map_soul_hall", "map_hun_clan_space",
+        "map_soul_realm_battlefield", "map_soul_emperor_throne",
+    ],
+    "map_soul_realm_battlefield": ["map_soul_realm"],
+    "map_soul_emperor_throne": ["map_soul_realm"],
+    "map_hun_clan_space": [
+        "map_soul_realm", "map_hun_clan_ritual_site",
+        "map_ancient_alliance_camp",
+    ],
+    "map_hun_clan_ritual_site": ["map_hun_clan_space"],
+    "map_ancient_alliance_camp": ["map_hun_clan_space"],
+    "map_heavenly_gang_hall": [
+        "map_soul_hall", "map_heavenly_gang_prison",
+        "map_heavenly_gang_origin",
+    ],
+    "map_heavenly_gang_prison": ["map_heavenly_gang_hall"],
+    "map_heavenly_gang_origin": ["map_heavenly_gang_hall"],
+
+    # 古族区域
+    "map_ancient_realm": [
+        "map_zhongzhou", "map_ancient_sacred_city", "map_heaven_tomb",
+    ],
+    "map_ancient_sacred_city": [
+        "map_ancient_realm", "map_ancient_city_market",
+    ],
+    "map_ancient_city_market": ["map_ancient_sacred_city"],
+    "map_heaven_tomb": ["map_ancient_realm", "map_heaven_tomb_camp"],
+    "map_heaven_tomb_camp": ["map_heaven_tomb"],
+
+    # 远古遗迹 & 兽域
+    "map_ancient_ruins": [
+        "map_zhongzhou", "map_beast_region",
+        "map_ancient_ruins_gate", "map_ancient_ruins_core",
+    ],
+    "map_ancient_ruins_gate": ["map_ancient_ruins"],
+    "map_ancient_ruins_core": ["map_ancient_ruins"],
+    "map_beast_region": [
+        "map_zhongzhou", "map_ancient_ruins",
+        "map_beast_bone_mountains", "map_beast_market",
+        "map_beast_region_trade_hub",
+    ],
+    "map_beast_bone_mountains": ["map_beast_region"],
+    "map_beast_market": ["map_beast_region"],
+    "map_beast_region_trade_hub": ["map_beast_region"],
+
+    # 莽荒古域 & 菩提古树
+    "map_wilderness": [
+        "map_zhongzhou", "map_bodhi_tree",
+        "map_wilderness_outpost", "map_wilderness_poison_swamp",
+        "map_manghuang_inn", "map_manghuang_town",
+        "map_heaven_demon_blood_pool", "map_ancient_domain_platform",
+    ],
+    "map_wilderness_outpost": ["map_wilderness"],
+    "map_wilderness_poison_swamp": ["map_wilderness"],
+    "map_manghuang_inn": ["map_wilderness"],
+    "map_manghuang_town": ["map_wilderness"],
+    "map_heaven_demon_blood_pool": ["map_wilderness"],
+    "map_ancient_domain_platform": ["map_wilderness"],
+    "map_bodhi_tree": ["map_wilderness"],
+    "map_space_trade_fair": ["map_zhongzhou"],
+
+    # 天目山脉 & 死亡山脉
+    "map_tianmu_mountains": [
+        "map_zhongzhou", "map_heaven_mountain_blood_pool",
+    ],
+    "map_heaven_mountain_blood_pool": ["map_tianmu_mountains"],
+    "map_death_corpse_mountains": ["map_zhongzhou"],
+
+    # 药族 —— 药典→魂族袭击→逃亡路线
+    "map_yao_realm": [
+        "map_zhongzhou", "map_yao_realm_ceremony_square",
+    ],
+    "map_yao_realm_ceremony_square": [
+        "map_yao_realm", "map_yao_realm_herb_garden",
+    ],
+    "map_yao_realm_herb_garden": [
+        "map_yao_realm_ceremony_square", "map_yao_realm_survivor_camp",
+    ],
+    "map_yao_realm_survivor_camp": ["map_yao_realm_herb_garden"],
+
+    # 异火广场 —— 古帝洞府内部，不直连中州
+    "map_strange_flame_square": ["map_emperor_cave"],
+    "map_star_domain": ["map_dan_tower"],
+
+    # 净莲妖火空间
+    "map_demon_flame_space": [
+        "map_zhongzhou", "map_demon_flame_plain",
+        "map_demon_flame_illusion_realm", "map_demon_flame_core",
+        "map_demon_flame_saint_remains",
+    ],
+    "map_demon_flame_plain": ["map_demon_flame_space"],
+    "map_demon_flame_illusion_realm": ["map_demon_flame_space"],
+    "map_demon_flame_core": ["map_demon_flame_space"],
+    "map_demon_flame_saint_remains": ["map_demon_flame_space"],
+
+    "map_black_blood_plain": ["map_black_corner"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 九幽黄泉
+    # ═══════════════════════════════════════════════════════════
+    "map_nether_spring": [
+        "map_nether_spring_pool", "map_nether_python_tribe",
+        "map_nether_underground_palace",
+    ],
+    "map_nether_spring_pool": ["map_nether_spring"],
+    "map_nether_python_tribe": [
+        "map_nether_spring", "map_nether_python_throne",
+    ],
+    "map_nether_python_throne": ["map_nether_python_tribe"],
+    "map_nether_underground_palace": ["map_nether_spring"],
+    "map_jia_ma": ["map_jia_ma_road", "map_jia_ma_capital"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 葬天山脉（最终战连接）
+    # ═══════════════════════════════════════════════════════════
+    "map_burial_sky_mountains": ["map_double_emperor", "map_zhongzhou"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 虚空/龙岛
+    # ═══════════════════════════════════════════════════════════
+    "map_dragon_island": [
+        "map_east_dragon_island", "map_west_dragon_island",
+        "map_south_dragon_island", "map_north_dragon_island",
+        "map_ancient_dragon_island", "map_dragon_island_harbor",
+    ],
+    "map_dragon_island_harbor": ["map_dragon_island"],
+    "map_east_dragon_island": ["map_dragon_island"],
+    "map_west_dragon_island": [
+        "map_dragon_island", "map_west_dragon_palace",
+    ],
+    "map_west_dragon_palace": ["map_west_dragon_island"],
+    "map_south_dragon_island": [
+        "map_dragon_island", "map_south_dragon_battlefield",
+    ],
+    "map_south_dragon_battlefield": ["map_south_dragon_island"],
+    "map_north_dragon_island": [
+        "map_dragon_island", "map_north_dragon_throne",
+    ],
+    "map_north_dragon_throne": ["map_north_dragon_island"],
+    "map_ancient_dragon_island": ["map_dragon_island"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 西北大陆
+    # ═══════════════════════════════════════════════════════════
+    "map_chuyun_empire": [
+        "map_poison_sect", "map_golden_goose_sect",
+        "map_mulan_valley", "map_scorpion_gate",
+        "map_chuyun_border",
+    ],
+    "map_chuyun_border": ["map_chuyun_empire"],
+    "map_poison_sect": [
+        "map_chuyun_empire", "map_poison_sect_hall",
+        "map_poison_sect_herb_cave",
+    ],
+    "map_poison_sect_hall": ["map_poison_sect"],
+    "map_poison_sect_herb_cave": ["map_poison_sect"],
+    "map_golden_goose_sect": ["map_chuyun_empire"],
+    "map_mulan_valley": ["map_chuyun_empire"],
+    "map_scorpion_gate": [
+        "map_chuyun_empire", "map_scorpion_hall", "map_scorpion_cave",
+    ],
+    "map_scorpion_hall": ["map_scorpion_gate"],
+    "map_scorpion_cave": ["map_scorpion_gate"],
+    "map_xuanhuang_fortress": [
+        "map_chuyun_empire", "map_northwest_battle_front",
+        "map_xuanhuang_war_hall", "map_xuanhuang_defense_wall",
+    ],
+    "map_xuanhuang_war_hall": ["map_xuanhuang_fortress"],
+    "map_xuanhuang_defense_wall": ["map_xuanhuang_fortress"],
+    "map_northwest_battle_front": ["map_xuanhuang_fortress"],
+
+    # ═══════════════════════════════════════════════════════════
+    # 最终战场
+    # ═══════════════════════════════════════════════════════════
+    "map_double_emperor": [
+        "map_double_emperor_peak", "map_allied_forces_camp",
+    ],
+    "map_double_emperor_peak": ["map_double_emperor"],
+    "map_allied_forces_camp": ["map_double_emperor"],
+    "map_emperor_memorial_peak": ["map_double_emperor"],
+    "map_world_gate": ["map_double_emperor"],
+    "map_emperor_ascension_platform": ["map_emperor_memorial_peak"],
+}
+
+
+_REGION_NPCS: Dict[str, List[str]] = {
+    "加玛": ["npc_xiao_zhan", "npc_xun_er", "npc_yao_lao"],
+    "黑角域": ["npc_hai_bodong", "npc_ziyan"],
+    "中州": ["npc_feng_xian", "npc_cai_lin", "npc_xun_er"],
+    "丹塔": ["npc_xuan_kongzi", "npc_cao_ying"],
+    "古族": ["npc_xun_er", "npc_gu_yuan"],
+    "龙岛": ["npc_ziyan", "npc_zhu_kun"],
+    "西北": ["npc_cai_lin", "npc_xiao_ding"],
+}
+
+
+def _connected_maps(map_id: str) -> List[str]:
+    """返回从当前地图可直接前往的地图 ID 列表。"""
+    if map_id in _MAP_CONNECTIONS:
+        return _MAP_CONNECTIONS[map_id]
+    # 未在表中的地图：找同前缀地图互连
+    prefix = "_".join(map_id.split("_")[:2])
+    connected = []
+    for mid in _MAP_CONNECTIONS:
+        if mid.startswith(prefix) and mid != map_id:
+            connected.append(mid)
+    if connected:
+        return connected
+    # 最后回退：同区域
+    region = REGION_BY_MAP.get(map_id, "")
+    return [mid for mid, r in REGION_BY_MAP.items() if r == region and mid != map_id]
+
+def _pick_npcs_for_map(map_id: str) -> List[str]:
+    """根据地图所在区域返回可能出现的 NPC ID 列表。"""
+    region = REGION_BY_MAP.get(map_id, "")
+    for key, npcs in _REGION_NPCS.items():
+        if key in region:
+            return npcs
+    return ["npc_xiao_zhan"]  # 默认
+
+
+# ── 地图分类 → 模板选择 ──────────────────────────────────────
+
+_MAP_TEMPLATES = {
+    # 城镇类
+    "mansion": _mansion_template,           # 府邸
+    "training": _training_ground_template,  # 演武场
+    "market": _town_square_template,        # 商业街
+    "inn": _town_square_template,           # 客栈区域
+    "square": _town_square_template,        # 广场
+    "hall": _mansion_template,              # 大厅
+    "gate": _training_ground_template,      # 城门
+    "garrison": _training_ground_template,  # 军营
+    "library": _mansion_template,           # 藏书阁
+    "dormitory": _mansion_template,         # 宿舍
+    "arena": _training_ground_template,     # 竞技场
+    "district": _town_square_template,      # 街区
+    "chamber": _mansion_template,           # 密室
+    "room": _mansion_template,              # 房间
+    "pavilion": _mansion_template,          # 阁楼
+    "tower": _wilderness_cave,              # 塔楼（类似洞穴）
+    "council": _mansion_template,           # 议事厅
+    # 野外类
+    "forest": _wilderness_forest,
+    "mountain": _wilderness_forest,
+    "desert": _wilderness_desert,
+    "cave": _wilderness_cave,
+    "ruins": _wilderness_cave,
+    "valley": _wilderness_forest,
+    "plain": _wilderness_desert,
+    "swamp": _wilderness_forest,
+    "river": _wilderness_forest,
+    "lake": _wilderness_forest,
+    "sea": _wilderness_desert,
+    "island": _wilderness_forest,
+    "pass": _wilderness_desert,
+    "road": _wilderness_desert,
+}
+
+
+def _pick_template(map_id: str, safe: bool, name: str) -> Tuple[int, int, list, list]:
+    """根据地图属性选择/生成模板。"""
+    name_lower = name + map_id
+    if safe:
+        for keyword, tmpl in _MAP_TEMPLATES.items():
+            if keyword in name_lower and tmpl.__name__ != "_wilderness_forest":
+                return tmpl(map_id)
+        return _town_square_template(map_id)
+    else:
+        for keyword, tmpl in _MAP_TEMPLATES.items():
+            if keyword in name_lower:
+                return tmpl(map_id)
+        return _wilderness_forest(map_id)
+
+
+def _build_tile_map(w, h, tile_defs, entity_defs):
+    """根据模板定义构建瓦片网格和实体字典。"""
+    grid = [[TILE_FLOOR for _ in range(w)] for _ in range(h)]
+    for x, y, tile in tile_defs:
+        if 0 <= x < w and 0 <= y < h:
+            grid[y][x] = tile
+    entities: Dict[Tuple[int, int], int] = {}
+    entity_labels: Dict[Tuple[int, int], str] = {}
+    for x, y, etype, label in entity_defs:
+        if 0 <= x < w and 0 <= y < h and grid[y][x] != TILE_WALL:
+            entities[(x, y)] = etype
+            entity_labels[(x, y)] = label
+    return grid, entities, entity_labels
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 字体
+# ═══════════════════════════════════════════════════════════════════
+
+def _load_font(size: int) -> pygame.font.Font:
+    for path in [
+        "C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simsun.ttc",
+        "C:/Windows/Fonts/simhei.ttf",
+    ]:
+        if Path(path).exists():
+            return pygame.font.Font(path, size)
+    return pygame.font.Font(None, size)
+
+
+def _wrap_text(font: pygame.font.Font, text: str, max_width: int) -> List[str]:
+    """按实际渲染宽度拆分文本，避免中文名称超出面板。"""
+    lines: List[str] = []
+    current = ""
+    for char in str(text):
+        if char == "\n":
+            lines.append(current)
+            current = ""
+            continue
+        candidate = current + char
+        if current and font.size(candidate)[0] > max_width:
+            lines.append(current)
+            current = char
+        else:
+            current = candidate
+    if current or not lines:
+        lines.append(current)
+    return lines
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 主游戏类
+# ═══════════════════════════════════════════════════════════════════
+
+class PygameGame:
+    """斗破苍穹 RPG — pygame 瓦片探索界面。"""
+
+    def __init__(self) -> None:
+        pygame.init()
+        pygame.display.set_caption("斗破苍穹 · 大陆历练")
+        self.screen = pygame.display.set_mode((WIN_W, WIN_H))
+        self.clock = pygame.time.Clock()
+        self.running = True
+
+        self.font_title = _load_font(22)
+        self.font_body = _load_font(16)
+        self.font_small = _load_font(13)
+        self.font_big = _load_font(28)
+
+        self.engine = GameEngine()
+        self.engine.new_game("萧炎")
+
+        # 地图数据
+        self.tile_grid: List[List[int]] = []
+        self.tile_entities: Dict[Tuple[int, int], int] = {}
+        self.entity_labels: Dict[Tuple[int, int], str] = {}
+        self.player_pos = (0, 0)
+        self._load_map()
+
+        # 消息
+        self.messages: List[str] = []
+        self._msg("斗气大陆的故事由此开始。方向键移动，空格交互，M 菜单。")
+
+        # 场景
+        self.scene = "explore"
+        self.combat_ui: Optional[CombatView] = None
+        self.shop_items: List[str] = []
+        self.shop_sell_mode = False
+        self.menu_idx = 0
+        self.select_idx = 0
+        self.travel_options: List[Tuple[str, str, str]] = []  # (map_id, name, route)
+        self.travel_idx = 0
+
+    # ── 消息 ──────────────────────────────────────────────────
+
+    def _msg(self, text: str) -> None:
+        if self.engine.last_message:
+            self.messages.append(self.engine.last_message)
+        self.messages.append(text)
+        if len(self.messages) > 8:
+            self.messages = self.messages[-8:]
+
+    # ── 地图 ──────────────────────────────────────────────────
+
+    def _load_map(self) -> None:
+        """根据当前地图数据生成瓦片布局。"""
+        md = self.engine.current_map()
+        mid = md.get("id", "map_wutan")
+        safe = md.get("safe_zone", False)
+        name = md.get("name", mid)
+
+        w, h, tdefs, edefs = _pick_template(mid, safe, name)
+        self.map_w, self.map_h = w, h
+        self.tile_grid, self.tile_entities, self.entity_labels = _build_tile_map(
+            w, h, tdefs, edefs
+        )
+        # 出生点
+        self.player_pos = (w // 2, h // 2)
+        if self.tile_grid and 0 <= h // 2 < h:
+            self.tile_grid[h // 2][w // 2] = TILE_FLOOR
+        self.tile_entities.pop(self.player_pos, None)
+
+    def _pos_blocked(self, x: int, y: int) -> bool:
+        if not self.tile_grid:
+            return True
+        h = len(self.tile_grid)
+        if not (0 <= y < h):
+            return True
+        w = len(self.tile_grid[y])
+        if not (0 <= x < w):
+            return True
+        return self.tile_grid[y][x] in (TILE_WALL,)
+
+    def _entity_at(self, x: int, y: int) -> Optional[int]:
+        return self.tile_entities.get((x, y))
+
+    def _label_at(self, x: int, y: int) -> str:
+        return self.entity_labels.get((x, y), "")
+
+    # ── 地图切换 ─────────────────────────────────────────────
+
+    def _travel_to(self, map_id: str) -> None:
+        if self.engine.travel(map_id):
+            self._load_map()
+            md = self.engine.current_map()
+            self._msg(f"来到了 {md.get('name', map_id)}。")
+        else:
+            self._msg(self.engine.last_message)
+
+    def _exit_map(self) -> None:
+        """触发出口——只显示当前地图可直接到达的邻接地。
+
+        每个路口只连接到特定的几张地图，不是全部区域。
+        连接关系定义在 _MAP_CONNECTIONS 中。
+        """
+        cur = self.engine.player.get("last_map", "")
+        connected = _connected_maps(cur)
+
+        # 过滤：只保留已解锁的地图
+        reachable = []
+        for mid in connected:
+            m = self.engine.maps.get(mid, {})
+            if not m:
+                continue
+            # 检查剧情解锁
+            if not self.engine.is_map_unlocked(mid):
+                continue
+            # 夜间不能去危险区域
+            if self.engine.player["time_period"] == 3 and not m.get("safe_zone", False):
+                continue
+            region = REGION_BY_MAP.get(mid, "")
+            reachable.append((mid, m.get("name", mid), f"「{region}」"))
+
+        if not reachable:
+            self._msg("此路暂时不通。也许需要推进剧情解锁新的区域？")
+            return
+
+        if len(reachable) == 1:
+            self._travel_to(reachable[0][0])
+            return
+
+        self.scene = "travel"
+        self.travel_options = [(mid, name, route) for mid, name, route in reachable]
+        self.travel_idx = 0
+
+    # ── 事件处理 ────────────────────────────────────────────
+
+    def run(self) -> None:
+        while self.running:
+            self.clock.tick(FPS)
+            self._handle_events()
+            self._render()
+        pygame.quit()
+
+    def _handle_events(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.KEYDOWN:
+                self._on_key(event)
+
+    def _on_key(self, e: pygame.event.Event) -> None:
+        if self.scene == "explore":
+            self._key_explore(e)
+        elif self.scene == "combat" and self.combat_ui:
+            self.combat_ui.handle_key(e, self.engine)
+            if self.engine.combat is None:
+                self.scene = "explore"
+                self.combat_ui = None
+                self._msg(self.engine.last_message)
+        elif self.scene == "dialogue":
+            if e.key in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_ESCAPE):
+                self.scene = "explore"
+        elif self.scene == "shop":
+            self._key_shop(e)
+        elif self.scene == "inn":
+            if e.key == pygame.K_SPACE or e.key == pygame.K_RETURN:
+                if self.engine.rest():
+                    self._msg("休息完毕，生命与体力已恢复。")
+                self.scene = "explore"
+            elif e.key == pygame.K_ESCAPE:
+                self.scene = "explore"
+        elif self.scene == "menu":
+            self._key_menu(e)
+        elif self.scene == "inventory":
+            self._key_inventory(e)
+        elif self.scene == "travel":
+            self._key_travel(e)
+
+    def _key_travel(self, e: pygame.event.Event) -> None:
+        if e.key == pygame.K_ESCAPE:
+            self.scene = "explore"
+        elif e.key == pygame.K_UP:
+            self.travel_idx = max(0, self.travel_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.travel_idx = min(len(self.travel_options) - 1, self.travel_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if self.travel_options:
+                mid = self.travel_options[self.travel_idx][0]
+                self._travel_to(mid)
+                self.scene = "explore"
+
+    def _key_explore(self, e: pygame.event.Event) -> None:
+        k = e.key
+        dx = dy = 0
+        if k in (pygame.K_UP, pygame.K_w):       dy = -1
+        elif k in (pygame.K_DOWN, pygame.K_s):    dy = 1
+        elif k in (pygame.K_LEFT, pygame.K_a):    dx = -1
+        elif k in (pygame.K_RIGHT, pygame.K_d):   dx = 1
+        elif k in (pygame.K_SPACE, pygame.K_RETURN):
+            self._interact_nearby()
+            return
+        elif k == pygame.K_r:    self._do_rest(); return
+        elif k == pygame.K_c:    self._do_cultivate(); return
+        elif k == pygame.K_i:    self.scene = "inventory"; self.select_idx = 0; return
+        elif k == pygame.K_m:    self.scene = "menu"; self.menu_idx = 0; return
+        elif k == pygame.K_ESCAPE: self.running = False; return
+
+        if dx or dy:
+            nx, ny = self.player_pos[0] + dx, self.player_pos[1] + dy
+            if self._pos_blocked(nx, ny):
+                return  # 撞墙
+            ent = self._entity_at(nx, ny)
+            if ent is not None:
+                self._trigger_entity(nx, ny, ent)
+                return
+            self.player_pos = (nx, ny)
+            self._on_step()
+
+    def _on_step(self) -> None:
+        """每步触发可能遭遇。"""
+        if random.random() < 0.04:
+            level = int(self.engine.player["level"])
+            candidates = [
+                eid for eid, ed in self.engine.enemies.items()
+                if abs(ed.get("level", 1) - level) <= 4
+            ]
+            if candidates and random.random() < 0.4:
+                self.engine.begin_combat(random.choice(candidates))
+                if self.engine.combat:
+                    self.scene = "combat"
+                    self.combat_ui = CombatView()
+                    self._msg(f"遭遇了 {self.engine.combat['name']}！")
+
+    def _interact_nearby(self) -> None:
+        """与相邻格或玩家位置上的实体交互。"""
+        px, py = self.player_pos
+        for (ex, ey), etype in self.tile_entities.items():
+            if max(abs(ex - px), abs(ey - py)) <= 1:
+                self._trigger_entity(ex, ey, etype)
+                return
+        self._msg("附近没有可交互的对象。")
+
+    def _trigger_entity(self, x: int, y: int, etype: int) -> None:
+        """触发指定实体。"""
+        if etype == ENTITY_EXIT:
+            self._exit_map()
+        elif etype == ENTITY_ENEMY:
+            self._start_combat_at(x, y)
+        elif etype == ENTITY_TREASURE:
+            self._open_treasure(x, y)
+        elif etype == ENTITY_SHOP:
+            self._open_shop()
+        elif etype == ENTITY_INN:
+            self._open_inn()
+        elif etype == ENTITY_GUILD:
+            self._open_guild()
+        elif etype == ENTITY_NPC:
+            self._talk_npc(x, y)
+
+    def _start_combat_at(self, x: int, y: int) -> None:
+        """根据地图难度匹配敌人。"""
+        md = self.engine.current_map()
+        map_level = md.get("recommend_level", 1)
+        level = int(self.engine.player["level"])
+        # 选择等级在玩家±3 且接近地图推荐等级的敌人
+        candidates = [
+            eid for eid, ed in self.engine.enemies.items()
+            if abs(ed.get("level", 1) - max(level, map_level)) <= 5
+            and abs(ed.get("level", 1) - level) <= 6
+            and ed.get("type", "") not in ("boss", "final_boss")
+        ]
+        if not candidates:
+            candidates = list(self.engine.enemies.keys())
+        if candidates:
+            self.engine.begin_combat(random.choice(candidates))
+            if self.engine.combat:
+                self.scene = "combat"
+                self.combat_ui = CombatView()
+                self._msg(f"与 {self.engine.combat['name']} 展开了战斗！")
+                self.tile_entities.pop((x, y), None)
+                self.entity_labels.pop((x, y), None)
+
+    def _open_treasure(self, x: int, y: int) -> None:
+        silver = random.randint(5, 25)
+        self.engine.apply_effects(f"silver:+{silver}")
+        # 随机给个道具
+        items = list(self.engine.item_rules.keys())
+        if items and random.random() < 0.4:
+            pick = random.choice(items)
+            if pick not in self.engine.player["items"]:
+                self.engine.player["items"].append(pick)
+                self._msg(f"发现宝箱！获得 {silver} 银两 和 {self.engine.item_name(pick)}。")
+            else:
+                self._msg(f"发现宝箱！获得 {silver} 银两。")
+        else:
+            self._msg(f"发现宝箱！获得 {silver} 银两。")
+        self.tile_entities.pop((x, y), None)
+        self.entity_labels.pop((x, y), None)
+
+    # ── 城镇功能 ─────────────────────────────────────────────
+
+    def _open_shop(self) -> None:
+        """打开商店——基于 Excel 物品类型定价。"""
+        self.scene = "shop"
+        self.shop_sell_mode = False
+        # 商店出售消耗品和装备（排除 quest/currency/key 类）
+        shop_types = {"consumable", "equipment", "book", "material", "heavenly_flame"}
+        self.shop_items = [
+            iid for iid, rule in self.engine.item_rules.items()
+            if rule.get("type", "") in shop_types
+        ]
+        self.select_idx = 0
+
+    def _key_shop(self, e: pygame.event.Event) -> None:
+        if e.key == pygame.K_ESCAPE:
+            self.scene = "explore"
+        elif e.key == pygame.K_TAB:
+            self.shop_sell_mode = not self.shop_sell_mode
+            self.select_idx = 0
+        elif e.key in (pygame.K_UP, pygame.K_w):
+            self.select_idx = max(0, self.select_idx - 1)
+        elif e.key in (pygame.K_DOWN, pygame.K_s):
+            items = self.shop_items if not self.shop_sell_mode else self.engine.player.get("items", [])
+            self.select_idx = min(max(0, len(items) - 1), self.select_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if self.shop_sell_mode:
+                self._sell_item()
+            else:
+                self._buy_item()
+
+    def _buy_item(self) -> None:
+        if self.select_idx >= len(self.shop_items):
+            return
+        item_id = self.shop_items[self.select_idx]
+        rule = self.engine.item_rules[item_id]
+        buy_price, _ = item_price(rule.get("type", ""))
+        if self.engine.player["silver"] >= buy_price:
+            self.engine.player["silver"] -= buy_price
+            if item_id not in self.engine.player["items"]:
+                self.engine.player["items"].append(item_id)
+            self._msg(f"购买了 {self.engine.item_name(item_id)}，花费 {buy_price} 银两。")
+        else:
+            self._msg(f"银两不足！需要 {buy_price}，当前 {self.engine.player['silver']}。")
+
+    def _sell_item(self) -> None:
+        inv = self.engine.player.get("items", [])
+        if self.select_idx >= len(inv):
+            return
+        item_id = inv[self.select_idx]
+        rule = self.engine.item_rules.get(item_id, {})
+        _, sell_price = item_price(rule.get("type", ""))
+        self.engine.player["items"].remove(item_id)
+        self.engine.player["silver"] += sell_price
+        self._msg(f"出售了 {self.engine.item_name(item_id)}，获得 {sell_price} 银两。")
+
+    def _open_inn(self) -> None:
+        self.scene = "inn"
+        md = self.engine.current_map()
+        self._msg(f"欢迎来到 {md.get('name', '客栈')}。按空格休息（恢复生命和体力），Esc 离开。")
+
+    def _open_guild(self) -> None:
+        self.scene = "dialogue"
+        self._msg("公会管事：「少侠，当前暂无适合你的任务。继续历练吧。」")
+
+    def _talk_npc(self, x: int, y: int) -> None:
+        label = self._label_at(x, y)
+        # 从 Excel NPC 数据取真实名字
+        npc_name = self.engine.npc_names.get(label, label)
+        # 关系感知对话
+        rel_value = 0
+        try:
+            rel_value = self.engine.relation_value(label)
+        except KeyError:
+            pass
+
+        intro = self.engine.npc_profiles.get(label, {}).get("Dialogue_Intro", "")
+        if intro:
+            text = f"{npc_name}：「{intro}」"
+        elif rel_value >= 40:
+            text = f"{npc_name}：「少侠，好久不见！有你在，我们安心多了。」"
+        elif rel_value <= -20:
+            text = f"{npc_name}：「哼，你还敢来这里？」"
+        else:
+            md = self.engine.current_map()
+            if md.get("safe_zone", False):
+                text = f"{npc_name}：「这里是{md.get('name', '本地')}，少侠若需要补给，坊市就在附近。」"
+            else:
+                text = f"{npc_name}：「此处凶险，少侠千万小心。」"
+        self._msg(text)
+        self.scene = "dialogue"
+
+    def _do_rest(self) -> None:
+        if self.engine.rest():
+            self._msg("休息完毕，生命与体力已恢复。")
+        else:
+            self._msg(self.engine.last_message)
+
+    def _do_cultivate(self) -> None:
+        if self.engine.cultivate():
+            self._msg(self.engine.last_message)
+        else:
+            self._msg(self.engine.last_message)
+
+    # ── 菜单 ─────────────────────────────────────────────────
+
+    def _key_menu(self, e: pygame.event.Event) -> None:
+        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "退出游戏"]
+        if e.key == pygame.K_UP:
+            self.menu_idx = max(0, self.menu_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.menu_idx = min(len(items) - 1, self.menu_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if self.menu_idx == 0:
+                self.scene = "explore"
+            elif self.menu_idx == 1:
+                self.scene = "explore"  # 状态在右侧面板
+            elif self.menu_idx == 2:
+                self.scene = "inventory"
+                self.select_idx = 0
+            elif self.menu_idx == 3:
+                self.scene = "explore"
+                skills = self.engine.player.get("known_skills", [])
+                names = [self.engine.skills.get(s, {}).get("name", s) for s in skills]
+                self._msg(f"已学斗技：{'、'.join(names) if names else '无'}")
+            elif self.menu_idx == 4:
+                self.engine.save()
+                self._msg("游戏已保存。")
+                self.scene = "explore"
+            elif self.menu_idx == 5:
+                self.running = False
+        elif e.key in (pygame.K_ESCAPE, pygame.K_m):
+            self.scene = "explore"
+
+    def _key_inventory(self, e: pygame.event.Event) -> None:
+        inv = self.engine.player.get("items", [])
+        if e.key == pygame.K_ESCAPE or e.key == pygame.K_i:
+            self.scene = "explore"
+        elif e.key == pygame.K_UP:
+            self.select_idx = max(0, self.select_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.select_idx = min(max(0, len(inv) - 1), self.select_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if inv and self.select_idx < len(inv):
+                item_id = inv[self.select_idx]
+                rule = self.engine.item_rules.get(item_id, {})
+                use_effect = rule.get("use_effect", "")
+                if use_effect:
+                    self.engine.combat_action("item", skill_id=item_id)
+                    self._msg(self.engine.last_message)
+                else:
+                    self._msg(f"{self.engine.item_name(item_id)}：{rule.get('description', '无描述')}")
+
+    # ══════════════════════════════════════════════════════════
+    # 渲染
+    # ══════════════════════════════════════════════════════════
+
+    def _render(self) -> None:
+        self.screen.fill(C_BG)
+        if self.scene == "combat" and self.combat_ui:
+            self.combat_ui.render(self.screen, self.engine, self.font_title, self.font_body)
+        elif self.scene == "shop":
+            self._render_shop()
+        elif self.scene == "inn":
+            self._render_inn()
+        elif self.scene == "menu":
+            self._render_menu()
+        elif self.scene == "inventory":
+            self._render_inventory()
+        elif self.scene == "travel":
+            self._render_travel()
+        else:
+            self._render_explore()
+        pygame.display.flip()
+
+    def _render_explore(self) -> None:
+        self._render_tilemap()
+        self._render_info_panel()
+        self._render_messages()
+        h = self.font_small.render(
+            "方向键:移动  空格:交互  I:物品  R:休息  C:修炼  M:菜单",
+            True, (120, 120, 130)
+        )
+        self.screen.blit(h, (MAP_VIEW_W * TILE_SIZE + 8, WIN_H - 28))
+
+    # ── 瓦片渲染 ────────────────────────────────────────────
+
+    def _map_theme(self) -> str:
+        """根据地图信息选择像素场景主题。"""
+        md = self.engine.current_map()
+        text = f"{md.get('id', '')} {md.get('name', '')} {md.get('region', '')}".lower()
+        if any(key in text for key in ("flame", "fire", "volcano", "炎", "火", "焚", "熔")):
+            return "volcanic"
+        if any(key in text for key in ("ice", "snow", "frost", "冰", "雪", "寒")):
+            return "ice"
+        if any(key in text for key in ("poison", "swamp", "毒", "沼", "幽冥")):
+            return "poison"
+        if any(key in text for key in ("void", "space", "sky", "dragon", "虚空", "天墓", "龙岛", "星")):
+            return "void"
+        if any(key in text for key in ("sea", "river", "lake", "spring", "海", "河", "湖", "泉")):
+            return "water"
+        if any(key in text for key in ("battle", "fortress", "front", "战", "要塞", "葬天")):
+            return "battlefield"
+        if any(key in text for key in ("desert", "plain", "road", "沙", "荒", "平原")):
+            return "desert"
+        if any(key in text for key in ("cave", "ruins", "tower", "遗迹", "洞", "塔")):
+            return "cave"
+        if md.get("safe_zone", False):
+            style_name, _ = _town_style(str(md.get("id", "")))
+            return {
+                "沙城": "sand_town",
+                "黑角": "dark_town",
+                "学院": "academy_town",
+                "丹城": "dan_town",
+                "宗门": "jade_town",
+                "古族": "void_town",
+                "中州": "void_town",
+                "帝都": "capital_town",
+            }.get(style_name, "town")
+        if not md.get("safe_zone", False):
+            return "forest"
+        return "town"
+
+    @staticmethod
+    def _pixel_rect(
+        surface: pygame.Surface, color: Tuple[int, int, int],
+        x: int, y: int, w: int, h: int,
+    ) -> None:
+        pygame.draw.rect(surface, color, (x, y, w, h))
+
+    def _draw_tile(self, sx: int, sy: int, tile: int, mx: int, my: int, theme: str) -> None:
+        """绘制带有材质和边缘层次的程序化像素瓦片。"""
+        seed = (mx * 92821 + my * 68917) & 0xFFFF
+        r = pygame.Rect(sx, sy, TILE_SIZE, TILE_SIZE)
+
+        if theme == "town":
+            floor = (92, 99, 105) if seed % 3 else (98, 105, 109)
+            wall = ((76, 64, 70), (112, 83, 70), (151, 108, 78))
+        elif theme == "sand_town":
+            floor = (174, 143, 91) if seed % 3 else (187, 154, 98)
+            wall = ((105, 76, 48), (157, 107, 62), (212, 153, 79))
+        elif theme == "dark_town":
+            floor = (66, 61, 68) if seed % 3 else (73, 66, 72)
+            wall = ((47, 39, 47), (82, 56, 61), (145, 79, 65))
+        elif theme == "academy_town":
+            floor = (81, 101, 105) if seed % 3 else (89, 111, 112)
+            wall = ((57, 66, 72), (81, 110, 115), (132, 169, 157))
+        elif theme == "dan_town":
+            floor = (112, 90, 83) if seed % 3 else (122, 98, 88)
+            wall = ((76, 48, 48), (131, 72, 58), (207, 132, 73))
+        elif theme == "jade_town":
+            floor = (85, 109, 91) if seed % 3 else (93, 120, 99)
+            wall = ((52, 73, 62), (81, 116, 91), (142, 177, 124))
+        elif theme == "void_town":
+            floor = (72, 72, 105) if seed % 3 else (80, 80, 116)
+            wall = ((48, 45, 73), (88, 76, 122), (164, 137, 190))
+        elif theme == "capital_town":
+            floor = (111, 105, 101) if seed % 3 else (121, 115, 109)
+            wall = ((76, 62, 58), (130, 92, 71), (202, 155, 91))
+        elif theme == "desert":
+            floor = (173, 139, 82) if seed % 3 else (184, 149, 89)
+            wall = ((102, 78, 53), (139, 105, 66), (179, 139, 78))
+        elif theme == "cave":
+            floor = (48, 47, 57) if seed % 3 else (55, 52, 62)
+            wall = ((37, 35, 47), (62, 58, 72), (92, 82, 91))
+        elif theme == "volcanic":
+            floor = (72, 42, 39) if seed % 3 else (83, 47, 40)
+            wall = ((49, 29, 32), (87, 42, 38), (167, 66, 39))
+        elif theme == "ice":
+            floor = (127, 170, 180) if seed % 3 else (142, 185, 193)
+            wall = ((65, 98, 123), (104, 158, 177), (192, 229, 228))
+        elif theme == "poison":
+            floor = (55, 75, 53) if seed % 3 else (62, 84, 57)
+            wall = ((37, 49, 39), (69, 91, 53), (127, 155, 70))
+        elif theme == "void":
+            floor = (42, 43, 76) if seed % 3 else (48, 49, 88)
+            wall = ((31, 28, 57), (74, 62, 112), (151, 121, 190))
+        elif theme == "water":
+            floor = (45, 101, 119) if seed % 3 else (51, 113, 130)
+            wall = ((38, 67, 79), (74, 121, 128), (133, 172, 164))
+        elif theme == "battlefield":
+            floor = (92, 79, 67) if seed % 3 else (101, 86, 70)
+            wall = ((54, 49, 48), (91, 75, 65), (142, 105, 75))
+        else:
+            floor = (59, 101, 69) if seed % 3 else (65, 111, 72)
+            wall = ((36, 65, 45), (53, 96, 58), (76, 126, 68))
+
+        pygame.draw.rect(self.screen, floor, r)
+
+        if tile == TILE_FLOOR:
+            if theme == "town" or theme.endswith("_town"):
+                pygame.draw.line(self.screen, (70, 77, 82), (sx, sy + 15), (sx + 31, sy + 15))
+                offset = 7 if my % 2 else 16
+                pygame.draw.line(self.screen, (75, 82, 87), (sx + offset, sy), (sx + offset, sy + 15))
+                pygame.draw.line(self.screen, (75, 82, 87), (sx + 31 - offset, sy + 16), (sx + 31 - offset, sy + 31))
+                pygame.draw.line(self.screen, (126, 132, 132), (sx + 2, sy + 2), (sx + 28, sy + 2))
+            elif theme == "desert":
+                pygame.draw.line(self.screen, (151, 117, 68), (sx + 3, sy + 10), (sx + 14, sy + 8))
+                pygame.draw.line(self.screen, (198, 165, 100), (sx + 17, sy + 24), (sx + 29, sy + 22))
+                if seed % 5 == 0:
+                    self._pixel_rect(self.screen, (112, 104, 58), sx + 8, sy + 18, 2, 3)
+            elif theme == "cave":
+                pygame.draw.line(self.screen, (38, 36, 46), (sx + 3, sy + 24), (sx + 12, sy + 17))
+                pygame.draw.line(self.screen, (75, 68, 78), (sx + 12, sy + 17), (sx + 20, sy + 20))
+                self._pixel_rect(self.screen, (92, 112, 112), sx + 25, sy + 7, 2, 2)
+            elif theme == "volcanic":
+                pygame.draw.line(self.screen, (194, 66, 32), (sx + 2, sy + 25), (sx + 12, sy + 18), 2)
+                pygame.draw.line(self.screen, (244, 135, 43), (sx + 12, sy + 18), (sx + 20, sy + 21))
+                self._pixel_rect(self.screen, (255, 190, 57), sx + 25, sy + 7, 2, 2)
+            elif theme == "ice":
+                pygame.draw.line(self.screen, (211, 240, 239), (sx + 3, sy + 25), (sx + 15, sy + 7))
+                pygame.draw.line(self.screen, (91, 143, 169), (sx + 15, sy + 7), (sx + 26, sy + 19))
+            elif theme == "poison":
+                pygame.draw.circle(self.screen, (116, 145, 61), (sx + 8, sy + 22), 3)
+                pygame.draw.circle(self.screen, (88, 111, 57), (sx + 25, sy + 8), 2)
+            elif theme == "void":
+                self._pixel_rect(self.screen, (192, 177, 229), sx + 8, sy + 8, 2, 2)
+                self._pixel_rect(self.screen, (115, 186, 220), sx + 25, sy + 21, 2, 2)
+                pygame.draw.line(self.screen, (81, 71, 123), (sx + 4, sy + 25), (sx + 18, sy + 11))
+            elif theme == "water":
+                pygame.draw.arc(self.screen, (103, 173, 186), (sx + 3, sy + 5, 20, 12), 0, math.pi, 1)
+                pygame.draw.arc(self.screen, (80, 151, 169), (sx + 10, sy + 18, 20, 10), 0, math.pi, 1)
+            elif theme == "battlefield":
+                pygame.draw.line(self.screen, (69, 57, 51), (sx + 4, sy + 25), (sx + 15, sy + 12), 2)
+                pygame.draw.rect(self.screen, (125, 91, 58), (sx + 23, sy + 6, 3, 8))
+            else:
+                if seed % 2:
+                    pygame.draw.line(self.screen, (84, 132, 72), (sx + 8, sy + 24), (sx + 10, sy + 18))
+                    pygame.draw.line(self.screen, (84, 132, 72), (sx + 10, sy + 24), (sx + 14, sy + 20))
+                self._pixel_rect(self.screen, (44, 84, 55), sx + 25, sy + 8, 2, 2)
+        elif tile == TILE_WALL:
+            pygame.draw.rect(self.screen, wall[0], r)
+            if theme == "forest":
+                pygame.draw.ellipse(self.screen, wall[0], (sx + 3, sy + 20, 26, 10))
+                pygame.draw.rect(self.screen, (91, 67, 45), (sx + 13, sy + 18, 6, 13))
+                pygame.draw.circle(self.screen, wall[1], (sx + 16, sy + 14), 12)
+                pygame.draw.circle(self.screen, wall[2], (sx + 10, sy + 12), 7)
+                pygame.draw.circle(self.screen, (91, 145, 74), (sx + 21, sy + 10), 7)
+            elif theme == "town" or theme.endswith("_town"):
+                pygame.draw.rect(self.screen, wall[1], (sx + 1, sy + 6, 30, 25))
+                pygame.draw.rect(self.screen, wall[2], (sx + 1, sy + 5, 30, 5))
+                for by in (12, 21):
+                    pygame.draw.line(self.screen, wall[0], (sx + 2, sy + by), (sx + 30, sy + by))
+                pygame.draw.line(self.screen, wall[0], (sx + 10, sy + 12), (sx + 10, sy + 21))
+                pygame.draw.line(self.screen, wall[0], (sx + 22, sy + 12), (sx + 22, sy + 21))
+                pygame.draw.line(self.screen, wall[0], (sx + 16, sy + 21), (sx + 16, sy + 30))
+                pygame.draw.line(self.screen, (194, 139, 91), (sx + 3, sy + 7), (sx + 28, sy + 7))
+            else:
+                pygame.draw.polygon(
+                    self.screen, wall[1],
+                    [(sx + 2, sy + 27), (sx + 5, sy + 10), (sx + 13, sy + 3),
+                     (sx + 25, sy + 7), (sx + 30, sy + 27)],
+                )
+                pygame.draw.line(self.screen, wall[2], (sx + 6, sy + 11), (sx + 14, sy + 5), 2)
+                pygame.draw.line(self.screen, wall[0], (sx + 17, sy + 8), (sx + 22, sy + 24), 2)
+        elif tile == TILE_COUNTER:
+            pygame.draw.rect(self.screen, (74, 48, 33), (sx + 1, sy + 8, 30, 22))
+            pygame.draw.rect(self.screen, (157, 103, 54), (sx, sy + 7, 32, 7))
+            pygame.draw.line(self.screen, (216, 157, 85), (sx + 2, sy + 8), (sx + 29, sy + 8), 2)
+            pygame.draw.rect(self.screen, (104, 65, 39), (sx + 5, sy + 17, 22, 10), 2)
+        elif tile == TILE_DOOR:
+            pygame.draw.rect(self.screen, (91, 54, 34), (sx + 5, sy + 2, 22, 30))
+            pygame.draw.rect(self.screen, (174, 112, 57), (sx + 7, sy + 4, 18, 28), 2)
+            pygame.draw.circle(self.screen, (224, 185, 87), (sx + 21, sy + 18), 2)
+
+        pygame.draw.line(self.screen, (25, 28, 31), (sx, sy + 31), (sx + 31, sy + 31))
+        pygame.draw.line(self.screen, (25, 28, 31), (sx + 31, sy), (sx + 31, sy + 31))
+
+    def _render_tilemap(self) -> None:
+        px, py = self.player_pos
+        h, w = self.map_h, self.map_w
+        vw, vh = MAP_VIEW_W, MAP_VIEW_H
+        if w == 0 or h == 0:
+            return
+        theme = self._map_theme()
+
+        ox = max(0, min(px - vw // 2, w - vw))
+        oy = max(0, min(py - vh // 2, h - vh))
+        if w <= vw:
+            ox = -(vw - w) // 2
+        if h <= vh:
+            oy = -(vh - h) // 2
+
+        for gy in range(vh):
+            for gx in range(vw):
+                mx, my = gx + ox, gy + oy
+                sx, sy = gx * TILE_SIZE, gy * TILE_SIZE
+                if 0 <= mx < w and 0 <= my < h:
+                    tile = self.tile_grid[my][mx]
+                    self._draw_tile(sx, sy, tile, mx, my, theme)
+                else:
+                    pygame.draw.rect(self.screen, (10, 10, 18), (sx, sy, TILE_SIZE, TILE_SIZE))
+
+        # 实体和名称统一在瓦片之后绘制，避免名称被相邻瓦片覆盖。
+        for gy in range(vh):
+            for gx in range(vw):
+                mx, my = gx + ox, gy + oy
+                if not (0 <= mx < w and 0 <= my < h):
+                    continue
+                ent = self.tile_entities.get((mx, my))
+                if ent is not None:
+                    self._draw_entity_icon(
+                        gx * TILE_SIZE,
+                        gy * TILE_SIZE,
+                        ent,
+                        self.entity_labels.get((mx, my), ""),
+                    )
+
+        # 玩家
+        psx = (px - ox) * TILE_SIZE
+        psy = (py - oy) * TILE_SIZE
+        self._draw_player_icon(psx, psy)
+
+    def _draw_entity_icon(self, sx: int, sy: int, etype: int, label: str) -> None:
+        cx, cy = sx + TILE_SIZE // 2, sy + TILE_SIZE // 2
+        pygame.draw.ellipse(self.screen, (25, 28, 31), (sx + 6, sy + 25, 20, 5))
+
+        if etype == ENTITY_NPC:
+            self._draw_npc_icon(sx, sy, label)
+        elif etype == ENTITY_ENEMY:
+            robe = (153, 52, 48)
+            trim = (239, 131, 69)
+            skin = (226, 180, 139)
+            pygame.draw.rect(self.screen, robe, (cx - 7, sy + 15, 14, 12))
+            pygame.draw.polygon(self.screen, robe, [(cx - 9, sy + 28), (cx + 9, sy + 28), (cx + 6, sy + 19), (cx - 6, sy + 19)])
+            pygame.draw.line(self.screen, trim, (cx, sy + 17), (cx, sy + 27), 2)
+            pygame.draw.rect(self.screen, skin, (cx - 5, sy + 7, 10, 9))
+            hair = (73, 29, 29)
+            pygame.draw.rect(self.screen, hair, (cx - 6, sy + 5, 12, 5))
+            pygame.draw.rect(self.screen, hair, (cx - 7, sy + 8, 3, 8))
+            pygame.draw.rect(self.screen, (30, 29, 35), (cx - 3, sy + 11, 2, 2))
+            pygame.draw.rect(self.screen, (30, 29, 35), (cx + 2, sy + 11, 2, 2))
+            pygame.draw.line(self.screen, (243, 102, 58), (sx + 4, sy + 22), (sx + 10, sy + 12), 2)
+        elif etype in (ENTITY_SHOP, ENTITY_INN, ENTITY_GUILD):
+            roof = {
+                ENTITY_SHOP: (181, 77, 48), ENTITY_INN: (48, 120, 128),
+                ENTITY_GUILD: (100, 73, 145),
+            }[etype]
+            pygame.draw.rect(self.screen, (120, 83, 54), (sx + 6, sy + 14, 20, 15))
+            pygame.draw.polygon(self.screen, roof, [(sx + 3, sy + 14), (cx, sy + 4), (sx + 29, sy + 14)])
+            pygame.draw.line(self.screen, (226, 176, 89), (sx + 4, sy + 14), (sx + 28, sy + 14), 2)
+            pygame.draw.rect(self.screen, (56, 39, 35), (cx - 3, sy + 20, 6, 9))
+            pygame.draw.rect(self.screen, (236, 199, 103), (sx + 8, sy + 17, 4, 4))
+            pygame.draw.rect(self.screen, (236, 199, 103), (sx + 20, sy + 17, 4, 4))
+        elif etype == ENTITY_TREASURE:
+            pygame.draw.rect(self.screen, (111, 58, 31), (sx + 6, sy + 15, 20, 13))
+            pygame.draw.rect(self.screen, (178, 99, 41), (sx + 6, sy + 11, 20, 8))
+            pygame.draw.rect(self.screen, (246, 191, 62), (cx - 2, sy + 17, 4, 7))
+            pygame.draw.line(self.screen, (255, 222, 111), (sx + 8, sy + 12), (sx + 23, sy + 12), 2)
+        elif etype == ENTITY_EXIT:
+            pulse = 2 + int((math.sin(pygame.time.get_ticks() / 260) + 1) * 2)
+            pygame.draw.circle(self.screen, (38, 88, 86), (cx, cy), 11 + pulse, 2)
+            pygame.draw.circle(self.screen, (91, 220, 176), (cx, cy), 9, 2)
+            pygame.draw.line(self.screen, (208, 255, 225), (cx, sy + 9), (cx, sy + 23), 2)
+            pygame.draw.polygon(self.screen, (208, 255, 225), [(cx, sy + 7), (cx - 4, sy + 13), (cx + 4, sy + 13)])
+
+        if label:
+            if label.startswith("npc_"):
+                short_label = self.engine.npc_names.get(label, label)
+            else:
+                short_label = label if len(label) <= 4 else label[:4]
+            if len(short_label) > 4:
+                short_label = short_label[:4]
+            lb = self.font_small.render(short_label, True, (238, 228, 203))
+            bg = pygame.Surface((lb.get_width() + 4, lb.get_height()), pygame.SRCALPHA)
+            bg.fill((18, 20, 24, 185))
+            map_pixel_width = MAP_VIEW_W * TILE_SIZE
+            lx = max(2, min(cx - lb.get_width() // 2, map_pixel_width - lb.get_width() - 2))
+            ly = sy + TILE_SIZE - lb.get_height()
+            self.screen.blit(bg, (lx - 2, ly))
+            self.screen.blit(lb, (lx, ly))
+
+    def _draw_npc_icon(self, sx: int, sy: int, npc_id: str) -> None:
+        """绘制由人物表身份与原文档案共同决定的 NPC 像素造型。"""
+        cx = sx + TILE_SIZE // 2
+        profile = self.engine.npc_profiles.get(npc_id, {})
+        visual = _npc_visual(npc_id, profile)
+        robe = visual["robe"]
+        trim = visual["trim"]
+        hair = visual["hair"]
+        hair_style = visual["hair_style"]
+        accessory = visual["accessory"]
+        skin = (230, 185, 143)
+
+        pygame.draw.polygon(
+            self.screen, robe,
+            [(cx - 8, sy + 28), (cx + 8, sy + 28), (cx + 6, sy + 17), (cx - 6, sy + 17)],
+        )
+        pygame.draw.rect(self.screen, robe, (cx - 7, sy + 15, 14, 8))
+        pygame.draw.line(self.screen, trim, (cx, sy + 17), (cx, sy + 27), 2)
+        emblem_seed = _town_seed(npc_id)
+        emblem = (
+            150 + emblem_seed % 90,
+            140 + (emblem_seed >> 7) % 100,
+            130 + (emblem_seed >> 14) % 110,
+        )
+        pygame.draw.rect(self.screen, emblem, (cx - 5 + emblem_seed % 8, sy + 20, 2, 2))
+        pygame.draw.rect(self.screen, skin, (cx - 5, sy + 7, 10, 9))
+
+        pygame.draw.rect(self.screen, hair, (cx - 6, sy + 4, 12, 5))
+        if hair_style in ("long", "elder"):
+            pygame.draw.rect(self.screen, hair, (cx - 7, sy + 7, 3, 12))
+            pygame.draw.rect(self.screen, hair, (cx + 4, sy + 7, 3, 12))
+        elif hair_style == "twin":
+            pygame.draw.rect(self.screen, hair, (cx - 9, sy + 7, 4, 7))
+            pygame.draw.rect(self.screen, hair, (cx + 5, sy + 7, 4, 7))
+        else:
+            pygame.draw.rect(self.screen, hair, (cx - 7, sy + 7, 3, 6))
+
+        eye = (37, 34, 38)
+        if accessory == "snake_eye":
+            eye = (71, 210, 139)
+        pygame.draw.rect(self.screen, eye, (cx - 3, sy + 11, 2, 2))
+        pygame.draw.rect(self.screen, eye, (cx + 2, sy + 11, 2, 2))
+
+        if accessory in ("sword", "staff"):
+            color = (205, 213, 219) if accessory == "sword" else (139, 100, 62)
+            pygame.draw.line(self.screen, color, (cx + 7, sy + 27), (cx + 11, sy + 7), 2)
+        elif accessory == "crown":
+            pygame.draw.polygon(self.screen, trim, [(cx - 5, sy + 5), (cx - 2, sy + 1), (cx, sy + 5), (cx + 3, sy + 1), (cx + 5, sy + 5)])
+        elif accessory in ("gold_flame", "blue_flame", "ice", "red_aura"):
+            color = {
+                "gold_flame": (246, 205, 66),
+                "blue_flame": (74, 205, 231),
+                "ice": (183, 235, 245),
+                "red_aura": (213, 65, 74),
+            }[accessory]
+            pygame.draw.circle(self.screen, color, (cx + 10, sy + 12), 3, 1)
+            pygame.draw.line(self.screen, color, (cx + 10, sy + 15), (cx + 12, sy + 7), 1)
+        elif accessory == "medicine":
+            pygame.draw.rect(self.screen, (222, 234, 218), (cx + 7, sy + 20, 5, 7))
+            pygame.draw.rect(self.screen, trim, (cx + 8, sy + 18, 3, 2))
+        elif accessory == "jewel":
+            pygame.draw.circle(self.screen, trim, (cx, sy + 18), 2)
+        elif accessory == "dragon":
+            pygame.draw.polygon(self.screen, trim, [(cx - 7, sy + 6), (cx - 10, sy + 2), (cx - 4, sy + 5)])
+            pygame.draw.polygon(self.screen, trim, [(cx + 7, sy + 6), (cx + 10, sy + 2), (cx + 4, sy + 5)])
+        elif accessory == "brows":
+            pygame.draw.line(self.screen, hair, (cx - 4, sy + 10), (cx - 1, sy + 9), 1)
+            pygame.draw.line(self.screen, hair, (cx + 1, sy + 9), (cx + 4, sy + 10), 1)
+
+    def _draw_player_icon(self, sx: int, sy: int) -> None:
+        cx, cy = sx + TILE_SIZE // 2, sy + TILE_SIZE // 2
+        aura = pygame.Surface((32, 32), pygame.SRCALPHA)
+        pygame.draw.circle(aura, (72, 214, 162, 42), (16, 17), 13)
+        pygame.draw.circle(aura, (116, 239, 185, 80), (16, 17), 11, 2)
+        self.screen.blit(aura, (sx, sy))
+        pygame.draw.ellipse(self.screen, (26, 33, 32), (sx + 6, sy + 26, 20, 5))
+        pygame.draw.polygon(self.screen, (28, 75, 82), [(cx - 8, sy + 28), (cx + 8, sy + 28), (cx + 6, sy + 17), (cx - 6, sy + 17)])
+        pygame.draw.rect(self.screen, (39, 114, 113), (cx - 7, sy + 15, 14, 8))
+        pygame.draw.line(self.screen, (103, 226, 174), (cx, sy + 17), (cx, sy + 27), 2)
+        pygame.draw.rect(self.screen, (231, 184, 139), (cx - 5, sy + 7, 10, 9))
+        pygame.draw.rect(self.screen, (29, 27, 35), (cx - 6, sy + 5, 12, 5))
+        pygame.draw.rect(self.screen, (29, 27, 35), (cx - 7, sy + 8, 3, 8))
+        pygame.draw.rect(self.screen, (29, 27, 35), (cx + 4, sy + 8, 3, 8))
+        pygame.draw.rect(self.screen, (41, 38, 40), (cx - 3, sy + 11, 2, 2))
+        pygame.draw.rect(self.screen, (41, 38, 40), (cx + 2, sy + 11, 2, 2))
+        pygame.draw.line(self.screen, (211, 155, 62), (cx + 7, sy + 23), (cx + 11, sy + 10), 2)
+
+    # ── 信息面板 ────────────────────────────────────────────
+
+    def _render_info_panel(self) -> None:
+        px = MAP_VIEW_W * TILE_SIZE
+        pygame.draw.rect(self.screen, C_PANEL, (px, 0, PANEL_W, WIN_H))
+        p = self.engine.player
+        x, y = px + 12, 14
+        bw = PANEL_W - 24
+
+        # 标题
+        t = self.font_title.render("萧 炎", True, C_ACCENT)
+        self.screen.blit(t, (x, y))
+        y += 30
+
+        # 境界等级
+        realm = self.engine.realm_name()
+        rt = self.font_body.render(f"{realm}  Lv.{p['level']}", True, C_TEXT)
+        self.screen.blit(rt, (x, y))
+        y += 8
+
+        # 修炼进度
+        prog = float(p.get("progress", 0))
+        pygame.draw.rect(self.screen, (40, 40, 55), (x, y + 12, bw, 6))
+        pygame.draw.rect(self.screen, C_ACCENT, (x, y + 12, int(bw * prog / 100), 6))
+        pt = self.font_small.render(f"修炼进度 {prog:.1f}%", True, (180, 160, 100))
+        self.screen.blit(pt, (x, y + 20))
+        y += 34
+
+        # HP
+        ht = self.font_body.render(f"生命 {p['hp']}/{p['max_hp']}", True, C_TEXT)
+        self.screen.blit(ht, (x, y))
+        y += ht.get_height() + 3
+        hr = max(0, min(1, p["hp"] / max(1, p["max_hp"])))
+        pygame.draw.rect(self.screen, C_HP_BG, (x, y, bw, 5))
+        pygame.draw.rect(self.screen, C_HP_BAR, (x, y, int(bw * hr), 5))
+        y += 10
+
+        # 斗气
+        qt = self.font_body.render(f"斗气 {p.get('douqi', 0)}", True, C_TEXT)
+        self.screen.blit(qt, (x, y))
+        y += qt.get_height() + 3
+        q_max = max(1, int(p.get("douqi", 0)) + 50)
+        qr = max(0, min(1, int(p.get("douqi", 0)) / q_max))
+        pygame.draw.rect(self.screen, C_QI_BG, (x, y, bw, 5))
+        pygame.draw.rect(self.screen, C_QI_BAR, (x, y, int(bw * qr), 5))
+        y += 12
+
+        # 属性
+        for name, key in [
+            ("攻击", "atk"), ("防御", "def"), ("速度", "spd"),
+            ("灵魂", "soul"), ("声望", "reputation"),
+            ("银两", "silver"), ("体力", "stamina"), ("阅历", "adventure_points"),
+        ]:
+            ln = self.font_small.render(f"{name}: {p.get(key, 0)}", True, C_TEXT)
+            self.screen.blit(ln, (x, y))
+            y += 16
+
+        y += 6
+        md = self.engine.current_map()
+        location_label = self.font_small.render("地点：", True, C_ACCENT)
+        self.screen.blit(location_label, (x, y))
+        location_x = x + location_label.get_width()
+        location_width = max(1, bw - location_label.get_width())
+        location_lines = _wrap_text(
+            self.font_small, str(md.get("name", "未知")), location_width
+        )
+        for index, line in enumerate(location_lines):
+            line_x = location_x if index == 0 else x
+            mn = self.font_small.render(line, True, C_ACCENT)
+            self.screen.blit(mn, (line_x, y))
+            y += 16
+        y += 2
+        tt = self.font_small.render(self.engine.time_text(), True, (140, 140, 150))
+        self.screen.blit(tt, (x, y))
+
+        if int(p["story_stage"]) < len(STORY_PHASES):
+            ph = STORY_PHASES[int(p["story_stage"])]
+            y += 20
+            st = self.font_small.render(f"📖 {ph['title']}", True, (180, 140, 200))
+            self.screen.blit(st, (x, y))
+
+    def _render_messages(self) -> None:
+        my = WIN_H - 120
+        mx = MAP_VIEW_W * TILE_SIZE + 8
+        for msg in reversed(self.messages[-6:]):
+            if len(msg) > 32:
+                msg = msg[:30] + "…"
+            t = self.font_small.render(msg, True, (170, 170, 180))
+            self.screen.blit(t, (mx, my))
+            my -= 16
+
+    # ── 地图切换界面 ───────────────────────────────────────
+
+    def _render_travel(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("前 往 何 处", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 40))
+        t2 = self.font_small.render("[↑↓]选择  [空格]确认  [Esc]取消", True, (120, 120, 130))
+        self.screen.blit(t2, (w // 2 - t2.get_width() // 2, 74))
+
+        for i, (mid, name, route) in enumerate(self.travel_options):
+            icon = "▶ " if i == self.travel_idx else "  "
+            color = C_ACCENT if i == self.travel_idx else C_TEXT
+            line = f"{icon}{name}  {route}"
+            text = self.font_body.render(line, True, color)
+            self.screen.blit(text, (w // 4, 110 + i * 32))
+
+    # ── 商店界面 ────────────────────────────────────────────
+
+    def _render_shop(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        # 标题
+        mode = "出售" if self.shop_sell_mode else "购买"
+        title = self.font_title.render(f"坊市 — {mode}", True, C_ACCENT)
+        self.screen.blit(title, (w // 2 - title.get_width() // 2, 20))
+        silver = self.font_body.render(
+            f"持有银两: {self.engine.player['silver']}  [Tab]切换买卖  [Esc]离开",
+            True, C_TEXT
+        )
+        self.screen.blit(silver, (w // 2 - silver.get_width() // 2, 56))
+
+        if self.shop_sell_mode:
+            items = self.engine.player.get("items", [])
+        else:
+            items = self.shop_items
+
+        list_y = 90
+        for i, item_id in enumerate(items):
+            rule = self.engine.item_rules.get(item_id, {})
+            name = self.engine.item_name(item_id)
+            itype = rule.get("type", "")
+            buy_p, sell_p = item_price(itype)
+            icon = "▶ " if i == self.select_idx else "  "
+            color = C_ACCENT if i == self.select_idx else C_TEXT
+            if self.shop_sell_mode:
+                line = f"{icon}{name} [{itype}]  出售: {sell_p}银两"
+            else:
+                line = f"{icon}{name} [{itype}]  {buy_p}银两"
+            t = self.font_body.render(line, True, color)
+            self.screen.blit(t, (80, list_y + i * 28))
+            if i >= 14:
+                break
+
+    # ── 客栈界面 ────────────────────────────────────────────
+
+    def _render_inn(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("客栈", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, h // 3))
+        t2 = self.font_body.render("按 空格 休息（恢复生命体力）  Esc 离开", True, C_TEXT)
+        self.screen.blit(t2, (w // 2 - t2.get_width() // 2, h // 3 + 50))
+        p = self.engine.player
+        t3 = self.font_small.render(
+            f"当前: 生命 {p['hp']}/{p['max_hp']}  体力 {p.get('stamina', 0)}"
+            f"  银两 {p.get('silver', 0)}",
+            True, (150, 150, 160)
+        )
+        self.screen.blit(t3, (w // 2 - t3.get_width() // 2, h // 3 + 80))
+
+    # ── 菜单界面 ────────────────────────────────────────────
+
+    def _render_menu(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("游 戏 菜 单", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 40))
+        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "退出游戏"]
+        for i, item in enumerate(items):
+            icon = "▶ " if i == self.menu_idx else "  "
+            color = C_ACCENT if i == self.menu_idx else C_TEXT
+            line = self.font_body.render(f"{icon}{item}", True, color)
+            self.screen.blit(line, (w // 2 - 60, 100 + i * 36))
+
+    # ── 背包界面 ────────────────────────────────────────────
+
+    def _render_inventory(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("背 包", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 20))
+        self.screen.blit(
+            self.font_small.render("[↑↓]选择  [空格]使用  [I/Esc]返回", True, (120, 120, 130)),
+            (w // 2 - 120, 56)
+        )
+        inv = self.engine.player.get("items", [])
+        if not inv:
+            mt = self.font_body.render("背包空空如也", True, (100, 100, 110))
+            self.screen.blit(mt, (w // 2 - mt.get_width() // 2, h // 2))
+            return
+        for i, item_id in enumerate(inv):
+            rule = self.engine.item_rules.get(item_id, {})
+            name = self.engine.item_name(item_id)
+            desc = rule.get("description", "")
+            use = rule.get("use_effect", "")
+            icon = "▶ " if i == self.select_idx else "  "
+            color = C_ACCENT if i == self.select_idx else C_TEXT
+            line = f"{icon}{name}"
+            if use:
+                line += f" [可使用]"
+            t = self.font_body.render(line, True, color)
+            self.screen.blit(t, (80, 90 + i * 28))
+            if desc and i == self.select_idx:
+                dt = self.font_small.render(f"  {desc}", True, (150, 150, 160))
+                self.screen.blit(dt, (80, 90 + i * 28 + 18))
+            if i >= 15:
+                break
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 战斗视图
+# ═══════════════════════════════════════════════════════════════════
+
+class CombatView:
+    """回合制战斗画面。"""
+
+    def __init__(self) -> None:
+        self.actions = ["普通攻击", "施展斗技", "防御", "使用丹药", "蓄力", "逃跑", "自动战斗"]
+        self.selected = 0
+
+    def handle_key(self, e: pygame.event.Event, engine: GameEngine) -> None:
+        if e.key == pygame.K_UP:
+            self.selected = max(0, self.selected - 1)
+        elif e.key == pygame.K_DOWN:
+            self.selected = min(len(self.actions) - 1, self.selected + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            cmd_map = {
+                "普通攻击": "attack", "施展斗技": "skill", "防御": "defend",
+                "使用丹药": "item", "蓄力": "charge", "逃跑": "escape", "自动战斗": "auto",
+            }
+            cmd = cmd_map.get(self.actions[self.selected], "attack")
+            if cmd == "skill":
+                skills = engine.combat_skills()
+                engine.combat_action("skill", skill_id=skills[0]["id"] if skills else None)
+            else:
+                engine.combat_action(cmd)
+
+    @staticmethod
+    def _element_color(element: str) -> Tuple[int, int, int]:
+        return {
+            "火": (239, 91, 45), "冰": (111, 204, 229), "雷": (189, 143, 245),
+            "风": (104, 205, 153), "毒": (145, 187, 70), "土": (190, 142, 76),
+        }.get(element, (205, 72, 72))
+
+    def _draw_battle_background(
+        self, screen: pygame.Surface, element: str, enemy_type: str,
+    ) -> None:
+        """按属性与敌人级别绘制战斗舞台。"""
+        w, h = screen.get_size()
+        accent = self._element_color(element)
+        top = tuple(max(8, value // 7) for value in accent)
+        bottom = tuple(max(12, value // 4) for value in accent)
+        for y in range(h):
+            ratio = y / max(1, h - 1)
+            color = tuple(int(top[i] * (1 - ratio) + bottom[i] * ratio) for i in range(3))
+            pygame.draw.line(screen, color, (0, y), (w, y))
+
+        pygame.draw.circle(screen, tuple(min(255, c + 55) for c in accent), (w // 2, 165), 92, 2)
+        pygame.draw.circle(screen, accent, (w // 2, 165), 74, 1)
+        for i in range(12):
+            angle = i * math.pi / 6
+            x1 = w // 2 + int(math.cos(angle) * 78)
+            y1 = 165 + int(math.sin(angle) * 78)
+            x2 = w // 2 + int(math.cos(angle) * 88)
+            y2 = 165 + int(math.sin(angle) * 88)
+            pygame.draw.line(screen, accent, (x1, y1), (x2, y2), 2)
+
+        ground_y = h - 205
+        pygame.draw.polygon(
+            screen, tuple(max(10, c // 3) for c in accent),
+            [(0, ground_y + 50), (w // 2, ground_y), (w, ground_y + 50), (w, h), (0, h)],
+        )
+        if enemy_type in ("boss", "final_boss"):
+            pygame.draw.rect(screen, accent, (0, 0, w, 4))
+            pygame.draw.rect(screen, accent, (0, h - 4, w, 4))
+
+    def _draw_enemy_portrait(
+        self, screen: pygame.Surface, combat: Dict[str, Any], enemy_data: Dict[str, Any],
+        cx: int, cy: int,
+    ) -> None:
+        """为每个敌人生成稳定且有类型差异的像素立绘。"""
+        enemy_id = combat.get("enemy_id", "")
+        enemy_type = enemy_data.get("type", combat.get("type", "normal"))
+        element = combat.get("element", "")
+        accent = self._element_color(element)
+        seed = sum((index + 1) * ord(ch) for index, ch in enumerate(enemy_id))
+        is_boss = enemy_type in ("boss", "final_boss")
+        is_elite = enemy_type == "elite"
+        scale = 1
+        body = tuple(max(35, min(220, c - 35 + seed % 45)) for c in accent)
+        dark = tuple(max(18, c // 3) for c in body)
+        light = tuple(min(255, c + 70) for c in body)
+
+        aura = pygame.Surface((190, 170), pygame.SRCALPHA)
+        aura_alpha = 75 if is_boss else 48
+        for radius in range(72, 38, -10):
+            pygame.draw.circle(aura, (*accent, max(8, aura_alpha - radius // 2)), (95, 86), radius, 3)
+        screen.blit(aura, (cx - 95, cy - 86))
+
+        beast_tokens = ("beast", "wolf", "lion", "snake", "python", "dragon", "兽", "狼", "狮", "蛇", "龙")
+        spirit_tokens = ("soul", "spirit", "flame", "ghost", "魂", "灵", "火")
+        text = f"{enemy_id} {combat.get('name', '')}".lower()
+        if any(token in text for token in beast_tokens):
+            pygame.draw.ellipse(screen, dark, (cx - 40 * scale, cy - 18, 80 * scale, 45))
+            pygame.draw.circle(screen, body, (cx + 22 * scale, cy - 17), 25 * scale)
+            pygame.draw.polygon(screen, dark, [(cx + 5, cy - 34), (cx + 13, cy - 60), (cx + 25, cy - 32)])
+            pygame.draw.polygon(screen, dark, [(cx + 28, cy - 34), (cx + 44, cy - 58), (cx + 48, cy - 27)])
+            pygame.draw.circle(screen, light, (cx + 15 * scale, cy - 20), 4 * scale)
+            pygame.draw.circle(screen, light, (cx + 31 * scale, cy - 20), 4 * scale)
+            pygame.draw.line(screen, light, (cx - 32 * scale, cy + 7), (cx - 55 * scale, cy + 28), 6)
+        elif any(token in text for token in spirit_tokens):
+            pygame.draw.polygon(
+                screen, body,
+                [(cx, cy - 66 * scale), (cx - 34 * scale, cy + 35), (cx, cy + 22), (cx + 34 * scale, cy + 35)],
+            )
+            for offset in (-24, 0, 24):
+                pygame.draw.polygon(
+                    screen, light,
+                    [(cx + offset, cy + 28), (cx + offset - 8, cy + 52), (cx + offset + 8, cy + 40)],
+                )
+            pygame.draw.circle(screen, dark, (cx, cy - 20 * scale), 21 * scale)
+            pygame.draw.circle(screen, light, (cx - 7, cy - 23 * scale), 4 * scale)
+            pygame.draw.circle(screen, light, (cx + 7, cy - 23 * scale), 4 * scale)
+        else:
+            shoulder = 33 * scale
+            pygame.draw.polygon(
+                screen, dark,
+                [(cx - shoulder, cy + 35), (cx + shoulder, cy + 35),
+                 (cx + 24 * scale, cy - 24), (cx - 24 * scale, cy - 24)],
+            )
+            pygame.draw.rect(screen, body, (cx - 24 * scale, cy - 26 * scale, 48 * scale, 52 * scale))
+            pygame.draw.rect(screen, (214, 166, 129), (cx - 16 * scale, cy - 58 * scale, 32 * scale, 30 * scale))
+            pygame.draw.rect(screen, dark, (cx - 19 * scale, cy - 65 * scale, 38 * scale, 13 * scale))
+            pygame.draw.rect(screen, light, (cx - 10 * scale, cy - 47 * scale, 6 * scale, 4 * scale))
+            pygame.draw.rect(screen, light, (cx + 5 * scale, cy - 47 * scale, 6 * scale, 4 * scale))
+            if seed % 2:
+                pygame.draw.line(screen, light, (cx + 28 * scale, cy + 22), (cx + 48 * scale, cy - 70), 6)
+            else:
+                pygame.draw.circle(screen, light, (cx + 42 * scale, cy - 28), 13, 4)
+
+        if is_elite or is_boss:
+            wing = 42 if is_elite else 62
+            pygame.draw.polygon(screen, accent, [(cx - 22, cy - 20), (cx - wing, cy - 48), (cx - 38, cy + 12)], 3)
+            pygame.draw.polygon(screen, accent, [(cx + 22, cy - 20), (cx + wing, cy - 48), (cx + 38, cy + 12)], 3)
+        if is_boss:
+            pygame.draw.polygon(
+                screen, (244, 199, 73),
+                [(cx - 23, cy - 72 * scale), (cx - 12, cy - 91 * scale), (cx, cy - 76 * scale),
+                 (cx + 12, cy - 91 * scale), (cx + 23, cy - 72 * scale)],
+            )
+        if enemy_type == "final_boss":
+            pygame.draw.circle(screen, (255, 238, 154), (cx, cy - 8), 82, 3)
+            pygame.draw.circle(screen, accent, (cx, cy - 8), 95, 2)
+
+    def render(self, screen, engine, font_title, font_body) -> None:
+        if engine.combat is None:
+            return
+        c = engine.combat
+        p = engine.player
+        w, h = screen.get_size()
+        enemy_data = engine.enemies.get(c.get("enemy_id", ""), {})
+        enemy_type = enemy_data.get("type", c.get("type", "normal"))
+        self._draw_battle_background(screen, c.get("element", ""), enemy_type)
+        soul = int(p.get("soul", 0))
+
+        bw, bx = 360, w // 2 - 180
+
+        # ── 敌人 ──
+        ey = 48
+        en = font_title.render(c["name"], True, (220, 60, 60))
+        screen.blit(en, (w // 2 - en.get_width() // 2, ey))
+        el = font_body.render(
+            f"[{c.get('element', '?')}属性]  弱点: {c.get('weakness', '?')}"
+            + ("  护盾已破" if c.get("shield_broken") else ""),
+            True, (200, 140, 60)
+        )
+        screen.blit(el, (w // 2 - el.get_width() // 2, ey + 28))
+
+        hp_r = max(0, c["hp"] / max(1, c["max_hp"]))
+        pygame.draw.rect(screen, (40, 15, 15), (bx, ey + 52, bw, 12))
+        pygame.draw.rect(screen, (200, 50, 50), (bx, ey + 52, int(bw * hp_r), 12))
+        hp_t = font_body.render(f"HP {c['hp']}/{c['max_hp']}", True, (220, 220, 230))
+        screen.blit(hp_t, (bx, ey + 66))
+
+        # 敌人像素立绘
+        ecx, ecy = w // 2, ey + 154
+        self._draw_enemy_portrait(screen, c, enemy_data, ecx, ecy)
+        rank_text = {"elite": "精英", "boss": "首领", "final_boss": "最终首领"}.get(enemy_type, "")
+        if rank_text:
+            badge = font_body.render(rank_text, True, (255, 224, 134))
+            screen.blit(badge, (ecx - badge.get_width() // 2, ecy + 55))
+
+        # ── 意图预判 ──
+        if soul >= 20:
+            intent = engine.combat_intent_text()
+            ic = {"攻击": (255, 80, 80), "防御": (80, 160, 255)}.get(
+                intent[:2] if intent.startswith("斗技") else intent, (255, 180, 60))
+            # 如果以 "斗技「" 开头就用技能颜色
+            if intent.startswith("斗技"):
+                ic = (255, 180, 60)
+            it = font_body.render(f"👁 下回合: {intent}", True, ic)
+            screen.blit(it, (18, ey + 104))
+        else:
+            it = font_body.render(f"灵魂感知 {soul}/20 可预判", True, (100, 100, 120))
+            screen.blit(it, (18, ey + 104))
+
+        # ── 敌人技能列表 ──
+        enemy_skills = engine.enemy_skill_list()
+        if enemy_skills:
+            sk = font_body.render(f"技能: {'、'.join(enemy_skills[:3])}", True, (180, 140, 100))
+            screen.blit(sk, (bx, ey + 226))
+
+        # ── 玩家 ──
+        py_ = h - 170
+        pn = font_title.render(p.get("name", "萧炎"), True, (80, 210, 120))
+        screen.blit(pn, (w // 2 - pn.get_width() // 2, py_))
+
+        hp_rp = max(0, p["hp"] / max(1, p["max_hp"]))
+        pygame.draw.rect(screen, (40, 15, 15), (bx, py_ + 30, bw, 10))
+        pygame.draw.rect(screen, (200, 50, 50), (bx, py_ + 30, int(bw * hp_rp), 10))
+        pt = font_body.render(
+            f"HP {p['hp']}/{p['max_hp']}  斗气 {p.get('douqi', 0)}", True, (220, 220, 230)
+        )
+        screen.blit(pt, (bx, py_ + 42))
+
+        # 连击/蓄力/中毒
+        combo = engine.combat_combo()
+        if combo >= 2:
+            ct = font_body.render(f"🔥 {combo}连击 +{int(min(combo,COMBO_MAX)*COMBO_DAMAGE_PER_STACK*100)}%", True, (255,180,40))
+            screen.blit(ct, (bx, py_+56))
+        if engine.combat_charged():
+            screen.blit(font_body.render("⚡ 蓄力就绪 x2.0", True, (180,220,100)), (bx+180, py_+56))
+        poison = engine.combat.get("poison",0) if engine.combat else 0
+        if poison > 0:
+            pt = font_body.render(f"☠️ 中毒 {poison}层(-{engine.combat.get('poison_dmg',0)}/回)", True, (180,80,200))
+            screen.blit(pt, (bx, py_+56))
+
+        # 回合
+        rt = font_body.render(f"第 {c['round']} 回合", True, (200, 160, 40))
+        screen.blit(rt, (w - rt.get_width() - 18, ey + 104))
+
+        # 菜单
+        my_ = py_ + 80
+        for i, act in enumerate(self.actions):
+            icon = "▶ " if i == self.selected else "  "
+            color = (200, 160, 40) if i == self.selected else (220, 220, 230)
+            t = font_body.render(f"{icon}{act}", True, color)
+            col = i % 4
+            row = i // 4
+            screen.blit(t, (bx + col * 95, my_ + row * 26))
+
+        # 斗技快捷
+        skills = engine.combat_skills()
+        if skills:
+            s = skills[0]
+            elem = SKILL_ELEMENTS.get(s["id"], "?")
+            st = font_body.render(
+                f"斗技: {s['name']} [{elem}] {engine._skill_cost(s)}斗气",
+                True, (140, 180, 220)
+            )
+            screen.blit(st, (bx, my_ + 60))
+
+        if engine.last_message:
+            msg = engine.last_message[:55]
+            mt = font_body.render(msg, True, (200, 200, 100))
+            screen.blit(mt, (w // 2 - mt.get_width() // 2, h - 24))
+
+
+def main() -> None:
+    PygameGame().run()
+
+
+if __name__ == "__main__":
+    main()

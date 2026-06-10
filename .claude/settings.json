@@ -1,0 +1,72 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "WebSearch",
+      "WebFetch",
+      "TaskCreate",
+      "TaskUpdate",
+      "TaskList",
+      "TaskGet",
+      "Agent",
+      "Skill",
+      "Bash(git *)",
+      "Bash(python *)",
+      "Bash(ls *)",
+      "Bash(dir *)",
+      "Bash(find *)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(cat *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(xargs *)",
+      "Bash(date *)",
+      "Bash(pwd *)",
+      "Bash(which *)",
+      "Bash(wget *)",
+      "Bash(curl *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"from pathlib import Path; p = Path('$FILE_PATH'); print(f'[auto] 已修改: {p.name} ({p.suffix})')\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$FILE_PATH\" | grep -qE \"(engine|console|tui|gui|workbook)\\.py$\"; then cd D:/work/wordworld && python -m unittest discover -s tests -v 2>&1 | tail -20; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd D:/work/wordworld && python -m unittest discover -s tests -v 2>&1"
+          }
+        ]
+      }
+    ]
+  }
+}
