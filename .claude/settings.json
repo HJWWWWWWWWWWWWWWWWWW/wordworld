@@ -66,6 +66,14 @@
             "command": "cd D:/work/wordworld && python -m unittest discover -s tests -v 2>&1"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cp -u ~/.claude/session-data/*.tmp D:/work/wordworld/.claude/session-data/ 2>/dev/null; echo '[auto] 会话摘要已同步到项目'"
+          }
+        ]
       }
     ]
   }

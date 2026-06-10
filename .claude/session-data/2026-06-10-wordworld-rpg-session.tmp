@@ -1,0 +1,108 @@
+# Session: 2026-06-10
+
+**Started:** 08:26
+**Last Updated:** ~12:00
+**Project:** D:\work\wordworld
+**Topic:** 斗破苍穹 RPG 全面完善：pygame 画面、地图系统、战斗机制、数值平衡
+
+---
+
+## What We Are Building
+
+将 wordworld（斗破苍穹回合制 RPG）从一个纯文本命令行游戏升级为完整的可玩游戏。核心改动：
+
+1. **pygame 瓦片地图 UI** — 替代 tkinter/console，逐格探索画面
+2. **269 张地图连接网** — 基于原文地理和 Excel 数据，每张地图只连接到实际邻接地
+3. **三大战斗机制** — 属性克制（火→风→毒→冰→雷循环）、意图预判（灵魂感知）、连击+蓄力
+4. **数值平衡修复** — 敌人属性钳制公式重调，TTK 从 300 回合降至 3-12 回合
+5. **暴击/闪避/中毒** — 接入 Excel 中已有的 crit_rate/dodge_rate/poison 属性
+6. **技能元素分配** — 249 个技能中 113 个自动分配五行属性
+7. **城镇交互系统** — 商店买卖、客栈休息、NPC 对话、背包管理
+8. **自主运转配置** — CLAUDE.md + 权限白名单 + Hooks
+
+---
+
+## What WORKED (with evidence)
+
+- **pygame UI 启动和探索** — `python run_pygame.py` 正常启动，瓦片地图渲染，方向键移动
+- **269 张地图全覆盖连接表** — 验证：零遗漏
+- **地图切换出口选择器** — 站到出口→列表选择→确认前往，只显示实际邻接地
+- **商店买卖系统** — 按物品类型自动定价（消耗品10银两/装备50/异火500），Tab 切换买卖
+- **NPC 区域匹配** — 乌坦城→萧战+薰儿+雅妃，黑角域→苏千+海波东，中州→药老+雅妃
+- **敌人技能实战使用** — 纳兰嫣然用风之剑，美杜莎用蛇瞳术，魂天帝用魂族秘法
+- **属性克制+连击+蓄力+暴击+闪避+中毒** — 全部在 combat_action 中生效
+- **73 个测试全部通过** — `Ran 73 tests in 0.413s OK`
+- **数值平衡** — 魔兽 Lv5 TTK: 5.7 回合，纳兰嫣然 Lv15: 7.6 回合
+- **CLAUDE.md + .claude/settings.json** — 项目指令+权限白名单+Hooks 已配置
+
+---
+
+## What Did NOT Work (and why)
+
+- **GateGuard 反复拦截 Write/Edit/Bash** — 每次操作前需要事实陈述，无法在本会话关闭
+- **`enemy_bandit` 不存在于 Excel** — 测试中改用 `mob_magic_beast`
+- **combat["defending"] 被敌人意图覆盖** — 敌人 intent=="attack" 时重置了玩家的 defend 标记，已修复
+- **药界→异火广场 错误连接** — 修正：药界仅连中州，异火广场仅连古帝洞穴
+- **魂殿山脉→魂殿→魂界 链式** — 原来全部直连中州，修正为链式
+- **地图跨区全部显示** — 改为显式连接表，每张地图只显示 2-6 个邻接地
+
+---
+
+## What Has NOT Been Tried Yet
+
+- 音效和 BGM（pygame.mixer 已可用但未接入）
+- 精灵动画（目前用圆形+符号，可升级为真实角色图）
+- 剧情事件在 pygame UI 中的接入（155 条地图奇遇）
+- 装备系统可视化（装备/卸下武器防具）
+- 关系系统在 pygame 中的图形化展示
+
+---
+
+## Current State of Files
+
+| File | Status | Notes |
+|------|--------|-------|
+| `CLAUDE.md` | PASS | 项目指令文件，架构/命令/约定 |
+| `.claude/settings.json` | PASS | 权限白名单+PostToolUse/Stop Hooks |
+| `src/wordworld/ui/pygame_ui.py` | PASS | 主 pygame UI，瓦片地图+战斗+城镇+商店+背包 |
+| `src/wordworld/core/engine.py` | PASS | 新增：属性克制/意图预判/连击/蓄力/暴击/闪避/中毒/元素分配/平衡钳制 |
+| `run_pygame.py` | PASS | pygame 启动入口 |
+| `tests/test_relationships.py` | PASS | 新增 NewCombatMechanicsTests（13个测试） |
+| `README.md` | PASS | 更新 pygame 操作说明和战斗机制文档 |
+
+---
+
+## Decisions Made
+
+- **pygame 而非 tkinter** — pygame 支持瓦片渲染/动画/音效，Windows 原生性能
+- **地图连接表 (`_MAP_CONNECTIONS`) 而非区域自动推导** — 每张地图显式定义邻接地
+- **敌人属性钳制公式** — HP: 25+lv*12, ATK: 5+lv*2, DEF: 1+lv；Boss x3/x5 HP
+- **技能元素自动分配而非逐个手写** — 关键词扫描，覆盖 113/249 个技能
+- **不修改 Excel 数据** — 所有扩展通过代码层面实现
+
+---
+
+## Blockers & Open Questions
+
+- 玩家高等级（70+）ATK 增速远超敌人 DEF，Boss 即使 x5 HP 也只需 3 回合
+- 136 个辅助技能（治疗/冥想等）未分配元素
+- crit_rate 和 dodge_rate 初始值均为 5%，是否需要随等级成长
+
+---
+
+## Exact Next Step
+
+1. 剧情事件接入 pygame — 155 条地图奇遇在瓦片探索中触发
+2. 音效接入 — pygame.mixer 加载 BGM
+3. 装备系统 UI — 背包中装备/卸下武器防具
+
+---
+
+## Environment
+
+```bash
+pip install pygame
+python run.py          # 命令行版
+python run_pygame.py   # pygame 画面版
+python -m unittest discover -s tests -v  # 测试
+```

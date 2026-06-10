@@ -1,0 +1,30 @@
+# Session: 2026-06-10
+**Date:** 2026-06-10
+**Started:** 08:14
+**Last Updated:** 08:26
+**Project:** wordworld
+**Branch:** master
+**Worktree:** D:\work\wordworld
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 报错： ⎿  SessionStart:startup hook error                          ⎿  Failed with non-blocking status code: error: Cannot                                                                 find module 'zod
+- 需要
+
+### Tools Used
+Bash, Glob
+
+### Stats
+- Total user messages: 2
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```
