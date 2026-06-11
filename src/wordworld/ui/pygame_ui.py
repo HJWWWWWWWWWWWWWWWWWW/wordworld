@@ -2207,11 +2207,19 @@ class PygameGame:
         self._render_tilemap()
         self._render_info_panel()
         self._render_messages()
-        h = self.font_small.render(
+        hint_x = MAP_VIEW_W * TILE_SIZE + 8
+        hint_width = PANEL_W - 16
+        hint_lines = _wrap_text(
+            self.font_small,
             "方向键:移动 空格:交互 I:物品 R:休息 C:修炼 M:菜单 F9:静音 F10/F11:音量",
-            True, (120, 120, 130)
+            hint_width,
         )
-        self.screen.blit(h, (MAP_VIEW_W * TILE_SIZE + 8, WIN_H - 28))
+        line_height = self.font_small.get_linesize()
+        hint_y = WIN_H - 8 - line_height * len(hint_lines)
+        for line in hint_lines:
+            hint = self.font_small.render(line, True, (120, 120, 130))
+            self.screen.blit(hint, (hint_x, hint_y))
+            hint_y += line_height
 
     # ── 瓦片渲染 ────────────────────────────────────────────
 
