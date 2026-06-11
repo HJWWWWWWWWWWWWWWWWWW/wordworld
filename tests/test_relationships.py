@@ -64,7 +64,8 @@ class LatestStoryTests(unittest.TestCase):
             "塔戈尔沙漠与青莲地心火",
             "三年之约决战",
             "迦南学院外院",
-            "陨落心炎与天焚炼气塔",
+            "炼气塔暴动与黑盟入侵",
+            "收服陨落心炎与清算韩枫",
             "营救药老",
             "丹会与三千焱炎火",
             "远古遗迹",
@@ -127,10 +128,11 @@ class LatestStoryTests(unittest.TestCase):
 
         before("退婚与三年之约", "戒中导师")
         before("塔戈尔沙漠与青莲地心火", "炼药师大会")
-        before("黑角域入侵内院", "重返加玛与云岚宗大战")
+        before("炼气塔暴动与黑盟入侵", "收服陨落心炎与清算韩枫")
+        before("收服陨落心炎与清算韩枫", "重返加玛与云岚宗大战")
         before("重返加玛与云岚宗大战", "重返黑角域")
-        before("重返黑角域", "再探天焚炼气塔")
-        before("再探天焚炼气塔", "进入中州")
+        before("重返黑角域", "再探塔底与天火尊者")
+        before("再探塔底与天火尊者", "进入中州")
         before("丹会与三千焱炎火", "营救药老")
         before("进入中州", "建立天府联盟")
         before("药典与药族灭族战", "古帝洞府")
@@ -139,7 +141,9 @@ class LatestStoryTests(unittest.TestCase):
         before("古族成人礼与天墓", "玄黄要塞与西北大陆大战")
         before("玄黄要塞与西北大陆大战", "莽荒古域与菩提古树")
         before("营救药老", "远古遗迹")
-        before("远古遗迹", "复活药老与重建星陨阁")
+        before("远古遗迹", "复活药老")
+        before("复活药老", "花宗与云韵传承")
+        before("花宗与云韵传承", "古族成人礼与天墓")
         before("建立天府联盟", "古龙岛三岛大战")
         before("古龙岛三岛大战", "血洗魂殿人殿")
         before("血洗魂殿人殿", "净莲妖火")
@@ -169,7 +173,57 @@ class LatestStoryTests(unittest.TestCase):
             if phase["id"] == "bodhi_tree"
         )
 
-        self.assertIn("item:+item_bodhi_heart", phase["effect"])
+        node_effects = [node["effect"] for node in phase["subnodes"]]
+        self.assertTrue(
+            any("item:+item_bodhi_heart" in effect for effect in node_effects)
+        )
+
+    def test_unique_story_rewards_are_not_declared_twice(self) -> None:
+        unique_items = {
+            "item_fallen_heart_flame",
+            "item_three_thousand_flame",
+            "item_earth_skill",
+            "item_bodhi_heart",
+            "item_bodhi_seed",
+            "item_purifying_demon_flame",
+        }
+        declarations = []
+        for phase in engine_module.STORY_PHASES:
+            declarations.extend(re.findall(r"item:\+([^,]+)", phase["effect"]))
+            for node in phase["subnodes"]:
+                declarations.extend(re.findall(r"item:\+([^,]+)", node["effect"]))
+
+        for item_id in unique_items:
+            self.assertEqual(declarations.count(item_id), 1, item_id)
+        self.assertNotIn("item_tuoshe_jade", declarations)
+
+    def test_ancient_emperor_jade_is_world_lore_not_a_player_key(self) -> None:
+        game = GameEngine()
+        cave_phase = next(
+            phase for phase in engine_module.STORY_PHASES
+            if phase["id"] == "ancient_emperor"
+        )
+
+        self.assertIn("flag:emperor_cave_opened=1", cave_phase["subnodes"][0]["effect"])
+        self.assertNotIn("ancient_emperor_jade", repr(cave_phase))
+        self.assertEqual(game.item_rules["item_tuoshe_jade"]["use_effect"], "")
+        self.assertNotIn(
+            "item_tuoshe_jade",
+            game.enemies["boss_hun_tiandi"]["drop_table"],
+        )
+        self.assertEqual(
+            game.maps["map_emperor_cave"]["unlock_condition"],
+            "flag:emperor_cave_opened=1",
+        )
+
+    def test_repeated_item_effect_does_not_report_a_second_reward(self) -> None:
+        game = GameEngine()
+
+        first_logs = game.apply_effects("item:+item_bodhi_heart")
+        second_logs = game.apply_effects("item:+item_bodhi_heart")
+
+        self.assertTrue(any("获得道具" in log for log in first_logs))
+        self.assertFalse(any("获得道具" in log for log in second_logs))
 
     def test_story_item_and_relationship_references_exist(self) -> None:
         game = GameEngine()
@@ -213,7 +267,11 @@ class LatestStoryTests(unittest.TestCase):
             game.player[key] = min(10000, game.attribute_rules[key]["max"])
         game.player["reputation"] = 1000
         game.player["training_wins"] = 10
-        game.player["flags"] = list(game.flag_defaults)
+        game.player["flags"] = [
+            flag_id
+            for flag_id, enabled in game.flag_defaults.items()
+            if enabled
+        ]
         for relation_id, rule in game.relationship_rules.items():
             game.player["relationships"][relation_id] = rule["max_value"]
 
@@ -307,6 +365,20 @@ class RelationshipTests(unittest.TestCase):
 
             self.assertEqual(loaded.player["story_phase_id"], "demon_flame")
             self.assertEqual(loaded.current_story_phase()["id"], "demon_flame")
+
+    def test_load_migrates_old_ancient_emperor_jade_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "save.json"
+            save_path.write_text(
+                json.dumps({"flags": ["ancient_emperor_jade"]}, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            with patch("wordworld.core.engine.SAVE_PATH", save_path):
+                loaded = GameEngine()
+                self.assertTrue(loaded.load())
+
+            self.assertIn("emperor_cave_opened", loaded.player["flags"])
 
     def test_save_records_stable_story_phase_id(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -24,6 +24,10 @@ LEGACY_STAT_ALIASES = {
     "neili": "douqi",
 }
 
+LEGACY_FLAG_ALIASES = {
+    "ancient_emperor_jade": "emperor_cave_opened",
+}
+
 # ── 四币货币系统 ───────────────────────────────────────────
 # 100铜=1银, 100银=1金, 1000金=1远古币
 COPPER_PER_SILVER = 100
@@ -339,15 +343,17 @@ STORY_PHASES = [
         ("结识紫研", "通过内院任务与紫研建立信任。", "adventure_points>=12", "rel:npc_ziyan:+10"),
         ("挑战强榜大赛", "取得进入天焚炼气塔核心区域的资格。", "training_wins>=4", "flag:strong_rank_won=1"),
     ]),
-    _story_phase("fallen_heart", "陨落心炎与天焚炼气塔", "天焚炼气塔异动，陨落心炎即将失控。", "守住内院并收服陨落心炎。", "异火失控会摧毁内院。", 11, "level>=25,flag:strong_rank_won=1", "item:+item_fallen_heart_flame,douqi:+30", [
+    _story_phase("fallen_heart", "炼气塔暴动与黑盟入侵", "强榜大赛后，陨落心炎冲破封印，韩枫也趁乱召集黑盟进攻内院。", "协助学院抵挡黑盟，并在封印崩溃时直面陨落心炎。", "黑盟与异火同时失控会彻底摧毁内院。", 11, "level>=25,flag:strong_rank_won=1", "flag:xiao_yan_trapped_in_tower=1,flag:han_feng_hostile=1,reputation:+10", [
         ("调查炼气塔异动", "确认陨落心炎暴动征兆。", "soul>=20", "flag:fallen_heart_unstable=1"),
-        ("深入塔底", "在封印崩溃前抵达异火本体。", "level>=25", "exp:+80"),
-        ("收服陨落心炎", "承受异火炼体并返回内院。", "flag:fallen_heart_unstable=1", "item:+item_fallen_heart_flame"),
+        ("进入塔底修炼", "在封印彻底崩溃前进入塔底。", "level>=25", "exp:+80"),
+        ("黑盟趁乱入侵", "协助苏千与内院长老抵挡韩枫和黑盟。", "reputation>=35,flag:fallen_heart_unstable=1", "flag:black_alliance_invaded=1"),
+        ("被陨落心炎吞入塔底", "在混战与封印崩溃中跌入岩浆世界。", "flag:black_alliance_invaded=1", "flag:xiao_yan_trapped_in_tower=1"),
     ]),
-    _story_phase("black_corner_war", "黑角域入侵内院", "韩枫联合黑角域势力进攻内院，试图夺走陨落心炎。", "守住内院并击退韩枫与黑盟。", "学院失守会让异火和盟友落入韩枫手中。", 12, "level>=28,flag:pan_gate_founded=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1,reputation:+15", [
-        ("集结学院盟友", "组织内院力量抵挡黑盟入侵。", "reputation>=35", "reputation:+5"),
-        ("击退韩枫与黑盟", "保住学院并摧毁韩枫肉身。", "level>=28", "flag:han_feng_hostile=1"),
-        ("发现魂殿接应", "确认韩枫灵魂被魂殿救走。", "soul>=25", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1"),
+    _story_phase("black_corner_war", "收服陨落心炎与清算韩枫", "被困塔底两年后，你必须炼化陨落心炎、破塔归来，并清算韩枫与黑盟。", "带着异火重返内院，反攻枫城并摧毁韩枫肉身。", "若无法脱困，内院和萧门都将长期承受黑盟威胁。", 12, "level>=28,flag:xiao_yan_trapped_in_tower=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1,reputation:+15,douqi:+30", [
+        ("炼化陨落心炎", "在岩浆世界承受异火炼体并完成融合。", "soul>=25,flag:fallen_heart_unstable=1", "item:+item_fallen_heart_flame"),
+        ("破塔重返内院", "结束两年闭关，返回内院与萧门。", "item:item_fallen_heart_flame", "flag:return_from_tower=1,reputation:+5"),
+        ("反攻枫城击溃韩枫", "联合学院强者摧毁韩枫肉身。", "level>=28,flag:han_feng_hostile=1", "flag:han_feng_body_destroyed=1"),
+        ("发现魂殿接应", "确认韩枫灵魂被魂殿救走。", "soul>=25,flag:han_feng_body_destroyed=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1"),
     ]),
     _story_phase("yunlan_war", "重返加玛与云岚宗大战", "父亲失踪、萧家遭难，线索指向云岚宗与魂殿。", "救援萧家、击败云山并重建故土秩序。", "拖延会让萧家与盟友被逐个击破。", 13, "level>=30,flag:first_yunlan_escape=1", "flag:yan_alliance_founded=1,reputation:+20", [
         ("追查父亲失踪", "确认萧家危机与魂殿介入。", "reputation>=35", "flag:xiao_family_crisis=1"),
@@ -359,19 +365,21 @@ STORY_PHASES = [
         ("重逢毒宗宗主", "确认小医仙身份并避免双方死战。", "rel:npc_xiao_yixian>=40", "rel:npc_xiao_yixian:+10"),
         ("暂时封印厄难毒体", "寻找毒丹之法，暂时压制小医仙的毒体。", "alchemy>=20,flag:poison_companion=1", "flag:poison_body_sealed=1"),
     ]),
-    _story_phase("return_black_corner", "重返黑角域", "魂殿线索与韩枫逃亡方向都指向黑角域。", "清算魔炎谷、擒获韩枫并取得魂殿情报。", "缺少情报便无法定位药老。", 15, "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1,flag:mentor_prison_known=1,reputation:+15", [
+    _story_phase("return_black_corner", "重返黑角域", "魂殿线索与韩枫逃亡方向都指向黑角域。", "清算魔炎谷、擒获韩枫并取得前往中州的线索。", "缺少魂殿情报便无法继续追查药老。", 15, "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1,flag:mentor_prison_known=1,reputation:+15", [
         ("清算魔炎谷", "摧毁黑角域中敌对势力的核心据点。", "reputation>=55", "flag:demon_flame_valley_defeated=1"),
         ("擒获韩枫灵魂", "击败韩枫与魂殿接应者。", "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1"),
-        ("取得药老关押情报", "从韩枫与魂殿护法处取得关键线索。", "soul>=30", "flag:mentor_prison_known=1"),
+        ("取得药老去向线索", "从韩枫与魂殿护法处确认药老被带往中州。", "soul>=30", "flag:mentor_prison_known=1"),
     ]),
-    _story_phase("revisit_tower", "再探天焚炼气塔", "黑角域清算后，炼气塔底的岩浆世界仍隐藏着异火和古帝线索。", "再入塔底、救出天火尊者并发现古帝洞府线索。", "忽略塔底秘密会让终局线索断裂。", 16, "level>=36,flag:han_feng_captured=1", "flag:ancient_emperor_clue_found=1,reputation:+8", [
+    _story_phase("revisit_tower", "再探塔底与天火尊者", "黑角域清算后，炼气塔底的岩浆世界仍隐藏着第二朵心炎、火焰蜥蜴人与神秘存在。", "再入塔底、救出天火尊者并记录古帝玉的异常反应。", "忽略塔底异动会让后续追查古帝洞府时失去重要参照。", 16, "level>=36,flag:han_feng_captured=1", "flag:magma_depths_sensed=1,reputation:+8", [
         ("返回迦南学院", "安置萧门与磐门并准备再入塔底。", "reputation>=58", "reputation:+3"),
         ("救出天火尊者", "深入岩浆世界并帮助残魂脱困。", "soul>=32", "flag:tianhuo_rescued=1"),
-        ("发现古帝玉线索", "确认岩浆世界与古帝洞府存在联系。", "flag:tianhuo_rescued=1", "flag:ancient_emperor_clue_found=1"),
+        ("记录古帝玉异动", "面对岩浆深处的神秘存在，记录古帝玉的异常反应。", "flag:tianhuo_rescued=1", "flag:magma_depths_sensed=1"),
     ]),
     _story_phase("zhongzhou_arrival", "进入中州", "药老被魂殿掳走，新的线索指向强者云集的中州。", "在中州立足、寻找星陨阁并追查魂殿。", "没有据点与情报便无法展开营救。", 16, "level>=36,flag:mentor_prison_known=1", "flag:star_pavilion_found=1,reputation:+15", [
-        ("穿越空间虫洞", "抵达中州并适应新的强敌环境。", "level>=35", "exp:+100"),
-        ("四方阁立威", "通过风雷阁冲突建立中州声望。", "training_wins>=5", "reputation:+10"),
+        ("穿越空间虫洞", "经历空间风暴后抵达中州，并随韩家车队前往天北城。", "level>=35", "flag:han_family_helped=1,exp:+100"),
+        ("解决天北城冲突", "帮助韩家抵挡洪家与风雷北阁追杀。", "flag:han_family_helped=1", "flag:tianbei_conflict_resolved=1,reputation:+5"),
+        ("进入天目山血潭", "穿过鼠潮音波阵并借血潭完成突破。", "flag:tianbei_conflict_resolved=1", "flag:tianmu_blood_pool_crossed=1,douqi:+10"),
+        ("四方阁大会立威", "在大会中击败王尘并与风尊者建立联系。", "training_wins>=5,flag:tianmu_blood_pool_crossed=1", "reputation:+10"),
         ("找到风尊者与星陨阁", "联系药老旧友并建立营救据点。", "reputation>=50", "flag:star_pavilion_found=1,rel:npc_feng_zunzhe:+15"),
     ]),
     _story_phase("ye_ice_valley", "叶城与冰河谷", "中州丹塔选拔将近，小医仙的厄难毒体也引来冰河谷追杀。", "帮助叶家取得资格，并彻底解决厄难毒体。", "毒体失控会危及小医仙与周围所有人。", 17, "level>=38,flag:poison_body_sealed=1", "flag:poison_body_resolved=1,reputation:+12", [
@@ -379,7 +387,7 @@ STORY_PHASES = [
         ("迎战冰河谷", "保护小医仙并击退冰河谷追兵。", "level>=38,rel:npc_xiao_yixian>=50", "reputation:+5"),
         ("凝聚毒丹", "彻底控制厄难毒体而非继续封印。", "alchemy>=30,flag:poison_body_sealed=1", "flag:poison_body_resolved=1"),
     ]),
-    _story_phase("dan_meeting_flame", "丹会与三千焱炎火", "丹塔大会能提供声望、盟友与接近三千焱炎火的机会。", "赢得丹会并收服星域异火。", "失败会失去营救药老的重要支援。", 18, "level>=40,alchemy>=30,soul>=30,flag:dan_meeting_qualified=1", "item:+item_three_thousand_flame,alchemy:+15,reputation:+20", [
+    _story_phase("dan_meeting_flame", "丹会与三千焱炎火", "丹塔大会能提供声望、盟友与接近三千焱炎火的机会。", "赢得丹会并收服星域异火。", "失败会失去营救药老的重要支援。", 18, "level>=40,alchemy>=30,soul>=30,flag:dan_meeting_qualified=1", "alchemy:+15,reputation:+20", [
         ("通过丹会选拔", "证明炼药与灵魂能力。", "alchemy>=30,soul>=30", "reputation:+10"),
         ("赢得丹会", "在顶尖炼药师竞争中夺得名次。", "alchemy>=35", "flag:dan_meeting_won=1"),
         ("进入星域收服异火", "处理魂殿干扰并取得三千焱炎火。", "level>=40,flag:dan_meeting_won=1", "item:+item_three_thousand_flame"),
@@ -389,18 +397,17 @@ STORY_PHASES = [
         ("撤回星陨阁", "保护重伤的药老灵魂撤离。", "soul>=40,flag:yao_lao_rescued=1", "flag:mentor_soul_secured=1"),
         ("准备复活材料", "确认重塑躯体仍缺少斗圣骸骨。", "alchemy>=40", "flag:saint_bones_needed=1"),
     ]),
-    _story_phase("ancient_ruins", "远古遗迹", "远古遗迹现世，其中的斗圣骸骨是复活药老的关键。", "探索遗迹、取得龙凰本源果与斗圣骸骨。", "无法取得骸骨便不能为药老重塑躯体。", 20, "level>=48,soul>=35,flag:saint_bones_needed=1", "item:+item_earth_skill,flag:saint_bones_acquired=1,soul:+10", [
+    _story_phase("ancient_ruins", "远古遗迹", "远古遗迹现世，其中的斗圣骸骨是复活药老的关键。", "探索遗迹、取得龙凰本源果与斗圣骸骨。", "无法取得骸骨便不能为药老重塑躯体。", 20, "level>=48,soul>=35,flag:saint_bones_needed=1", "soul:+10", [
         ("定位遗迹入口", "识别空间波动并准备探索队伍。", "soul>=35", "exp:+50"),
         ("重逢青鳞", "在遗迹中与青鳞会合并应对远古天蛇力量。", "rel:npc_qing_lin>=35", "rel:npc_qing_lin:+10"),
         ("取得龙凰本源果", "为紫研后续的龙皇血脉觉醒准备机缘。", "level>=48", "flag:dragon_phoenix_fruit_acquired=1"),
         ("夺取斗圣骸骨", "击退争夺者并带回重塑躯体的核心材料。", "reputation>=70", "item:+item_earth_skill,flag:saint_bones_acquired=1"),
     ]),
-    _story_phase("revive_mentor", "复活药老与重建星陨阁", "斗圣骸骨已经到手，可以为药老重塑躯体。", "复活药老并将星陨阁建设为长期据点。", "拖延会让魂殿再次找到虚弱的药老。", 21, "alchemy>=42,flag:saint_bones_acquired=1,flag:mentor_soul_secured=1", "flag:yao_lao_revived=1,flag:star_pavilion_rebuilt=1,reputation:+20", [
+    _story_phase("revive_mentor", "复活药老", "斗圣骨骸已经到手，可以为药老重塑躯体。", "炼制新躯体并让药老完成灵魂融合。", "拖延会让魂殿再次找到虚弱的药老灵魂。", 21, "alchemy>=42,flag:saint_bones_acquired=1,flag:mentor_soul_secured=1", "flag:yao_lao_revived=1,reputation:+20", [
         ("炼制斗圣躯体", "使用斗圣骸骨与异火完成躯体炼制。", "alchemy>=42,flag:saint_bones_acquired=1", "flag:saint_body_refined=1"),
         ("药老复活", "让药老灵魂与新躯体完成融合。", "soul>=45,flag:saint_body_refined=1", "flag:yao_lao_revived=1,rel:npc_yao_lao:+15"),
-        ("重建星陨阁", "将临时营救据点发展为长期势力。", "reputation>=75", "flag:star_pavilion_rebuilt=1"),
     ]),
-    _story_phase("flower_sect", "花宗与云韵传承", "花宗传承纷争将云韵卷入危机，也影响中州盟友格局。", "帮助云韵取得花宗传承并争取花宗支持。", "花宗落入敌对势力会削弱未来联盟。", 22, "level>=50,flag:star_pavilion_rebuilt=1", "flag:flower_sect_allied=1,rel:npc_yun_yun:+15,reputation:+10", [
+    _story_phase("flower_sect", "花宗与云韵传承", "药老复活后，花宗传承纷争将云韵卷入危机，也影响中州盟友格局。", "帮助云韵取得花宗传承并争取花宗支持。", "花宗落入敌对势力会削弱未来联盟。", 22, "level>=50,flag:yao_lao_revived=1", "flag:flower_sect_allied=1,rel:npc_yun_yun:+15,reputation:+10", [
         ("赶往花宗", "响应云韵求援并查明宗主传承争议。", "reputation>=75", "rel:npc_yun_yun:+5"),
         ("击败花宗敌手", "保护云韵完成传承。", "level>=50", "exp:+120"),
         ("争取花宗支持", "让花宗成为星陨阁的盟友。", "rel:npc_yun_yun>=30", "flag:flower_sect_allied=1"),
@@ -410,17 +417,18 @@ STORY_PHASES = [
         ("守护龙凰晶层", "在三岛压力下保护紫研完成炼化。", "level>=50", "rel:npc_ziyan:+10"),
         ("见证龙皇觉醒", "帮助紫研继承龙皇血脉。", "rel:npc_ziyan>=40", "flag:dragon_emperor_awakened=1"),
     ]),
-    _story_phase("gu_clan_tomb", "古族成人礼与天墓", "古族成人礼与天墓开启提供了接触萧族先祖的机会。", "赢得古族认可并获得萧玄传承。", "失败会削弱古族联盟与血脉成长。", 24, "level>=52,rel:npc_xun_er>=60", "rel:npc_gu_yuan:+20,douqi:+50", [
+    _story_phase("gu_clan_tomb", "古族成人礼与天墓", "古族成人礼与天墓开启提供了接触萧族先祖的机会。", "赢得古族认可、获得萧玄传承，并强化星陨阁。", "失败会削弱古族联盟与血脉成长。", 24, "level>=52,rel:npc_xun_er>=60", "rel:npc_gu_yuan:+20,douqi:+50", [
         ("参加古族成人礼", "在远古种族面前证明实力。", "reputation>=75", "rel:npc_gu_yuan:+10"),
         ("进入天墓", "与同伴穿越能量风暴。", "level>=50", "exp:+150"),
         ("接受萧玄传承", "恢复萧族血脉并理解先祖使命。", "soul>=45", "flag:xiao_bloodline_awakened=1,douqi:+30"),
+        ("回归并强化星陨阁", "结束天墓修炼后，将星陨阁建设为更可靠的长期据点。", "flag:xiao_bloodline_awakened=1", "flag:star_pavilion_rebuilt=1,reputation:+10"),
     ]),
     _story_phase("northwest_fortress_war", "玄黄要塞与西北大陆大战", "魂殿联军进攻西北大陆，炎盟与萧家在玄黄要塞陷入苦战。", "返回故土、守住要塞并稳定西北联盟。", "故土失守会让天府联盟失去根基。", 25, "level>=54,flag:yan_alliance_founded=1", "flag:northwest_front_secured=1,reputation:+18", [
         ("赶回玄黄要塞", "响应炎盟求援并集结故土盟友。", "reputation>=82", "flag:northwest_reinforced=1"),
         ("守卫萧家与炎盟", "击退魂殿联军对西北大陆的进攻。", "level>=54", "reputation:+10"),
         ("稳定西北战线", "重新整合加玛、出云与蛇人族力量。", "flag:northwest_stabilized=1", "flag:northwest_front_secured=1"),
     ]),
-    _story_phase("bodhi_tree", "莽荒古域与菩提古树", "菩提古树现世，进入莽荒古域还需面对兽潮与各方争夺。", "穿越莽荒古域、突破幻境并取得菩提心。", "心境不足会永远迷失。", 25, "level>=55,soul>=45", "item:+item_bodhi_heart,item:+item_bodhi_seed,soul:+20", [
+    _story_phase("bodhi_tree", "莽荒古域与菩提古树", "菩提古树现世，进入莽荒古域还需面对兽潮与各方争夺。", "穿越莽荒古域、突破幻境并取得菩提心。", "心境不足会永远迷失。", 25, "level>=55,soul>=45", "soul:+20", [
         ("穿越莽荒古域兽潮", "与盟友突破古域入口和兽潮阻拦。", "reputation>=80", "exp:+100"),
         ("争夺古树入口", "与各方势力竞争进入资格。", "reputation>=80", "exp:+100"),
         ("突破菩提幻境", "分辨幻象并保持自我。", "soul>=45", "soul:+10"),
@@ -447,7 +455,7 @@ STORY_PHASES = [
         ("夺回灵魂本源", "释放被囚灵魂并强化自身灵魂境界。", "soul>=55,flag:soul_hall_core_exposed=1", "soul:+15"),
         ("逼退魂殿殿主", "迫使魂殿收缩，但殿主仍未被彻底击败。", "level>=62", "flag:soul_hall_weakened=1"),
     ]),
-    _story_phase("demon_flame", "净莲妖火", "残图汇聚，净莲妖火空间开启。", "突破妖火幻境并完成收服。", "失败会被妖火控制。", 30, "level>=64,soul>=55,flag:soul_hall_weakened=1", "item:+item_purifying_demon_flame,douqi:+80", [
+    _story_phase("demon_flame", "净莲妖火", "残图汇聚，净莲妖火空间开启。", "突破妖火幻境并完成收服。", "失败会被妖火控制。", 30, "level>=64,soul>=55,flag:soul_hall_weakened=1", "douqi:+80", [
         ("集齐妖火残图", "借助联盟情报定位妖火空间。", "soul>=50", "flag:demon_flame_map=1"),
         ("突破妖火幻境", "抵抗净莲妖圣留下的幻境。", "soul>=55", "soul:+10"),
         ("收服净莲妖火", "与盟友共同压制妖火本体。", "level>=60", "item:+item_purifying_demon_flame"),
@@ -468,21 +476,22 @@ STORY_PHASES = [
         ("营救萧战", "在魂族大战中救回被囚多年的父亲。", "flag:xiao_family_crisis=1,level>=68", "flag:xiao_zhan_rescued=1,rel:npc_xiao_zhan:+20"),
         ("协调远古种族盟友", "争取古族与统一后的太虚古龙族共同作战。", "rel:npc_gu_yuan>=30,flag:dragon_clan_unified=1", "flag:ancient_alliance=1"),
     ]),
-    _story_phase("ancient_emperor", "古帝洞府", "魂族打开古帝洞府，成帝传承成为最后争夺。", "进入洞府并阻止魂族独占传承。", "失败会让魂天帝完成最终突破。", 34, "level>=70,flag:ancient_alliance=1", "flag:ancient_emperor_jade=1,item:+item_tuoshe_jade,douqi:+100", [
-        ("追入古帝洞府", "集结联盟进入洞府空间。", "flag:ancient_alliance=1", "flag:ancient_emperor_jade=1"),
-        ("争夺帝品雏丹", "阻止魂族夺取成帝关键。", "level>=70", "douqi:+50"),
-        ("魂天帝夺丹成帝", "在争夺失败后应对魂天帝完成突破的危机。", "level>=72", "flag:soul_emperor_ascended=1"),
-        ("接受古帝传承", "获得迎战魂天帝的最后力量。", "flag:emperor_soul_awakened=1", "flag:emperor_legacy=1,douqi:+100"),
+    _story_phase("ancient_emperor", "古帝洞府", "魂族集齐八块陀舍古帝玉并打开洞府，成帝传承成为最后争夺。", "追入洞府，争夺帝品雏丹并取得迎战魂天帝的传承。", "失败会让魂天帝独占成帝契机。", 34, "level>=70,flag:ancient_alliance=1", "flag:emperor_cave_contested=1", [
+        ("追入古帝洞府", "在魂族使用八玉打开洞府后，集结联盟追入洞府空间。", "flag:ancient_alliance=1", "flag:emperor_cave_opened=1"),
+        ("争夺帝品雏丹", "阻止魂族夺取成帝关键。", "level>=70,flag:emperor_cave_opened=1", "flag:embryonic_pill_contested=1,douqi:+50"),
+        ("魂天帝夺丹成帝", "争夺失败后，应对魂天帝完成突破的危机。", "level>=72,flag:embryonic_pill_contested=1", "flag:soul_emperor_ascended=1"),
+        ("接受古帝传承", "在魂天帝成帝后，获得迎战他的最后力量。", "flag:emperor_soul_awakened=1,flag:soul_emperor_ascended=1", "flag:emperor_legacy=1,douqi:+100"),
     ]),
     _story_phase("final_war", "双帝之战", "魂天帝突破，大陆已无退路。", "集结联军并完成最终决战。", "失败意味着大陆秩序覆灭。", 35, "level>=80,flag:emperor_legacy=1", "flag:soul_emperor_defeated=1,reputation:+100", [
         ("集结大陆联军", "让所有盟友进入最终战场。", "reputation>=120,flag:ancient_alliance=1", "reputation:+20"),
         ("突破斗帝", "以古帝传承与异火完成最终突破。", "level>=80,flag:emperor_legacy=1", "flag:xiao_emperor_awakened=1"),
         ("迎战魂天帝", "封印魂天帝并终结魂族战争。", "flag:xiao_emperor_awakened=1", "flag:soul_emperor_defeated=1"),
     ]),
-    _story_phase("five_emperors", "五帝破空", "大战结束后，大陆恢复秩序，新的世界通道出现。", "安置盟友、留下传承并开启新纪元。", "若没有完成战后安排，胜利仍会留下隐患。", 36, "flag:soul_emperor_defeated=1", "flag:story_finished=1,item:+item_emperor_flame", [
-        ("重建大陆秩序", "处理战后势力与家族安置。", "reputation>=150", "reputation:+20"),
-        ("留下斗帝传承", "让新的修炼道路延续。", "flag:xiao_emperor_awakened=1", "item:+item_emperor_flame"),
-        ("五帝破空", "与重要伙伴前往新的世界。", "flag:ancient_alliance=1", "flag:story_finished=1"),
+    _story_phase("five_emperors", "五帝破空", "双帝之战数十年后，萧炎开启源气通道，斗气大陆再次出现五位斗帝。", "安排大陆后事，并与薰儿、彩鳞、古元和烛坤前往新的位面。", "未知位面远比斗气大陆危险，必须在出发前完成交接。", 36, "flag:soul_emperor_defeated=1", "flag:story_finished=1", [
+        ("开启源气通道", "引来源气，让斗气大陆重新拥有晋升斗帝的可能。", "flag:xiao_emperor_awakened=1", "flag:source_qi_channel_opened=1"),
+        ("见证五帝并立", "等待薰儿、彩鳞、古元与烛坤完成突破。", "flag:source_qi_channel_opened=1", "flag:five_emperors_gathered=1"),
+        ("安排大陆后事", "将萧族、古族、太虚古龙族与天府联盟交给可靠的后来者。", "reputation>=150,flag:five_emperors_gathered=1", "reputation:+20"),
+        ("五帝破空", "五位斗帝一同前往新的位面。", "flag:ancient_alliance=1,flag:five_emperors_gathered=1", "flag:story_finished=1"),
     ]),
 ]
 
@@ -490,7 +499,7 @@ STORY_PHASES = [
 # 工作簿里程碑必须映射到真实节点，并按实际剧情先后排列。
 PLOT_MILESTONE_SEQUENCE = [
     "退婚", "三年之约", "青莲地心火争夺", "炼药师大会", "内院选拔赛",
-    "强榜大赛", "陨落心炎与天焚炼气塔", "黑角域大战", "云岚宗大战",
+    "强榜大赛", "黑角域大战", "陨落心炎与天焚炼气塔", "云岚宗大战",
     "丹会", "三千焱炎火", "营救药老", "远古遗迹", "古族成人礼",
     "天墓与萧玄", "菩提古树", "净莲妖火", "药典", "古帝洞府",
     "双帝之战", "五帝破空",
@@ -503,8 +512,8 @@ PLOT_MILESTONE_COVERAGE = {
     "炼药师大会": ("炼药师大会", "赢得炼药师大会"),
     "内院选拔赛": ("迦南学院外院", "通过内院选拔赛"),
     "强榜大赛": ("内院磐门与强榜", "挑战强榜大赛"),
-    "陨落心炎与天焚炼气塔": ("陨落心炎与天焚炼气塔", "收服陨落心炎"),
-    "黑角域大战": ("黑角域入侵内院", "击退韩枫与黑盟"),
+    "黑角域大战": ("炼气塔暴动与黑盟入侵", "黑盟趁乱入侵"),
+    "陨落心炎与天焚炼气塔": ("收服陨落心炎与清算韩枫", "炼化陨落心炎"),
     "云岚宗大战": ("重返加玛与云岚宗大战", "击败云山，药老被掳"),
     "丹会": ("丹会与三千焱炎火", "赢得丹会"),
     "三千焱炎火": ("丹会与三千焱炎火", "进入星域收服异火"),
@@ -533,11 +542,15 @@ CRITICAL_BRIDGE_COVERAGE = {
     "获得菩提心": ("莽荒古域与菩提古树", "取得菩提心"),
     "重返黑角域": ("重返黑角域", "擒获韩枫灵魂"),
     "叶城与冰河谷": ("叶城与冰河谷", "迎战冰河谷"),
-    "药老复活": ("复活药老与重建星陨阁", "药老复活"),
+    "药老复活": ("复活药老", "药老复活"),
     "花宗传承": ("花宗与云韵传承", "争取花宗支持"),
     "九幽黄泉": ("九幽黄泉与妖暝", "救出妖暝"),
     "首次穿越黑角域": ("迦南学院外院", "穿越黑角域"),
-    "再探天焚炼气塔": ("再探天焚炼气塔", "发现古帝玉线索"),
+    "再探天焚炼气塔": ("再探塔底与天火尊者", "记录古帝玉异动"),
+    "中州韩家与天北城": ("进入中州", "解决天北城冲突"),
+    "天目山血潭": ("进入中州", "进入天目山血潭"),
+    "星陨阁强化": ("古族成人礼与天墓", "回归并强化星陨阁"),
+    "源气通道": ("五帝破空", "开启源气通道"),
     "玄黄要塞大战": ("玄黄要塞与西北大陆大战", "守卫萧家与炎盟"),
     "灵族消失": ("建立天府联盟", "调查灵族消失"),
     "再入天墓帝境灵魂": ("远古种族联盟战", "再入天墓"),
@@ -549,7 +562,7 @@ STORY_CHAPTER_ANCHORS = {
     "yunlan_duel": 329,
     "canaan_outer": 378,
     "fallen_heart": 582,
-    "black_corner_war": 589,
+    "black_corner_war": 614,
     "yunlan_war": 668,
     "poison_sect_war": 735,
     "return_black_corner": 811,
@@ -749,7 +762,7 @@ MAP_STORY_UNLOCKS = {
     "map_poison_sect": "poison_sect_war",
     "map_golden_goose_sect": "poison_sect_war",
     "map_mulan_valley": "poison_sect_war",
-    # revisit_tower: 再探天焚炼气塔
+    # revisit_tower: 再探塔底与天火尊者
     "map_skyfire_magma_world": "revisit_tower",
     # northwest_fortress_war: 玄黄要塞与西北大陆大战
     "map_xuanhuang_fortress": "northwest_fortress_war",
@@ -1163,6 +1176,9 @@ class GameEngine:
             player["flags"] = [key for key, value in flags.items() if int(value)]
         else:
             player.setdefault("flags", [])
+        for legacy_flag, current_flag in LEGACY_FLAG_ALIASES.items():
+            if legacy_flag in player["flags"] and current_flag not in player["flags"]:
+                player["flags"].append(current_flag)
         for flag_id, default in self.flag_defaults.items():
             if default and flag_id not in player["flags"]:
                 player["flags"].append(flag_id)
@@ -1459,8 +1475,9 @@ class GameEngine:
             )
         if token.startswith("item:+"):
             item = token[6:]
-            if item not in self.player["items"]:
-                self.player["items"].append(item)
+            if item in self.player["items"]:
+                return []
+            self.player["items"].append(item)
             return [f"获得道具：{self.item_name(item)}"]
         if token.startswith("item:-"):
             item = token[6:]

@@ -36,11 +36,52 @@ WIN_W = MAP_VIEW_W * TILE_SIZE + PANEL_W
 WIN_H = MAP_VIEW_H * TILE_SIZE
 FPS = 30
 
+# 全部音效均由代码实时生成，保持单文件发行且不依赖外部音频资源。
+PROGRAMMATIC_SOUND_RECIPES: Dict[str, List[Tuple[int, int, str, float]]] = {
+    "step": [(180, 32, "noise", 0.10)],
+    "bump": [(90, 70, "square", 0.18)],
+    "select": [(520, 35, "square", 0.10)],
+    "confirm": [(620, 45, "sine", 0.18), (820, 60, "sine", 0.16)],
+    "cancel": [(420, 45, "sine", 0.14), (260, 70, "sine", 0.12)],
+    "alert": [(280, 100, "square", 0.22), (360, 130, "square", 0.20)],
+    "travel": [(260, 70, "noise", 0.12), (420, 80, "sine", 0.16), (620, 110, "sine", 0.14)],
+    "treasure": [(660, 60, "sine", 0.20), (880, 70, "sine", 0.18), (1100, 120, "sine", 0.16)],
+    "buy": [(740, 45, "square", 0.14), (980, 80, "sine", 0.17)],
+    "sell": [(920, 45, "sine", 0.15), (620, 80, "square", 0.12)],
+    "rest": [(520, 120, "sine", 0.10), (390, 160, "sine", 0.09), (260, 220, "sine", 0.08)],
+    "cultivate": [(180, 100, "sine", 0.10), (360, 160, "sine", 0.13), (720, 220, "sine", 0.12)],
+    "story": [(440, 100, "sine", 0.13), (660, 120, "sine", 0.14), (880, 180, "sine", 0.15)],
+    "hit": [(115, 65, "noise", 0.28), (80, 100, "square", 0.24)],
+    "critical": [(150, 80, "noise", 0.34), (70, 180, "square", 0.32)],
+    "skill": [(260, 70, "sine", 0.16), (520, 100, "sine", 0.22), (1040, 180, "square", 0.20)],
+    "defend": [(180, 80, "noise", 0.16), (120, 130, "sine", 0.18)],
+    "charge": [(110, 100, "sine", 0.12), (220, 130, "sine", 0.16), (440, 180, "sine", 0.20)],
+    "item": [(700, 60, "sine", 0.16), (900, 100, "sine", 0.18)],
+    "victory": [(440, 100, "square", 0.14), (660, 110, "square", 0.16), (880, 240, "sine", 0.20)],
+    "defeat": [(320, 130, "square", 0.16), (220, 170, "square", 0.15), (110, 260, "sine", 0.14)],
+    "escape": [(520, 50, "noise", 0.12), (360, 70, "noise", 0.10), (220, 100, "noise", 0.08)],
+    "save": [(600, 70, "square", 0.13), (900, 120, "sine", 0.17)],
+    "load": [(900, 70, "sine", 0.14), (600, 120, "square", 0.14)],
+    "equip": [(420, 50, "square", 0.14), (760, 90, "sine", 0.16)],
+}
+
+PROGRAMMATIC_AMBIENT_PROFILES: Dict[str, Tuple[int, int, float]] = {
+    "city": (110, 2, 0.03),
+    "wild": (82, 1, 0.08),
+    "danger": (55, 3, 0.12),
+    "battle": (73, 6, 0.16),
+}
+
 # 瓦片类型
 TILE_FLOOR = 0
 TILE_WALL = 1
 TILE_DOOR = 2
 TILE_COUNTER = 3
+TILE_ROAD = 4
+TILE_PLAZA = 5
+TILE_WATER = 6
+TILE_GARDEN = 7
+TILE_LANDMARK = 8
 
 # 实体类型
 ENTITY_PLAYER = 10
@@ -183,6 +224,97 @@ _TOWN_STYLE_PROFILES = {
     "frontier": ("边城", ["驿站", "粮行", "兵器铺", "佣兵会", "药铺", "酒馆", "商栈"]),
 }
 
+_CITY_IDENTITIES: List[Tuple[Tuple[str, ...], Dict[str, str]]] = [
+    (("wutan", "xiao_"), {
+        "name": "乌坦城", "layout": "clan", "theme": "wutan_town",
+        "landmark": "clan_monument", "motto": "青石族坊",
+    }),
+    (("black_rock",), {
+        "name": "黑岩城", "layout": "trade", "theme": "black_rock_town",
+        "landmark": "alchemy_guild", "motto": "炼药商街",
+    }),
+    (("salt_city", "salt_market", "salt_inn"), {
+        "name": "盐城", "layout": "canal", "theme": "salt_town",
+        "landmark": "salt_crane", "motto": "白盐水巷",
+    }),
+    (("ghost_pass", "garrison", "mountain_pass", "battle_front", "xuanhuang"), {
+        "name": "边关", "layout": "fortress", "theme": "frontier_town",
+        "landmark": "beacon", "motto": "烽火边城",
+    }),
+    (("qingshan",), {
+        "name": "青山镇", "layout": "garden", "theme": "forest_town",
+        "landmark": "medicine_tree", "motto": "药香山镇",
+    }),
+    (("mo_city", "mo_market", "mo_inn", "mo_trade"), {
+        "name": "漠城", "layout": "oasis", "theme": "sand_town",
+        "landmark": "oasis_well", "motto": "风沙绿洲",
+    }),
+    (("stone_mo",), {
+        "name": "石漠城", "layout": "fortress", "theme": "sand_town",
+        "landmark": "mercenary_standard", "motto": "佣兵石垒",
+    }),
+    (("jia_ma_capital", "capital_", "imperial_palace", "miteer_"), {
+        "name": "加玛帝都", "layout": "imperial", "theme": "capital_town",
+        "landmark": "imperial_statue", "motto": "金阙御道",
+    }),
+    (("canaan", "inner_", "pan_gate", "peace_town"), {
+        "name": "迦南学院", "layout": "academy", "theme": "academy_town",
+        "landmark": "academy_crest", "motto": "学院庭院",
+    }),
+    (("black_seal",), {
+        "name": "黑印城", "layout": "dark_market", "theme": "dark_town",
+        "landmark": "auction_bell", "motto": "地下拍卖城",
+    }),
+    (("feng_city", "black_emperor", "black_corner", "black_auction"), {
+        "name": "黑角域", "layout": "dark_market", "theme": "dark_town",
+        "landmark": "black_obelisk", "motto": "暗巷斗城",
+    }),
+    (("tianya", "wormhole", "transfer_square", "zhongzhou"), {
+        "name": "天涯城", "layout": "wormhole", "theme": "void_town",
+        "landmark": "wormhole", "motto": "空间枢纽",
+    }),
+    (("tianbei", "ye_city", "ye_market", "ye_mansion"), {
+        "name": "中州古城", "layout": "garden", "theme": "jade_town",
+        "landmark": "clan_tower", "motto": "世家园城",
+    }),
+    (("sacred_dan", "dan_", "small_dan", "yao_realm", "alchemy"), {
+        "name": "丹域", "layout": "alchemy", "theme": "dan_town",
+        "landmark": "great_cauldron", "motto": "丹火药都",
+    }),
+    (("ancient", "gu_", "heaven_tomb"), {
+        "name": "远古族域", "layout": "imperial", "theme": "void_town",
+        "landmark": "bloodline_gate", "motto": "古族天城",
+    }),
+    (("yunlan", "pavilion", "sect", "flower_", "burning_", "valley"), {
+        "name": "宗门", "layout": "academy", "theme": "jade_town",
+        "landmark": "sect_stela", "motto": "云阶仙坊",
+    }),
+]
+
+
+def _city_identity(map_id: str) -> Dict[str, str]:
+    """返回城市的布局、美术主题与专属地标。"""
+    text = map_id.lower()
+    for keys, identity in _CITY_IDENTITIES:
+        if any(key in text for key in keys):
+            return identity
+    style_name, _ = _town_style(map_id)
+    fallback = {
+        "沙城": ("oasis", "sand_town", "oasis_well", "沙海商镇"),
+        "黑角": ("dark_market", "dark_town", "black_obelisk", "暗巷斗城"),
+        "学院": ("academy", "academy_town", "academy_crest", "学院庭院"),
+        "丹城": ("alchemy", "dan_town", "great_cauldron", "丹火药都"),
+        "宗门": ("academy", "jade_town", "sect_stela", "云阶仙坊"),
+        "古族": ("imperial", "void_town", "bloodline_gate", "古族天城"),
+        "中州": ("wormhole", "void_town", "wormhole", "空间都会"),
+        "帝都": ("imperial", "capital_town", "imperial_statue", "金阙御道"),
+        "族坊": ("clan", "wutan_town", "clan_monument", "青石族坊"),
+    }.get(style_name, ("trade", "frontier_town", "caravan_post", "边城商路"))
+    return {
+        "name": style_name, "layout": fallback[0], "theme": fallback[1],
+        "landmark": fallback[2], "motto": fallback[3],
+    }
+
 
 def _town_style(map_id: str) -> Tuple[str, List[str]]:
     """根据城市身份选择店铺组合，子地图也继承所属城市气质。"""
@@ -266,25 +398,163 @@ def _npc_visual(npc_id: str, profile: Dict[str, str]) -> Dict[str, Any]:
     }
 
 
+def _paint_rect(tiles: list, x: int, y: int, width: int, height: int, tile: int) -> None:
+    """用指定瓦片填充矩形区域。"""
+    for ty in range(y, y + height):
+        for tx in range(x, x + width):
+            tiles.append((tx, ty, tile))
+
+
+def _paint_road_cross(tiles: list, w: int, h: int, width: int = 2) -> None:
+    """铺设贯穿城镇的十字主路。"""
+    _paint_rect(tiles, w // 2 - width // 2, 1, width, h - 1, TILE_ROAD)
+    _paint_rect(tiles, 1, h // 2 - width // 2, w - 2, width, TILE_ROAD)
+
+
+def _town_building_specs(layout: str) -> List[Tuple[int, int, int, int, str]]:
+    """返回不同城市原型的建筑轮廓。"""
+    return {
+        "clan": [
+            (1, 1, 5, 3, "bottom"), (14, 1, 5, 3, "bottom"),
+            (1, 6, 4, 3, "bottom"), (15, 6, 4, 3, "bottom"),
+            (1, 10, 5, 3, "top"), (14, 10, 5, 3, "top"),
+        ],
+        "trade": [
+            (1, 1, 5, 3, "bottom"), (7, 1, 5, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 10, 5, 3, "top"), (7, 10, 5, 3, "top"), (13, 10, 6, 3, "top"),
+        ],
+        "canal": [
+            (1, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 6, 5, 3, "bottom"), (14, 6, 5, 3, "bottom"),
+            (1, 10, 6, 3, "top"), (13, 10, 6, 3, "top"),
+        ],
+        "fortress": [
+            (1, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 6, 4, 4, "bottom"), (15, 6, 4, 4, "bottom"),
+            (2, 11, 5, 2, "top"), (13, 11, 5, 2, "top"),
+        ],
+        "oasis": [
+            (1, 1, 5, 3, "bottom"), (14, 1, 5, 3, "bottom"),
+            (1, 6, 4, 3, "bottom"), (15, 6, 4, 3, "bottom"),
+            (1, 10, 6, 3, "top"), (13, 10, 6, 3, "top"),
+        ],
+        "academy": [
+            (1, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 6, 5, 3, "bottom"), (14, 6, 5, 3, "bottom"),
+            (1, 11, 6, 2, "top"), (13, 11, 6, 2, "top"),
+        ],
+        "imperial": [
+            (1, 1, 6, 3, "bottom"), (7, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 7, 5, 3, "bottom"), (14, 7, 5, 3, "bottom"),
+            (1, 11, 6, 2, "top"), (13, 11, 6, 2, "top"),
+        ],
+        "dark_market": [
+            (1, 1, 7, 3, "bottom"), (12, 1, 7, 3, "bottom"),
+            (1, 6, 5, 3, "bottom"), (8, 5, 4, 3, "bottom"), (14, 7, 5, 3, "bottom"),
+            (1, 11, 7, 2, "top"), (12, 11, 7, 2, "top"),
+        ],
+        "wormhole": [
+            (1, 1, 5, 3, "bottom"), (14, 1, 5, 3, "bottom"),
+            (1, 6, 4, 3, "bottom"), (15, 6, 4, 3, "bottom"),
+            (1, 11, 6, 2, "top"), (13, 11, 6, 2, "top"),
+        ],
+        "alchemy": [
+            (1, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 6, 5, 3, "bottom"), (14, 6, 5, 3, "bottom"),
+            (1, 11, 6, 2, "top"), (13, 11, 6, 2, "top"),
+        ],
+        "garden": [
+            (1, 1, 6, 3, "bottom"), (13, 1, 6, 3, "bottom"),
+            (1, 7, 5, 3, "bottom"), (14, 7, 5, 3, "bottom"),
+            (1, 11, 6, 2, "top"), (13, 11, 6, 2, "top"),
+        ],
+    }.get(layout, [])
+
+
+def _decorate_town_layout(tiles: list, layout: str, seed: int, w: int, h: int) -> None:
+    """为城市原型铺设道路、水系、园林和地标。"""
+    if layout in ("clan", "academy", "imperial", "alchemy", "garden"):
+        _paint_road_cross(tiles, w, h, 2 if layout != "imperial" else 4)
+    elif layout == "trade":
+        _paint_rect(tiles, 1, 5, w - 2, 4, TILE_ROAD)
+        _paint_rect(tiles, w // 2, 3, 1, h - 3, TILE_ROAD)
+    elif layout == "canal":
+        _paint_rect(tiles, 8, 1, 4, h - 2, TILE_WATER)
+        _paint_rect(tiles, 1, 5, w - 2, 2, TILE_ROAD)
+        _paint_rect(tiles, 8, 5, 4, 2, TILE_PLAZA)
+        _paint_rect(tiles, 9, 7, 2, h - 7, TILE_ROAD)
+    elif layout == "fortress":
+        _paint_rect(tiles, 8, 1, 4, h - 1, TILE_ROAD)
+        _paint_rect(tiles, 5, 5, 10, 4, TILE_PLAZA)
+        for x in (5, 14):
+            _paint_rect(tiles, x, 4, 1, 7, TILE_WALL)
+            tiles.append((x, 5, TILE_PLAZA))
+            tiles.append((x, 7, TILE_PLAZA))
+            tiles.append((x, 10, TILE_ROAD))
+    elif layout == "oasis":
+        _paint_road_cross(tiles, w, h, 2)
+        _paint_rect(tiles, 7, 4, 6, 3, TILE_WATER)
+        _paint_rect(tiles, 9, 6, 2, 2, TILE_PLAZA)
+        for x, y in ((6, 4), (13, 4), (6, 7), (13, 7)):
+            tiles.append((x, y, TILE_GARDEN))
+    elif layout == "dark_market":
+        _paint_rect(tiles, 1, 4, w - 2, 2, TILE_ROAD)
+        _paint_rect(tiles, 6, 4, 2, h - 4, TILE_ROAD)
+        _paint_rect(tiles, 11, 1, 2, h - 3, TILE_ROAD)
+        _paint_rect(tiles, 6, 8, 7, 2, TILE_PLAZA)
+    elif layout == "wormhole":
+        _paint_road_cross(tiles, w, h, 2)
+        _paint_rect(tiles, 6, 4, 8, 7, TILE_PLAZA)
+        for x, y in ((6, 4), (13, 4), (6, 10), (13, 10)):
+            tiles.append((x, y, TILE_LANDMARK))
+
+    if layout == "clan":
+        _paint_rect(tiles, 6, 4, 2, 2, TILE_GARDEN)
+        _paint_rect(tiles, 12, 4, 2, 2, TILE_GARDEN)
+        _paint_rect(tiles, 6, 9, 2, 2, TILE_GARDEN)
+        _paint_rect(tiles, 12, 9, 2, 2, TILE_GARDEN)
+    elif layout == "academy":
+        for x, y in ((6, 4), (13, 4), (6, 9), (13, 9), (8, 7), (11, 7)):
+            tiles.append((x, y, TILE_GARDEN))
+    elif layout == "imperial":
+        for x in (6, 13):
+            _paint_rect(tiles, x, 5, 1, 5, TILE_GARDEN)
+    elif layout in ("alchemy", "garden"):
+        for x, y in ((6, 4), (13, 4), (6, 9), (13, 9), (8, 11), (11, 11)):
+            tiles.append((x, y, TILE_GARDEN))
+
+    landmark_positions = {
+        "clan": (10, 5), "trade": (10, 5), "canal": (15, 5),
+        "fortress": (10, 5), "oasis": (10, 5), "academy": (10, 5),
+        "imperial": (10, 5), "dark_market": (9, 8), "wormhole": (10, 7),
+        "alchemy": (10, 5), "garden": (10, 5),
+    }
+    if layout in landmark_positions:
+        tiles.append((*landmark_positions[layout], TILE_LANDMARK))
+
+    # 每张子地图保留稳定但不同的街景密度。
+    detail_spots = [(5, 4), (14, 4), (5, 10), (14, 10), (7, 7), (12, 7)]
+    for bit, spot in enumerate(detail_spots):
+        if seed & (1 << bit) and layout not in ("canal", "wormhole"):
+            tiles.append((*spot, TILE_COUNTER))
+
+
 def _town_square_template(map_id: str) -> Tuple[int, int, list, list]:
     """按城市身份生成具有稳定特色的城镇街区。"""
     w, h = 20, 15
-    doors = [(w//2, h-1), (w//2-1, h-1)]
+    doors = [(w//2, h-1), (w//2-1, h-1), (0, h//2), (w-1, h//2)]
     tiles = _make_border(w, h, doors)
     entities = []
     seed = _town_seed(map_id)
     style_name, shop_names = _town_style(map_id)
+    identity = _city_identity(map_id)
+    layout = identity["layout"]
     shop_names = shop_names[seed % len(shop_names):] + shop_names[:seed % len(shop_names)]
 
-    # 每个地图 ID 会稳定选择街区结构和建筑尺寸，同区域城市也不会完全相同。
-    variants = [
-        [(1, 1, 5, 3), (8, 1, 5, 3), (14, 1, 5, 3), (1, 6, 5, 3), (14, 6, 5, 3), (1, 10, 5, 3), (14, 10, 5, 3)],
-        [(1, 1, 6, 3), (8, 1, 4, 3), (13, 1, 6, 3), (1, 6, 4, 3), (15, 6, 4, 3), (1, 10, 6, 3), (13, 10, 6, 3)],
-        [(1, 1, 4, 3), (6, 1, 6, 3), (14, 1, 5, 3), (1, 6, 6, 3), (13, 6, 6, 3), (1, 10, 4, 3), (15, 10, 4, 3)],
-        [(1, 1, 6, 3), (8, 1, 5, 3), (15, 1, 4, 3), (1, 6, 5, 3), (14, 6, 5, 3), (1, 10, 6, 3), (13, 10, 6, 3)],
-    ]
-    building_types = [ENTITY_INN, ENTITY_GUILD] + [ENTITY_SHOP] * 5
-    for index, (bx, by, building_w, building_h) in enumerate(variants[seed % len(variants)]):
+    _decorate_town_layout(tiles, layout, seed, w, h)
+
+    building_types = [ENTITY_GUILD, ENTITY_INN] + [ENTITY_SHOP] * 5
+    for index, (bx, by, building_w, building_h, door_side) in enumerate(_town_building_specs(layout)):
         _add_town_building(
             tiles,
             entities,
@@ -292,40 +562,29 @@ def _town_square_template(map_id: str) -> Tuple[int, int, list, list]:
             by,
             building_w,
             building_h,
-            building_types[index],
-            shop_names[index],
-            "top" if by >= 10 else "bottom",
+            building_types[index % len(building_types)],
+            shop_names[index % len(shop_names)],
+            door_side,
         )
 
-    # 摊位形状和位置随城市变化，强化集市、宗门或边城的空间差异。
-    stall_patterns = [
-        [(7, 6), (11, 6), (7, 9), (11, 9)],
-        [(7, 5), (11, 5), (7, 9), (11, 9)],
-        [(7, 6), (11, 6), (7, 10), (11, 10)],
-        [(6, 5), (12, 5), (6, 9), (12, 9)],
-    ]
-    for stall_x, stall_y in stall_patterns[(seed // 7) % len(stall_patterns)]:
-        tiles.append((stall_x, stall_y, TILE_COUNTER))
-        if (seed + stall_x + stall_y) % 2:
-            tiles.append((stall_x + 1, stall_y, TILE_COUNTER))
-
-    # 由地图 ID 编码的街景陈设，使每座城镇拥有稳定且独立的细节组合。
-    decor_spots = [
-        (6, 4), (13, 4), (6, 5), (13, 5), (6, 8), (13, 8),
-        (6, 9), (13, 9), (7, 4), (12, 4), (7, 8), (12, 8),
-    ]
-    for bit, spot in enumerate(decor_spots):
-        if seed & (1 << bit):
-            tiles.append((*spot, TILE_COUNTER))
-
     npcs = _pick_npcs_for_map(map_id)
+    treasure_spot = {
+        "clan": (7, 7), "trade": (3, 7), "canal": (6, 6),
+        "fortress": (7, 7), "oasis": (6, 8), "academy": (7, 7),
+        "imperial": (7, 7), "dark_market": (7, 9), "wormhole": (7, 7),
+        "alchemy": (7, 7), "garden": (7, 6),
+    }.get(layout, (7, 7))
+    npc_spots = {
+        "canal": [(7, 8), (12, 8)],
+        "dark_market": [(8, 9), (13, 9)],
+    }.get(layout, [(8, 8), (12, 8)])
     entities.extend([
-        (8, 7, ENTITY_TREASURE, f"{style_name}摊"),
+        (*treasure_spot, ENTITY_TREASURE, f"{style_name}摊"),
         (w // 2, 12, ENTITY_EXIT, "离开"),
     ])
     # 区域 NPC
     for j, npc_id in enumerate(npcs[:2]):
-        entities.append((8 + j * 4, 11, ENTITY_NPC, npc_id))
+        entities.append((*npc_spots[j], ENTITY_NPC, npc_id))
     return w, h, tiles, entities
 
 
@@ -376,7 +635,7 @@ def _training_ground_template(map_id: str = "") -> Tuple[int, int, list, list]:
 
 def _wilderness_forest(map_id: str) -> Tuple[int, int, list, list]:
     """森林/山脉野外——曲折路径+散落敌人。"""
-    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    rng = random.Random(_town_seed(map_id))
     w, h = 20 + rng.randint(0, 3), 15 + rng.randint(0, 2)
     tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
     # 散落树木
@@ -402,7 +661,7 @@ def _wilderness_forest(map_id: str) -> Tuple[int, int, list, list]:
 
 def _wilderness_desert(map_id: str) -> Tuple[int, int, list, list]:
     """沙漠/荒原野外——开阔+散落敌人。"""
-    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    rng = random.Random(_town_seed(map_id))
     w, h = 22, 14
     tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
     # 稀疏障碍
@@ -421,7 +680,7 @@ def _wilderness_desert(map_id: str) -> Tuple[int, int, list, list]:
 
 def _wilderness_cave(map_id: str) -> Tuple[int, int, list, list]:
     """洞穴/遗迹——狭窄通道+Boss。"""
-    rng = random.Random(hash(map_id) & 0x7FFFFFFF)
+    rng = random.Random(_town_seed(map_id))
     w, h = 14 + rng.randint(0, 2), 12 + rng.randint(0, 2)
     tiles = _make_border(w, h, [(1, h//2), (w-2, h//2)])
     # 狭窄通道
@@ -1106,7 +1365,7 @@ def _pick_template(map_id: str, safe: bool, name: str) -> Tuple[int, int, list, 
     name_lower = name + map_id
     if safe:
         for keyword, tmpl in _MAP_TEMPLATES.items():
-            if keyword in name_lower and tmpl.__name__ != "_wilderness_forest":
+            if keyword in name_lower and not tmpl.__name__.startswith("_wilderness_"):
                 return tmpl(map_id)
         return _town_square_template(map_id)
     else:
@@ -1181,8 +1440,17 @@ class PygameGame:
 
         # ── 音效 ──
         self.sound_enabled = True
+        self.sound_volume = 0.6
+        self.sounds: Dict[str, Optional[pygame.mixer.Sound]] = {}
+        self.ambient_sounds: Dict[str, Optional[pygame.mixer.Sound]] = {}
+        self.ambient_channel: Optional[pygame.mixer.Channel] = None
+        self.current_ambient = ""
         try:
-            pygame.mixer.init()
+            pygame.mixer.quit()
+            pygame.mixer.init(frequency=22050, size=-16, channels=1, buffer=512)
+            pygame.mixer.set_num_channels(16)
+            pygame.mixer.set_reserved(1)
+            self.ambient_channel = pygame.mixer.Channel(0)
             self._init_sounds()
         except Exception:
             self.sound_enabled = False
@@ -1228,39 +1496,63 @@ class PygameGame:
     # ── 音效 ──────────────────────────────────────────────────
 
     def _init_sounds(self) -> None:
-        """生成简单波表音效（无外部文件依赖）。"""
-        self.sounds: Dict[str, Optional[pygame.mixer.Sound]] = {}
+        """根据多段波形配方生成完整音效库。"""
         try:
             import struct
-            def _make_sound(freq: int, duration_ms: int, wave_type: str = "square",
-                            vol: float = 0.3) -> Optional[pygame.mixer.Sound]:
-                sample_rate = 22050
-                n_samples = int(sample_rate * duration_ms / 1000)
+            sample_rate = 22050
+
+            def _make_sound(
+                recipe: List[Tuple[int, int, str, float]]
+            ) -> Optional[pygame.mixer.Sound]:
                 buf = bytearray()
+                phase_offset = 0
+                for freq, duration_ms, wave_type, volume in recipe:
+                    n_samples = max(1, int(sample_rate * duration_ms / 1000))
+                    for i in range(n_samples):
+                        t = (phase_offset + i) / sample_rate
+                        if wave_type == "square":
+                            value = 1 if int(t * freq * 2) % 2 == 0 else -1
+                        elif wave_type == "sine":
+                            value = math.sin(2 * math.pi * freq * t)
+                        elif wave_type == "noise":
+                            value = random.Random(phase_offset + i).uniform(-1, 1)
+                        else:
+                            value = 0
+                        attack = min(1.0, i / max(1, n_samples * 0.08))
+                        decay = max(0.0, 1.0 - i / n_samples)
+                        buf.extend(struct.pack("<h", int(value * attack * decay * volume * 24000)))
+                    phase_offset += n_samples
+                sound = pygame.mixer.Sound(buffer=bytes(buf))
+                sound.set_volume(self.sound_volume)
+                return sound
+
+            def _make_ambient(
+                base_freq: int, pulse_freq: int, noise_level: float
+            ) -> Optional[pygame.mixer.Sound]:
+                duration_seconds = 4
+                n_samples = sample_rate * duration_seconds
+                buf = bytearray()
+                noise = random.Random(base_freq)
                 for i in range(n_samples):
                     t = i / sample_rate
-                    if wave_type == "square":
-                        v = 1 if (i * freq // sample_rate) % 2 == 0 else -1
-                    elif wave_type == "sine":
-                        import math as _m
-                        v = _m.sin(2 * _m.pi * freq * t)
-                    elif wave_type == "noise":
-                        v = (hash(str(i)) % 200 - 100) / 100.0
-                    else:
-                        v = 0
-                    # 衰减
-                    decay = max(0, 1.0 - i / n_samples)
-                    v *= decay * vol
-                    buf.extend(struct.pack('h', int(v * 16000)))
-                return pygame.mixer.Sound(pygame.mixer.Sound(buffer=bytes(buf)).get_raw())
-            self.sounds["step"] = _make_sound(220, 60, "noise", 0.12)
-            self.sounds["hit"] = _make_sound(110, 150, "square", 0.35)
-            self.sounds["kill"] = _make_sound(55, 300, "square", 0.4)
-            self.sounds["skill"] = _make_sound(440, 200, "sine", 0.3)
-            self.sounds["item"] = _make_sound(880, 120, "sine", 0.25)
-            self.sounds["menu"] = _make_sound(660, 80, "square", 0.15)
-            self.sounds["alert"] = _make_sound(330, 250, "square", 0.3)
-            self.sounds["equip"] = _make_sound(550, 100, "sine", 0.2)
+                    fade = min(1.0, i / (sample_rate * 0.25))
+                    fade *= min(1.0, (n_samples - i) / (sample_rate * 0.25))
+                    drone = math.sin(2 * math.pi * base_freq * t) * 0.45
+                    overtone = math.sin(2 * math.pi * base_freq * 1.5 * t) * 0.18
+                    pulse = math.sin(2 * math.pi * pulse_freq * t) * 0.12
+                    texture = noise.uniform(-1, 1) * noise_level
+                    value = (drone + overtone + pulse + texture) * fade
+                    buf.extend(struct.pack("<h", int(value * 5000)))
+                return pygame.mixer.Sound(buffer=bytes(buf))
+
+            self.sounds = {
+                name: _make_sound(recipe)
+                for name, recipe in PROGRAMMATIC_SOUND_RECIPES.items()
+            }
+            self.ambient_sounds = {
+                name: _make_ambient(*profile)
+                for name, profile in PROGRAMMATIC_AMBIENT_PROFILES.items()
+            }
         except Exception:
             self.sound_enabled = False
 
@@ -1270,6 +1562,75 @@ class PygameGame:
         s = self.sounds.get(name)
         if s:
             s.play()
+
+    def _set_sound_volume(self, delta: float) -> None:
+        was_enabled = self.sound_enabled
+        self.sound_volume = max(0.0, min(1.0, self.sound_volume + delta))
+        for sound in self.sounds.values():
+            if sound:
+                sound.set_volume(self.sound_volume)
+        if self.ambient_channel:
+            self.ambient_channel.set_volume(self.sound_volume * 0.28)
+        self.sound_enabled = self.sound_volume > 0
+        if self.ambient_channel:
+            if self.sound_enabled and not was_enabled:
+                self.ambient_channel.unpause()
+            elif not self.sound_enabled:
+                self.ambient_channel.pause()
+        self._msg(f"音效音量：{int(self.sound_volume * 100)}%")
+        if self.sound_enabled:
+            self._play_sound("confirm")
+
+    def _toggle_sound(self) -> None:
+        self.sound_enabled = not self.sound_enabled
+        if self.ambient_channel:
+            if self.sound_enabled:
+                self.ambient_channel.unpause()
+            else:
+                self.ambient_channel.pause()
+        self._msg("音效已开启。" if self.sound_enabled else "音效已静音。")
+        if self.sound_enabled:
+            self._play_sound("confirm")
+
+    def _play_combat_result(self, result: str, action: str) -> None:
+        if result == "won":
+            self._play_sound("victory")
+        elif result == "lost":
+            self._play_sound("defeat")
+        elif action == "escape":
+            self._play_sound("escape")
+        else:
+            sound_by_action = {
+                "attack": "critical" if "触发暴击" in self.engine.last_message else "hit",
+                "skill": "skill",
+                "item": "item",
+                "defend": "defend",
+                "charge": "charge",
+                "auto": "confirm",
+            }
+            self._play_sound(sound_by_action.get(action, "confirm"))
+
+    def _play_ambient(self, name: str) -> None:
+        if name == self.current_ambient:
+            return
+        self.current_ambient = name
+        if not self.ambient_channel:
+            return
+        sound = self.ambient_sounds.get(name)
+        if sound:
+            self.ambient_channel.set_volume(self.sound_volume * 0.28)
+            self.ambient_channel.play(sound, loops=-1, fade_ms=350)
+            if not self.sound_enabled:
+                self.ambient_channel.pause()
+
+    def _play_map_ambient(self) -> None:
+        md = self.engine.current_map()
+        if md.get("safe_zone", False):
+            self._play_ambient("city")
+        elif self._map_theme() in {"battlefield", "volcanic", "poison", "void"}:
+            self._play_ambient("danger")
+        else:
+            self._play_ambient("wild")
 
     # ── 消息 ──────────────────────────────────────────────────
 
@@ -1294,11 +1655,23 @@ class PygameGame:
         self.tile_grid, self.tile_entities, self.entity_labels = _build_tile_map(
             w, h, tdefs, edefs
         )
-        # 出生点
-        self.player_pos = (w // 2, h // 2)
-        if self.tile_grid and 0 <= h // 2 < h:
-            self.tile_grid[h // 2][w // 2] = TILE_FLOOR
-        self.tile_entities.pop(self.player_pos, None)
+        # 出生点优先靠近中心，但不会再覆盖城市地标或水景。
+        preferred = (w // 2, h // 2)
+        candidates = [
+            (x, y)
+            for y in range(h)
+            for x in range(w)
+            if not self._pos_blocked(x, y) and (x, y) not in self.tile_entities
+        ]
+        self.player_pos = min(
+            candidates,
+            key=lambda pos: (
+                abs(pos[0] - preferred[0]) + abs(pos[1] - preferred[1]),
+                abs(pos[1] - (h - 3)),
+            ),
+            default=preferred,
+        )
+        self._play_map_ambient()
 
     def _pos_blocked(self, x: int, y: int) -> bool:
         if not self.tile_grid:
@@ -1309,7 +1682,7 @@ class PygameGame:
         w = len(self.tile_grid[y])
         if not (0 <= x < w):
             return True
-        return self.tile_grid[y][x] in (TILE_WALL,)
+        return self.tile_grid[y][x] in (TILE_WALL, TILE_WATER, TILE_GARDEN, TILE_LANDMARK)
 
     def _entity_at(self, x: int, y: int) -> Optional[int]:
         return self.tile_entities.get((x, y))
@@ -1323,8 +1696,10 @@ class PygameGame:
         if self.engine.travel(map_id):
             self._load_map()
             md = self.engine.current_map()
+            self._play_sound("travel")
             self._msg(f"来到了 {md.get('name', map_id)}。")
         else:
+            self._play_sound("bump")
             self._msg(self.engine.last_message)
 
     def _exit_map(self) -> None:
@@ -1352,6 +1727,7 @@ class PygameGame:
             reachable.append((mid, m.get("name", mid), f"「{region}」"))
 
         if not reachable:
+            self._play_sound("bump")
             self._msg("此路暂时不通。也许需要推进剧情解锁新的区域？")
             return
 
@@ -1380,6 +1756,15 @@ class PygameGame:
                 self._on_key(event)
 
     def _on_key(self, e: pygame.event.Event) -> None:
+        if e.key == pygame.K_F9:
+            self._toggle_sound()
+            return
+        if e.key == pygame.K_F10:
+            self._set_sound_volume(-0.1)
+            return
+        if e.key == pygame.K_F11:
+            self._set_sound_volume(0.1)
+            return
         if self.scene == SCENE_EXPLORE:
             self._key_explore(e)
         elif self.scene == SCENE_COMBAT and self.combat_ui:
@@ -1387,20 +1772,24 @@ class PygameGame:
             if self.engine.combat is None:
                 self.scene = SCENE_EXPLORE
                 self.combat_ui = None
+                self._play_map_ambient()
                 self._msg(self.engine.last_message)
         elif self.scene == SCENE_ENCOUNTER:
             self._key_encounter(e)
         elif self.scene == "dialogue":
             if e.key in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_ESCAPE):
+                self._play_sound("confirm" if e.key != pygame.K_ESCAPE else "cancel")
                 self.scene = SCENE_EXPLORE
         elif self.scene == SCENE_SHOP:
             self._key_shop(e)
         elif self.scene == SCENE_INN:
             if e.key == pygame.K_SPACE or e.key == pygame.K_RETURN:
                 if self.engine.rest():
+                    self._play_sound("rest")
                     self._msg("休息完毕，生命与体力已恢复。")
                 self.scene = SCENE_EXPLORE
             elif e.key == pygame.K_ESCAPE:
+                self._play_sound("cancel")
                 self.scene = SCENE_EXPLORE
         elif self.scene == SCENE_MENU:
             self._key_menu(e)
@@ -1411,11 +1800,14 @@ class PygameGame:
 
     def _key_travel(self, e: pygame.event.Event) -> None:
         if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
             self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_UP:
             self.travel_idx = max(0, self.travel_idx - 1)
+            self._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.travel_idx = min(len(self.travel_options) - 1, self.travel_idx + 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if self.travel_options:
                 mid = self.travel_options[self.travel_idx][0]
@@ -1434,13 +1826,22 @@ class PygameGame:
             return
         elif k == pygame.K_r:    self._do_rest(); return
         elif k == pygame.K_c:    self._do_cultivate(); return
-        elif k == pygame.K_i:    self.scene = SCENE_INVENTORY; self.select_idx = 0; return
-        elif k == pygame.K_m:    self.scene = SCENE_MENU; self.menu_idx = 0; return
+        elif k == pygame.K_i:
+            self._play_sound("confirm")
+            self.scene = SCENE_INVENTORY
+            self.select_idx = 0
+            return
+        elif k == pygame.K_m:
+            self._play_sound("confirm")
+            self.scene = SCENE_MENU
+            self.menu_idx = 0
+            return
         elif k == pygame.K_ESCAPE: self.running = False; return
 
         if dx or dy:
             nx, ny = self.player_pos[0] + dx, self.player_pos[1] + dy
             if self._pos_blocked(nx, ny):
+                self._play_sound("bump")
                 return  # 撞墙
             ent = self._entity_at(nx, ny)
             if ent is not None:
@@ -1467,6 +1868,7 @@ class PygameGame:
                 self.engine.begin_combat(random.choice(candidates))
                 if self.engine.combat:
                     self._play_sound("alert")
+                    self._play_ambient("battle")
                     self.scene = SCENE_COMBAT
                     self.combat_ui = CombatView()
                     self._msg(f"遭遇了 {self.engine.combat['name']}！")
@@ -1500,7 +1902,7 @@ class PygameGame:
 
     def _trigger_entity(self, x: int, y: int, etype: int) -> None:
         """触发指定实体。"""
-        self._play_sound("menu")
+        self._play_sound("confirm")
         if etype == ENTITY_EXIT:
             self._exit_map()
         elif etype == ENTITY_ENEMY:
@@ -1533,6 +1935,7 @@ class PygameGame:
             self.engine.begin_combat(random.choice(candidates))
             if self.engine.combat:
                 self._play_sound("alert")
+                self._play_ambient("battle")
                 self.scene = SCENE_COMBAT
                 self.combat_ui = CombatView()
                 self._msg(f"与 {self.engine.combat['name']} 展开了战斗！")
@@ -1554,6 +1957,7 @@ class PygameGame:
                 self._msg(f"发现宝箱！获得 {wtext}。")
         else:
             self._msg(f"发现宝箱！获得 {wtext}。")
+        self._play_sound("treasure")
         self.tile_entities.pop((x, y), None)
         self.entity_labels.pop((x, y), None)
 
@@ -1573,15 +1977,19 @@ class PygameGame:
 
     def _key_shop(self, e: pygame.event.Event) -> None:
         if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
             self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_TAB:
             self.shop_sell_mode = not self.shop_sell_mode
             self.select_idx = 0
+            self._play_sound("confirm")
         elif e.key in (pygame.K_UP, pygame.K_w):
             self.select_idx = max(0, self.select_idx - 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_DOWN, pygame.K_s):
             items = self.shop_items if not self.shop_sell_mode else self.engine.player.get("items", [])
             self.select_idx = min(max(0, len(items) - 1), self.select_idx + 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if self.shop_sell_mode:
                 self._sell_item()
@@ -1598,8 +2006,10 @@ class PygameGame:
             self.engine.player["wallet"] = wallet_add(self.engine.player["wallet"], -buy_price)
             if item_id not in self.engine.player["items"]:
                 self.engine.player["items"].append(item_id)
+            self._play_sound("buy")
             self._msg(f"购买了 {self.engine.item_name(item_id)}，花费 {buy_price} 银两。")
         else:
+            self._play_sound("bump")
             self._msg(f"资金不足！需要 {buy_price} 铜币。")
 
     def _sell_item(self) -> None:
@@ -1611,6 +2021,7 @@ class PygameGame:
         _, sell_price = item_price(rule.get("type", ""))
         self.engine.player["items"].remove(item_id)
         self.engine.player["wallet"] = wallet_add(self.engine.player["wallet"], sell_price)
+        self._play_sound("sell")
         self._msg(f"出售了 {self.engine.item_name(item_id)}，获得 {sell_price} 银两。")
 
     def _open_inn(self) -> None:
@@ -1654,29 +2065,36 @@ class PygameGame:
     def _key_encounter(self, e: pygame.event.Event) -> None:
         if e.key == pygame.K_UP:
             self.encounter_idx = max(0, self.encounter_idx - 1)
+            self._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.encounter_idx = min(len(self.encounter_options_data) - 1, self.encounter_idx + 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             opt_num = self.encounter_options_data[self.encounter_idx][0]
             ok = self.engine.choose_encounter_option(opt_num)
-            self._play_sound("item" if ok else "hit")
+            self._play_sound("story" if ok else "bump")
             self._msg(self.engine.last_message)
             self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_ESCAPE:
             self.engine.leave_encounter()
+            self._play_sound("cancel")
             self._msg(self.engine.last_message)
             self.scene = SCENE_EXPLORE
 
     def _do_rest(self) -> None:
         if self.engine.rest():
+            self._play_sound("rest")
             self._msg("休息完毕，生命与体力已恢复。")
         else:
+            self._play_sound("bump")
             self._msg(self.engine.last_message)
 
     def _do_cultivate(self) -> None:
         if self.engine.cultivate():
+            self._play_sound("cultivate")
             self._msg(self.engine.last_message)
         else:
+            self._play_sound("bump")
             self._msg(self.engine.last_message)
 
     # ── 菜单 ─────────────────────────────────────────────────
@@ -1685,9 +2103,12 @@ class PygameGame:
         items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "读取存档", "退出游戏"]
         if e.key == pygame.K_UP:
             self.menu_idx = max(0, self.menu_idx - 1)
+            self._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.menu_idx = min(len(items) - 1, self.menu_idx + 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            self._play_sound("confirm")
             if self.menu_idx == 0:
                 self.scene = SCENE_EXPLORE
             elif self.menu_idx == 1:
@@ -1702,30 +2123,35 @@ class PygameGame:
                 self._msg(f"已学斗技：{'、'.join(names) if names else '无'}")
             elif self.menu_idx == 4:
                 self.engine.save()
-                self._play_sound("item")
+                self._play_sound("save")
                 self._msg("游戏已保存。")
                 self.scene = SCENE_EXPLORE
             elif self.menu_idx == 5:
                 if self.engine.load():
                     self._load_map()
-                    self._play_sound("item")
+                    self._play_sound("load")
                     self._msg("存档已读取。")
                 else:
+                    self._play_sound("bump")
                     self._msg("没有找到存档文件。")
                 self.scene = SCENE_EXPLORE
             elif self.menu_idx == 6:
                 self.running = False
         elif e.key in (pygame.K_ESCAPE, pygame.K_m):
+            self._play_sound("cancel")
             self.scene = SCENE_EXPLORE
 
     def _key_inventory(self, e: pygame.event.Event) -> None:
         inv = self.engine.player.get("items", [])
         if e.key == pygame.K_ESCAPE or e.key == pygame.K_i:
+            self._play_sound("cancel")
             self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_UP:
             self.select_idx = max(0, self.select_idx - 1)
+            self._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.select_idx = min(max(0, len(inv) - 1), self.select_idx + 1)
+            self._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if inv and self.select_idx < len(inv):
                 item_id = inv[self.select_idx]
@@ -1782,7 +2208,7 @@ class PygameGame:
         self._render_info_panel()
         self._render_messages()
         h = self.font_small.render(
-            "方向键:移动  空格:交互  I:物品  R:休息  C:修炼  M:菜单",
+            "方向键:移动 空格:交互 I:物品 R:休息 C:修炼 M:菜单 F9:静音 F10/F11:音量",
             True, (120, 120, 130)
         )
         self.screen.blit(h, (MAP_VIEW_W * TILE_SIZE + 8, WIN_H - 28))
@@ -1793,6 +2219,8 @@ class PygameGame:
         """根据地图信息选择像素场景主题。"""
         md = self.engine.current_map()
         text = f"{md.get('id', '')} {md.get('name', '')} {md.get('region', '')}".lower()
+        if md.get("safe_zone", False):
+            return _city_identity(str(md.get("id", "")))["theme"]
         if any(key in text for key in ("flame", "fire", "volcano", "炎", "火", "焚", "熔")):
             return "volcanic"
         if any(key in text for key in ("ice", "snow", "frost", "冰", "雪", "寒")):
@@ -1809,18 +2237,6 @@ class PygameGame:
             return "desert"
         if any(key in text for key in ("cave", "ruins", "tower", "遗迹", "洞", "塔")):
             return "cave"
-        if md.get("safe_zone", False):
-            style_name, _ = _town_style(str(md.get("id", "")))
-            return {
-                "沙城": "sand_town",
-                "黑角": "dark_town",
-                "学院": "academy_town",
-                "丹城": "dan_town",
-                "宗门": "jade_town",
-                "古族": "void_town",
-                "中州": "void_town",
-                "帝都": "capital_town",
-            }.get(style_name, "town")
         if not md.get("safe_zone", False):
             return "forest"
         return "town"
@@ -1832,7 +2248,76 @@ class PygameGame:
     ) -> None:
         pygame.draw.rect(surface, color, (x, y, w, h))
 
-    def _draw_tile(self, sx: int, sy: int, tile: int, mx: int, my: int, theme: str) -> None:
+    def _draw_landmark_tile(
+        self, sx: int, sy: int, landmark: str, theme: str,
+    ) -> None:
+        """绘制城市专属地标，让不同城市在一眼内可辨认。"""
+        cx = sx + TILE_SIZE // 2
+        if landmark == "wormhole":
+            pygame.draw.circle(self.screen, (49, 39, 78), (cx, sy + 17), 14)
+            pygame.draw.circle(self.screen, (113, 91, 184), (cx, sy + 17), 12, 3)
+            pygame.draw.circle(self.screen, (101, 198, 228), (cx, sy + 17), 7, 2)
+            pygame.draw.arc(self.screen, (229, 207, 255), (sx + 5, sy + 6, 22, 22), 0.2, 4.4, 2)
+        elif landmark == "great_cauldron":
+            pygame.draw.polygon(self.screen, (65, 40, 39), [(sx + 7, sy + 11), (sx + 25, sy + 11), (sx + 22, sy + 25), (sx + 10, sy + 25)])
+            pygame.draw.rect(self.screen, (190, 103, 58), (sx + 6, sy + 9, 20, 5))
+            pygame.draw.line(self.screen, (238, 166, 74), (sx + 10, sy + 26), (sx + 7, sy + 30), 2)
+            pygame.draw.line(self.screen, (238, 166, 74), (sx + 22, sy + 26), (sx + 25, sy + 30), 2)
+            pygame.draw.circle(self.screen, (247, 126, 48), (cx, sy + 6), 4)
+            pygame.draw.circle(self.screen, (255, 213, 81), (cx + 2, sy + 4), 2)
+        elif landmark in ("oasis_well", "medicine_tree"):
+            if landmark == "medicine_tree":
+                pygame.draw.rect(self.screen, (100, 69, 44), (sx + 14, sy + 15, 5, 15))
+                pygame.draw.circle(self.screen, (55, 112, 68), (cx, sy + 13), 11)
+                pygame.draw.circle(self.screen, (103, 164, 94), (sx + 11, sy + 10), 6)
+                pygame.draw.circle(self.screen, (192, 218, 139), (sx + 21, sy + 12), 3)
+            else:
+                pygame.draw.ellipse(self.screen, (91, 62, 39), (sx + 3, sy + 11, 26, 17))
+                pygame.draw.ellipse(self.screen, (205, 151, 78), (sx + 4, sy + 8, 24, 15), 3)
+                pygame.draw.ellipse(self.screen, (77, 154, 166), (sx + 8, sy + 12, 16, 8))
+                pygame.draw.line(self.screen, (113, 75, 45), (sx + 8, sy + 9), (sx + 8, sy + 2), 2)
+                pygame.draw.line(self.screen, (113, 75, 45), (sx + 24, sy + 9), (sx + 24, sy + 2), 2)
+        elif landmark in ("beacon", "mercenary_standard", "salt_crane"):
+            if landmark == "beacon":
+                pygame.draw.polygon(self.screen, (78, 64, 58), [(sx + 8, sy + 29), (sx + 24, sy + 29), (sx + 21, sy + 8), (sx + 11, sy + 8)])
+                pygame.draw.rect(self.screen, (159, 119, 73), (sx + 10, sy + 15, 12, 3))
+                pygame.draw.circle(self.screen, (246, 113, 47), (cx, sy + 6), 5)
+                pygame.draw.circle(self.screen, (255, 205, 73), (cx + 1, sy + 4), 2)
+            elif landmark == "salt_crane":
+                pygame.draw.line(self.screen, (111, 77, 52), (sx + 8, sy + 28), (sx + 8, sy + 5), 3)
+                pygame.draw.line(self.screen, (111, 77, 52), (sx + 8, sy + 6), (sx + 26, sy + 6), 3)
+                pygame.draw.line(self.screen, (181, 154, 110), (sx + 24, sy + 7), (sx + 24, sy + 22), 1)
+                pygame.draw.polygon(self.screen, (228, 220, 194), [(sx + 15, sy + 28), (sx + 29, sy + 28), (sx + 23, sy + 18)])
+            else:
+                pygame.draw.line(self.screen, (91, 65, 47), (sx + 11, sy + 29), (sx + 11, sy + 4), 3)
+                pygame.draw.polygon(self.screen, (162, 65, 51), [(sx + 12, sy + 5), (sx + 28, sy + 9), (sx + 12, sy + 16)])
+                pygame.draw.line(self.screen, (231, 176, 74), (sx + 15, sy + 9), (sx + 23, sy + 11), 2)
+        elif landmark in ("auction_bell", "alchemy_guild", "academy_crest"):
+            if landmark == "auction_bell":
+                pygame.draw.polygon(self.screen, (156, 91, 52), [(sx + 7, sy + 24), (sx + 25, sy + 24), (sx + 22, sy + 9), (sx + 10, sy + 9)])
+                pygame.draw.rect(self.screen, (230, 172, 70), (sx + 6, sy + 23, 20, 4))
+                pygame.draw.circle(self.screen, (239, 190, 80), (cx, sy + 28), 3)
+            elif landmark == "alchemy_guild":
+                pygame.draw.rect(self.screen, (82, 62, 59), (sx + 9, sy + 9, 14, 20))
+                pygame.draw.polygon(self.screen, (182, 103, 64), [(sx + 6, sy + 10), (cx, sy + 2), (sx + 26, sy + 10)])
+                pygame.draw.circle(self.screen, (95, 202, 171), (cx, sy + 18), 5, 2)
+                pygame.draw.line(self.screen, (230, 173, 78), (cx, sy + 13), (cx, sy + 23), 1)
+            else:
+                pygame.draw.circle(self.screen, (56, 79, 83), (cx, sy + 17), 12)
+                pygame.draw.circle(self.screen, (149, 211, 196), (cx, sy + 17), 10, 2)
+                pygame.draw.polygon(self.screen, (213, 229, 216), [(cx, sy + 8), (cx + 7, sy + 20), (cx, sy + 17), (cx - 7, sy + 20)])
+        else:
+            base = (57, 53, 69) if theme in ("dark_town", "void_town") else (93, 79, 65)
+            accent = (196, 76, 79) if landmark == "black_obelisk" else (219, 174, 83)
+            pygame.draw.rect(self.screen, base, (sx + 8, sy + 8, 16, 21))
+            pygame.draw.polygon(self.screen, base, [(sx + 8, sy + 8), (cx, sy + 2), (sx + 24, sy + 8)])
+            pygame.draw.rect(self.screen, accent, (sx + 14, sy + 11, 4, 12))
+            pygame.draw.rect(self.screen, (46, 43, 46), (sx + 5, sy + 28, 22, 3))
+
+    def _draw_tile(
+        self, sx: int, sy: int, tile: int, mx: int, my: int,
+        theme: str, identity: Dict[str, str],
+    ) -> None:
         """绘制带有材质和边缘层次的程序化像素瓦片。"""
         seed = (mx * 92821 + my * 68917) & 0xFFFF
         r = pygame.Rect(sx, sy, TILE_SIZE, TILE_SIZE)
@@ -1840,6 +2325,21 @@ class PygameGame:
         if theme == "town":
             floor = (92, 99, 105) if seed % 3 else (98, 105, 109)
             wall = ((76, 64, 70), (112, 83, 70), (151, 108, 78))
+        elif theme == "wutan_town":
+            floor = (101, 108, 106) if seed % 3 else (110, 116, 112)
+            wall = ((68, 70, 71), (104, 91, 78), (171, 131, 84))
+        elif theme == "black_rock_town":
+            floor = (82, 83, 86) if seed % 3 else (91, 91, 93)
+            wall = ((55, 51, 54), (91, 74, 69), (178, 112, 69))
+        elif theme == "salt_town":
+            floor = (143, 147, 142) if seed % 3 else (154, 157, 150)
+            wall = ((81, 83, 82), (130, 117, 99), (223, 211, 176))
+        elif theme == "frontier_town":
+            floor = (116, 101, 82) if seed % 3 else (126, 109, 88)
+            wall = ((67, 61, 57), (113, 83, 62), (177, 126, 76))
+        elif theme == "forest_town":
+            floor = (91, 112, 90) if seed % 3 else (100, 121, 96)
+            wall = ((58, 73, 62), (93, 104, 78), (161, 139, 83))
         elif theme == "sand_town":
             floor = (174, 143, 91) if seed % 3 else (187, 154, 98)
             wall = ((105, 76, 48), (157, 107, 62), (212, 153, 79))
@@ -1891,7 +2391,46 @@ class PygameGame:
 
         pygame.draw.rect(self.screen, floor, r)
 
-        if tile == TILE_FLOOR:
+        if tile == TILE_ROAD:
+            inset = pygame.Rect(sx + 1, sy + 1, TILE_SIZE - 2, TILE_SIZE - 2)
+            road = tuple(max(0, c - 18) for c in floor)
+            pygame.draw.rect(self.screen, road, inset)
+            pygame.draw.line(self.screen, tuple(min(255, c + 22) for c in road), (sx + 3, sy + 7), (sx + 28, sy + 7))
+            pygame.draw.line(self.screen, tuple(max(0, c - 18) for c in road), (sx + 3, sy + 25), (sx + 28, sy + 25))
+            if mx % 2 == my % 2:
+                pygame.draw.rect(self.screen, tuple(min(255, c + 14) for c in road), (sx + 14, sy + 10, 4, 12))
+        elif tile == TILE_PLAZA:
+            plaza = tuple(min(255, c + 9) for c in floor)
+            pygame.draw.rect(self.screen, plaza, (sx + 1, sy + 1, 30, 30))
+            pygame.draw.rect(self.screen, tuple(max(0, c - 25) for c in plaza), (sx + 3, sy + 3, 26, 26), 1)
+            pygame.draw.line(self.screen, tuple(min(255, c + 35) for c in plaza), (sx + 5, sy + 16), (sx + 27, sy + 16))
+            pygame.draw.line(self.screen, tuple(min(255, c + 35) for c in plaza), (sx + 16, sy + 5), (sx + 16, sy + 27))
+        elif tile == TILE_WATER:
+            water = (72, 139, 156) if theme != "void_town" else (92, 76, 147)
+            pygame.draw.rect(self.screen, tuple(max(0, c - 35) for c in water), r)
+            pygame.draw.rect(self.screen, water, (sx + 2, sy + 3, 28, 27))
+            pygame.draw.arc(self.screen, tuple(min(255, c + 58) for c in water), (sx + 3, sy + 7, 20, 8), 0, math.pi, 1)
+            pygame.draw.arc(self.screen, tuple(min(255, c + 32) for c in water), (sx + 10, sy + 19, 20, 7), 0, math.pi, 1)
+        elif tile == TILE_GARDEN:
+            pygame.draw.rect(self.screen, tuple(max(0, c - 16) for c in floor), r)
+            if theme == "dan_town":
+                pygame.draw.circle(self.screen, (72, 121, 68), (sx + 11, sy + 20), 7)
+                pygame.draw.circle(self.screen, (102, 154, 79), (sx + 21, sy + 17), 8)
+                pygame.draw.circle(self.screen, (225, 162, 81), (sx + 19, sy + 13), 2)
+                pygame.draw.circle(self.screen, (203, 103, 96), (sx + 9, sy + 18), 2)
+            elif theme == "void_town":
+                pygame.draw.polygon(self.screen, (124, 101, 181), [(sx + 7, sy + 28), (sx + 12, sy + 8), (sx + 17, sy + 28)])
+                pygame.draw.polygon(self.screen, (97, 172, 202), [(sx + 16, sy + 28), (sx + 22, sy + 13), (sx + 27, sy + 28)])
+                pygame.draw.line(self.screen, (218, 205, 247), (sx + 12, sy + 10), (sx + 11, sy + 24), 1)
+            else:
+                pygame.draw.rect(self.screen, (78, 58, 40), (sx + 14, sy + 18, 4, 12))
+                pygame.draw.circle(self.screen, (55, 103, 64), (sx + 16, sy + 14), 10)
+                pygame.draw.circle(self.screen, (91, 143, 78), (sx + 10, sy + 12), 6)
+                pygame.draw.circle(self.screen, (110, 158, 83), (sx + 22, sy + 13), 6)
+        elif tile == TILE_LANDMARK:
+            pygame.draw.rect(self.screen, tuple(max(0, c - 12) for c in floor), r)
+            self._draw_landmark_tile(sx, sy, identity["landmark"], theme)
+        elif tile == TILE_FLOOR:
             if theme == "town" or theme.endswith("_town"):
                 pygame.draw.line(self.screen, (70, 77, 82), (sx, sy + 15), (sx + 31, sy + 15))
                 offset = 7 if my % 2 else 16
@@ -1949,6 +2488,15 @@ class PygameGame:
                 pygame.draw.line(self.screen, wall[0], (sx + 22, sy + 12), (sx + 22, sy + 21))
                 pygame.draw.line(self.screen, wall[0], (sx + 16, sy + 21), (sx + 16, sy + 30))
                 pygame.draw.line(self.screen, (194, 139, 91), (sx + 3, sy + 7), (sx + 28, sy + 7))
+                roof_accent = {
+                    "wutan_town": (194, 151, 83), "black_rock_town": (212, 121, 70),
+                    "salt_town": (235, 224, 192), "frontier_town": (204, 142, 78),
+                    "forest_town": (151, 174, 105), "sand_town": (232, 177, 91),
+                    "dark_town": (188, 87, 72), "academy_town": (151, 211, 196),
+                    "dan_town": (235, 151, 75), "jade_town": (169, 201, 139),
+                    "void_town": (189, 154, 222), "capital_town": (230, 180, 99),
+                }.get(theme, (194, 139, 91))
+                pygame.draw.line(self.screen, roof_accent, (sx + 2, sy + 5), (sx + 29, sy + 5), 2)
             else:
                 pygame.draw.polygon(
                     self.screen, wall[1],
@@ -1958,10 +2506,17 @@ class PygameGame:
                 pygame.draw.line(self.screen, wall[2], (sx + 6, sy + 11), (sx + 14, sy + 5), 2)
                 pygame.draw.line(self.screen, wall[0], (sx + 17, sy + 8), (sx + 22, sy + 24), 2)
         elif tile == TILE_COUNTER:
-            pygame.draw.rect(self.screen, (74, 48, 33), (sx + 1, sy + 8, 30, 22))
-            pygame.draw.rect(self.screen, (157, 103, 54), (sx, sy + 7, 32, 7))
-            pygame.draw.line(self.screen, (216, 157, 85), (sx + 2, sy + 8), (sx + 29, sy + 8), 2)
-            pygame.draw.rect(self.screen, (104, 65, 39), (sx + 5, sy + 17, 22, 10), 2)
+            counter = {
+                "salt_town": ((111, 89, 62), (228, 218, 188)),
+                "dan_town": ((91, 48, 43), (215, 126, 65)),
+                "dark_town": ((55, 42, 44), (151, 75, 61)),
+                "sand_town": ((105, 69, 39), (211, 151, 73)),
+                "academy_town": ((50, 80, 80), (126, 181, 159)),
+            }.get(theme, ((74, 48, 33), (157, 103, 54)))
+            pygame.draw.rect(self.screen, counter[0], (sx + 1, sy + 8, 30, 22))
+            pygame.draw.rect(self.screen, counter[1], (sx, sy + 7, 32, 7))
+            pygame.draw.line(self.screen, tuple(min(255, c + 45) for c in counter[1]), (sx + 2, sy + 8), (sx + 29, sy + 8), 2)
+            pygame.draw.rect(self.screen, tuple(max(0, c - 18) for c in counter[0]), (sx + 5, sy + 17, 22, 10), 2)
         elif tile == TILE_DOOR:
             pygame.draw.rect(self.screen, (91, 54, 34), (sx + 5, sy + 2, 22, 30))
             pygame.draw.rect(self.screen, (174, 112, 57), (sx + 7, sy + 4, 18, 28), 2)
@@ -1977,6 +2532,8 @@ class PygameGame:
         if w == 0 or h == 0:
             return
         theme = self._map_theme()
+        md = self.engine.current_map()
+        identity = _city_identity(str(md.get("id", "")))
 
         ox = max(0, min(px - vw // 2, w - vw))
         oy = max(0, min(py - vh // 2, h - vh))
@@ -1991,9 +2548,12 @@ class PygameGame:
                 sx, sy = gx * TILE_SIZE, gy * TILE_SIZE
                 if 0 <= mx < w and 0 <= my < h:
                     tile = self.tile_grid[my][mx]
-                    self._draw_tile(sx, sy, tile, mx, my, theme)
+                    self._draw_tile(sx, sy, tile, mx, my, theme, identity)
                 else:
                     pygame.draw.rect(self.screen, (10, 10, 18), (sx, sy, TILE_SIZE, TILE_SIZE))
+
+        if md.get("safe_zone", False):
+            self._render_city_signature(identity, str(md.get("name", identity["name"])))
 
         # 实体和名称统一在瓦片之后绘制，避免名称被相邻瓦片覆盖。
         for gy in range(vh):
@@ -2014,6 +2574,21 @@ class PygameGame:
         psx = (px - ox) * TILE_SIZE
         psy = (py - oy) * TILE_SIZE
         self._draw_player_icon(psx, psy)
+
+    def _render_city_signature(self, identity: Dict[str, str], map_name: str) -> None:
+        """在城市画面角落展示简洁的地点印章与城市气质。"""
+        title = map_name if len(map_name) <= 8 else identity["name"]
+        subtitle = identity["motto"]
+        title_surface = self.font_body.render(title, True, (247, 232, 198))
+        subtitle_surface = self.font_small.render(subtitle, True, (208, 185, 142))
+        width = max(title_surface.get_width(), subtitle_surface.get_width()) + 20
+        plaque = pygame.Surface((width, 48), pygame.SRCALPHA)
+        plaque.fill((16, 18, 22, 198))
+        pygame.draw.rect(plaque, (218, 178, 96, 210), (0, 0, width, 48), 1)
+        pygame.draw.rect(plaque, (218, 178, 96, 150), (5, 5, 3, 38))
+        plaque.blit(title_surface, (12, 5))
+        plaque.blit(subtitle_surface, (12, 27))
+        self.screen.blit(plaque, (8, 8))
 
     def _draw_entity_icon(self, sx: int, sy: int, etype: int, label: str) -> None:
         cx, cy = sx + TILE_SIZE // 2, sy + TILE_SIZE // 2
@@ -2465,16 +3040,20 @@ class CombatView:
 
     def handle_key(self, e: pygame.event.Event, engine: GameEngine, game: Any = None) -> None:
         if self.sub_mode == "skill":
-            self._handle_skill_select(e, engine)
+            self._handle_skill_select(e, engine, game)
             return
         if self.sub_mode == "item":
-            self._handle_item_select(e, engine)
+            self._handle_item_select(e, engine, game)
             return
 
         if e.key == pygame.K_UP:
             self.selected = max(0, self.selected - 1)
+            if game:
+                game._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.selected = min(len(self.actions) - 1, self.selected + 1)
+            if game:
+                game._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             act = self.actions[self.selected]
             if act == "施展斗技":
@@ -2482,54 +3061,83 @@ class CombatView:
                 if skills:
                     self.sub_mode = "skill"
                     self.sub_idx = 0
+                    if game:
+                        game._play_sound("confirm")
                 else:
                     engine.last_message = "尚未习得任何斗技。"
+                    if game:
+                        game._play_sound("bump")
             elif act == "使用丹药":
                 items = self._combat_usable_items(engine)
                 if items:
                     self.sub_mode = "item"
                     self.sub_idx = 0
+                    if game:
+                        game._play_sound("confirm")
                 else:
                     engine.last_message = "没有可用的丹药。"
+                    if game:
+                        game._play_sound("bump")
             else:
                 cmd_map = {
                     "普通攻击": "attack", "防御": "defend",
                     "蓄力": "charge", "逃跑": "escape", "自动战斗": "auto",
                 }
                 cmd = cmd_map.get(act, "attack")
-                engine.combat_action(cmd)
+                result = engine.combat_action(cmd)
                 if game:
-                    game._play_sound("hit" if cmd == "attack" else "menu")
+                    game._play_combat_result(result, cmd)
         elif e.key == pygame.K_ESCAPE:
             if game:
-                engine.combat_action("escape")
+                result = engine.combat_action("escape")
+                game._play_combat_result(result, "escape")
                 if engine.combat is None:
                     game.scene = SCENE_EXPLORE
 
-    def _handle_skill_select(self, e: pygame.event.Event, engine: GameEngine) -> None:
+    def _handle_skill_select(
+        self, e: pygame.event.Event, engine: GameEngine, game: Any = None
+    ) -> None:
         skills = engine.combat_skills()
         if e.key == pygame.K_ESCAPE:
             self.sub_mode = ""
+            if game:
+                game._play_sound("cancel")
         elif e.key == pygame.K_UP:
             self.sub_idx = max(0, self.sub_idx - 1)
+            if game:
+                game._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.sub_idx = min(len(skills) - 1, self.sub_idx + 1)
+            if game:
+                game._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if skills:
-                engine.combat_action("skill", skill_id=skills[self.sub_idx]["id"])
+                result = engine.combat_action("skill", skill_id=skills[self.sub_idx]["id"])
+                if game:
+                    game._play_combat_result(result, "skill")
                 self.sub_mode = ""
 
-    def _handle_item_select(self, e: pygame.event.Event, engine: GameEngine) -> None:
+    def _handle_item_select(
+        self, e: pygame.event.Event, engine: GameEngine, game: Any = None
+    ) -> None:
         items = self._combat_usable_items(engine)
         if e.key == pygame.K_ESCAPE:
             self.sub_mode = ""
+            if game:
+                game._play_sound("cancel")
         elif e.key == pygame.K_UP:
             self.sub_idx = max(0, self.sub_idx - 1)
+            if game:
+                game._play_sound("select")
         elif e.key == pygame.K_DOWN:
             self.sub_idx = min(len(items) - 1, self.sub_idx + 1)
+            if game:
+                game._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if items:
-                engine.combat_action("item", skill_id=items[self.sub_idx])
+                result = engine.combat_action("item", skill_id=items[self.sub_idx])
+                if game:
+                    game._play_combat_result(result, "item")
                 self.sub_mode = ""
 
     @staticmethod

@@ -83,8 +83,8 @@ NEW_MAIN_MAPS = [
     ("map_golden_goose_sect", "金雁宗", "西北大陆", "", 35, 8, "no", "", "金雁宗驻地，三宗联军之一。"),
     ("map_mulan_valley", "慕兰谷", "西北大陆", "", 35, 8, "no", "", "慕兰谷驻地，三宗联军之一。"),
 
-    # ── revisit_tower: 再探天焚炼气塔 ──
-    ("map_skyfire_magma_world", "炼气塔岩浆世界", "天焚炼气塔", "", 42, 12, "no", "", "炼气塔底的岩浆空间，隐藏古帝洞府与陀舍古帝玉线索。"),
+    # ── revisit_tower: 再探塔底与天火尊者 ──
+    ("map_skyfire_magma_world", "炼气塔岩浆世界", "天焚炼气塔", "", 42, 12, "no", "", "炼气塔底的岩浆空间，深处有火焰蜥蜴人与令古帝玉异动的神秘存在。"),
 
     # ── northwest_fortress_war: 玄黄要塞与西北大陆大战 ──
     ("map_xuanhuang_fortress", "玄黄要塞", "西北大陆", "", 56, 10, "no", "", "拱卫西北大陆的庞大军事要塞。"),
@@ -108,12 +108,12 @@ NEW_MAIN_MAPS = [
 ]
 
 NEW_SUB_MAPS = [
-    # ── black_corner_war: 黑角域入侵内院 ──
+    # ── black_corner_war: 收服陨落心炎与清算韩枫 ──
     ("map_feng_merchant_hall", "枫城商会", "枫城", "", 30, 5, "yes", "", "枫城商业交易与消息汇聚的中心。"),
     ("map_feng_alchemy_room", "枫城炼药密室", "枫城", "", 30, 5, "yes", "", "韩枫留下的炼药设施，残留异火痕迹。"),
     ("map_feng_defense_wall", "枫城城墙", "枫城", "", 30, 6, "no", "", "枫城外墙防线，黑盟入侵时的前沿阵地。"),
 
-    # ── revive_mentor: 复活药老与重建星陨阁 ──
+    # ── revive_mentor: 复活药老 ──
     ("map_star_realm_core", "星界核心", "星界", "", 48, 6, "yes", "", "星界空间枢纽，药老复活仪式的举行地。"),
     ("map_star_realm_training_ground", "星界修炼场", "星界", "", 48, 6, "yes", "", "星界内的灵气修炼场所。"),
     ("map_star_pavilion_council", "星陨阁议事大殿", "星陨阁", "", 48, 5, "yes", "", "重建后的星陨阁核心议事场所。"),
@@ -282,7 +282,7 @@ NEW_ENCOUNTERS = [
     enc("enc_alliance_camp_1", "map_ancient_alliance_camp", "远古联盟营地中，各族首领齐聚，为最后的决战做准备。", "协调各族", "reputation:+10,soul:+3", "整编军队", "reputation:+8"),
 
     # ancient_emperor sub-areas
-    enc("enc_emperor_gate_1", "map_emperor_cave_gate", "古帝石门高耸入云，门上铭刻着陀舍古帝的印记。", "开启石门", "exp:+200,flag:ancient_emperor_jade=1", "研究符文", "soul:+10"),
+    enc("enc_emperor_gate_1", "map_emperor_cave_gate", "魂族已经用集齐的八块陀舍古帝玉开启石门，联盟大军必须立刻追入洞府。", "跟随联盟追入洞府", "exp:+200,flag:emperor_cave_opened=1", "观察洞府入口", "soul:+10"),
     enc("enc_emperor_inner_1", "map_emperor_cave_inner", "洞府内殿灵气浓郁到化雾，帝品丹药的香气若隐若现。", "深入探索", "exp:+250,douqi:+30", "小心前进", "exp:+150,soul:+5"),
     enc("enc_emperor_treasure_1", "map_emperor_cave_treasure_room", "古帝丹室中悬浮着帝品雏丹，周围布满了斗帝级别的禁制。", "夺取雏丹", "item:+item_embryonic_emperor_pill", "破解禁制", "soul:+15"),
 
@@ -481,7 +481,7 @@ NEW_GATHERING = [
     gather("gather_yao_garden_jade", "map_yao_realm_herb_garden", "herb_jade_bone_fruit", 15),
     gather("gather_soul_battlefield", "map_soul_realm_battlefield", "core_magic", 30),
     gather("gather_emperor_inner", "map_emperor_cave_inner", "core_fire", 25),
-    gather("gather_emperor_treasure", "map_emperor_cave_treasure_room", "item_embryonic_emperor_pill", 1, 1, 1, "flag:ancient_emperor_jade=1", "", "1", ""),
+    gather("gather_emperor_treasure", "map_emperor_cave_treasure_room", "item_embryonic_emperor_pill", 1, 1, 1, "flag:emperor_cave_opened=1", "", "1", ""),
     gather("gather_double_peak", "map_double_emperor_peak", "item_emperor_flame", 0.5, 1, 1, "flag:soul_emperor_defeated=1", "", "1", ""),
     gather("gather_star_domain", "map_star_domain", "item_three_thousand_flame", 1, 1, 1, "flag:dan_meeting_won=1", "", "1", ""),
     gather("gather_chuyun_border", "map_chuyun_border", "herb_coagulation", 25),
