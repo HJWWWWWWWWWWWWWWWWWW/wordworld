@@ -1,0 +1,2 @@
+- [中文回复](feedback_chinese.md) — 用户要求始终使用中文回复
+- [claude-mem 配置](claude-mem-config.md) — 手动记录 + 自动 hooks 配置

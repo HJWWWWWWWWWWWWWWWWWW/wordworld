@@ -290,7 +290,7 @@ class RelationshipTests(unittest.TestCase):
 
             self.assertEqual(loaded.player["name"], "旧存档角色")
             self.assertEqual(loaded.player["atk"], 12)
-            self.assertEqual(loaded.player["silver"], 33)
+            self.assertEqual(loaded.player.get("wallet", {}).get("copper", 0), 33)
             self.assertEqual(loaded.player["current_event"], "evt_chapter_0001")
 
     def test_load_keeps_the_same_story_phase_after_new_phases_are_inserted(self) -> None:
@@ -765,7 +765,7 @@ class NewCombatMechanicsTests(unittest.TestCase):
             weakness = engine_module.ELEMENT_WEAKNESS[elem]
             self.assertIn(weakness, engine_module.ELEMENT_TYPES)
             self.assertNotEqual(elem, weakness)
-        self.assertEqual(len(engine_module.ELEMENT_WEAKNESS), 5)
+        self.assertEqual(len(engine_module.ELEMENT_WEAKNESS), 7)
 
     def test_combat_has_new_state_fields(self) -> None:
         game = GameEngine()

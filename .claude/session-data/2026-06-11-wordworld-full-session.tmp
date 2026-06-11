@@ -1,0 +1,118 @@
+# Session: 2026-06-11
+
+**Started:** 09:11
+**Last Updated:** ~12:00
+**Project:** D:\work\wordworld
+**Topic:** 斗破苍穹RPG全面完善——装备/道具大规模扩展、七元素系统、炼药体系、四币货币、纳戒拍卖行
+
+---
+
+## What We Are Building
+
+将 wordworld 从基础 pygame RPG 升级为完整的斗破苍穹回合制游戏。本次会话完成了六大系统的设计与实现：
+
+1. **装备道具大规模扩展** — 从13件装备扩展到2,142件，道具从117扩展到3,097件
+2. **七元素完整体系** — 从5元素(火冰雷风毒)扩展到7元素(+木+土)，克制链完整闭环
+3. **炼药术十品体系** — 一品到帝品，504丹方，药鼎系统，逆向研究，丹方学习
+4. **四币货币系统** — 铜币→银币→金币→远古币，自动进位，旧存档迁移
+5. **纳戒扩容** — 低/中/高/顶级纳戒，背包容量+100~1000格
+6. **拍卖行** — 按地图刷新稀有物品，远古币顶级交易，玩家可上架物品
+
+---
+
+## What WORKED (with evidence)
+
+- **2,142件装备生成** — 确认为: 10层级×5稀有度×21子类型，分布在10个tier
+- **504丹方** — 确认为: 生成脚本输出504种，所有材料引用均存在
+- **23种异火** — 确认为: 原著完整排行榜1-23，全部在flame_data.py中
+- **140种功法** — 确认为: 每元素20种(火冰雷风毒木土)，每功法有独特passive效果
+- **529技能(211新增)** — 确认为: 150单属性+21双属性+40通用，373已分配元素(70%)
+- **七元素克制链** — 确认为: 火→木→土→雷→冰→风→毒→火，7/7完整循环
+- **32组跨元素组合** — 确认为: ELEMENTAL_RULES中定义，战斗时自动触发
+- **四币系统** — 确认为: wallet_display正常，100铜=1银，100银=1金，1000金=1远古币
+- **纳戒扩容** — 确认为: 低阶+100格→顶级+1000格，支持套娃
+- **拍卖行** — 确认为: 按地图等级刷新8件物品，顶级物品30%概率远古币标价
+- **逆向研究** — 确认为: 丹药必销毁，概率识别材料，全识别后自动习得丹方
+- **74/74测试全部通过** — 确认为: `Ran 74 tests in 0.533s OK`
+
+---
+
+## What Did NOT Work (and why)
+
+- **JSON boolean → Python boolean** — 生成器输出`true/false`而非`True/False`，import时报`NameError: name 'true' is not defined`。修复: 后处理脚本替换`true→True, false→False`
+- **旧存档`gold:33`迁移失败** — LEGACY_STAT_ALIASES中移除了`"gold":"silver"`映射，导致旧存档gold键无法识别。修复: 迁移代码同时检查`silver`和`gold`两个旧键
+- **silver残留attribute_rules** — Excel数据中silver是attribute，_clamp_player_stats会重新创建silver。修复: _clamp跳过silver/gold
+- **5→7元素测试断言** — test_element_weakness_chain_is_cyclic期望5个元素。修复: 更新为7
+
+---
+
+## What Has NOT Been Tried Yet
+
+- **pygame UI炼药界面** — 引擎层炼药API完成，但pygame_ui中尚未添加炼药/丹方/逆向研究界面
+- **pygame UI拍卖行界面** — 引擎层拍卖API完成，UI未接入
+- **pygame UI功法界面** — equip_technique完成，UI未接入
+- **音效/精灵动画** — 之前session标记的遗留项，尚未处理
+- **剧情事件在pygame中的接入** — 155条地图奇遇在探索中触发的基础框架已搭建，但未全面测试
+
+---
+
+## Current State of Files
+
+| File | Status | Notes |
+|------|--------|-------|
+| `src/wordworld/core/engine.py` | PASS | 核心引擎，新增装备/道具/炼药/功法/货币/纳戒/拍卖行 |
+| `src/wordworld/ui/pygame_ui.py` | PASS | 新增战斗技能选择/丹药选择/剧情奇遇/音效/装备UI |
+| `src/wordworld/ui/console.py` | PASS | 钱包wallet_display更新 |
+| `src/wordworld/ui/tui.py` | PASS | 钱包wallet_display更新 |
+| `src/wordworld/ui/gui.py` | PASS | 钱包wallet_display更新 |
+| `src/wordworld/data/equipment_data.py` | PASS GENERATED | 2,142件装备 |
+| `src/wordworld/data/item_data.py` | PASS GENERATED | 396件扩展道具 |
+| `src/wordworld/data/loot_table.py` | PASS GENERATED | 2,538条目层级掉落 |
+| `src/wordworld/data/flame_data.py` | PASS GENERATED | 23种完整异火 |
+| `src/wordworld/data/technique_data.py` | PASS GENERATED | 140种功法 |
+| `src/wordworld/data/skill_book_data.py` | PASS GENERATED | 211种技能书 |
+| `src/wordworld/data/skill_elements_full.py` | PASS GENERATED | 192技能元素映射 |
+| `src/wordworld/data/elemental_rules.py` | PASS GENERATED | 32组跨元素组合 |
+| `src/wordworld/data/furnace_data.py` | PASS GENERATED | 10品药鼎 |
+| `src/wordworld/data/recipe_data.py` | PASS GENERATED | 504种丹方 |
+| `scripts/generate_items.py` | PASS | 装备/道具/掉落生成脚本 |
+| `scripts/generate_skills.py` | PASS | 异火/功法/技能/元素规则生成脚本 |
+| `scripts/generate_recipes.py` | PASS | 丹方/药鼎生成脚本 |
+| `tests/test_relationships.py` | PASS | 更新了元素计数和钱包断言 |
+
+---
+
+## Decisions Made
+
+- **装备无等级限制** — 任何等级都能装备任何装备，但掉落按敌人等级匹配tier
+- **七元素克制链: 火→木→土→雷→冰→风→毒→火** — 基于原著扩展，木(生机/炼药)、土(防御/地面)为补充元素
+- **丹方需习得才可炼制** — 玩家初始5个基础丹方，其余通过逆向研究/购买/掉落获取
+- **1~6品药鼎有使用次数** — 低中阶鼎有限制(30~450次)，7品以上无限
+- **远古币仅拍卖行获取** — 高级物品30%概率以远古币标价，强化稀缺性
+- **四币自动进位** — wallet_normalize确保货币格式正确
+- **纳戒累加容量(支持套娃)** — 使用多个纳戒容量累加
+
+---
+
+## Blockers & Open Questions
+
+- pygame UI中炼药/拍卖行界面尚未接入（引擎API已完备）
+- 技能元素覆盖率70%，剩余30%为通用/辅助技能
+
+---
+
+## Exact Next Step
+
+在 pygame_ui.py 中添加炼药界面（丹方选择→材料检查→炼制）和拍卖行界面（浏览商品→购买/上架），接入引擎中已完成的 `craft_pill()`、`get_auction_listings()`、`auction_buy()`、`auction_sell()` 等API。
+
+---
+
+## Environment
+
+```bash
+cd D:\work\wordworld
+python run.py              # CLI
+python run_pygame.py        # pygame
+python run_gui.py           # GUI
+python -m unittest discover -s tests -v  # 测试(74 pass)
+```

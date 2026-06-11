@@ -1,0 +1,252 @@
+src\wordworld\ui\console.py:59:    return _MAIN_COMMAND_ALIASES.get(compact_text, text)
+src\wordworld\ui\console.py:110:                print(f"  {index}. {skill['name']} [{skill.get('rank','')}]  "
+src\wordworld\ui\console.py:111:                      f"{skill.get('description','')}")
+src\wordworld\ui\console.py:276:        f"  暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
+src\wordworld\ui\console.py:278:        f"经验 {p.get('exp',0)}  毒抗 {p.get('poison_resist',0)}"
+src\wordworld\ui\console.py:279:        f"  背包 {len(p.get('items',[]))}/{p.get('inventory_slots',30)}",
+src\wordworld\ui\console.py:285:        if not rule.get("visible", False):
+src\wordworld\ui\console.py:287:        if rule.get("pre_condition") and not game.check_conditions(rule["pre_condition"]):
+src\wordworld\ui\console.py:290:        name = game.npc_names.get(target, target)
+src\wordworld\ui\console.py:293:        lines.append(f"  {name}（{rule.get('type','')}）：{value} [{stage}]")
+src\wordworld\ui\console.py:305:        items = game.player.get("items", [])
+src\wordworld\ui\console.py:312:            rule = game.item_rules.get(item_id, {})
+src\wordworld\ui\console.py:314:                         f"（{rule.get('type', '')}）")
+src\wordworld\ui\console.py:315:            lines.append(f"     {rule.get('description', '')}")
+src\wordworld\ui\console.py:341:        lines.append(f"  {skill['name']}  [{skill.get('rank','')}]")
+src\wordworld\ui\console.py:342:        lines.append(f"  类型：{skill.get('type','—')}  效果：{skill.get('effect','—')}")
+src\wordworld\ui\console.py:343:        lines.append(f"  {skill.get('description','')}")
+src\wordworld\ui\console.py:354:        pct = float(game.player.get("progress", 0))
+src\wordworld\ui\console.py:359:            f"经验 {game.player.get('exp', 0)}  "
+src\wordworld\data\workbook.py:33:    if cell.get("t") == "inlineStr":
+src\wordworld\data\workbook.py:47:            relation.get("Id"): relation.get("Target", "")
+src\wordworld\data\workbook.py:57:            relation_id = sheet.get(f"{{{DOCUMENT_REL_NS}}}id", "")
+src\wordworld\data\workbook.py:58:            target = targets.get(relation_id, "").replace("\\", "/")
+src\wordworld\data\workbook.py:63:            result[sheet.get("name", "")] = target
+src\wordworld\data\workbook.py:89:                    match = COLUMN_PATTERN.match(cell.get("r", ""))
+src\wordworld\data\workbook.py:98:                            header: values.get(column, "")
+src\wordworld\data\workbook.py:110:        event_id = row.get("ID", "")
+src\wordworld\data\workbook.py:115:            text = row.get(f"Opt{index}_Text", "")
+src\wordworld\data\workbook.py:121:                    "conditions": row.get(f"Opt{index}_Condition", ""),
+src\wordworld\data\workbook.py:122:                    "next": row.get(f"Opt{index}_Next", ""),
+src\wordworld\data\workbook.py:123:                    "effects": row.get(f"Opt{index}_Effect", ""),
+src\wordworld\data\workbook.py:129:                "title": row.get("Notes", "") or event_id,
+src\wordworld\data\workbook.py:130:                "kind": row.get("Type", "story") or "story",
+src\wordworld\data\workbook.py:131:                "pool": row.get("Pool", ""),
+src\wordworld\data\workbook.py:132:                "text": row.get("Text", ""),
+src\wordworld\data\workbook.py:133:                "conditions": row.get("Pre_Condition", ""),
+src\wordworld\data\workbook.py:134:                "weight": _to_int(row.get("Weight"), 1),
+src\wordworld\data\workbook.py:136:                "speaker_id": row.get("Speaker_ID", ""),
+src\wordworld\data\workbook.py:138:                    item for item in row.get("Scene_NPCs", "").split(",") if item
+src\wordworld\data\workbook.py:141:                    item for item in row.get("Faction_Context", "").split(",") if item
+src\wordworld\data\workbook.py:152:            "name": row.get("Name", row["Attr_ID"]),
+src\wordworld\data\workbook.py:153:            "initial": _to_int(row.get("Initial")),
+src\wordworld\data\workbook.py:154:            "min": _to_int(row.get("Min"), -999999999),
+src\wordworld\data\workbook.py:155:            "max": _to_int(row.get("Max"), 999999999),
+src\wordworld\data\workbook.py:158:        if row.get("Attr_ID")
+src\wordworld\data\workbook.py:165:        relation_id = row.get("Relation_ID", "")
+src\wordworld\data\workbook.py:171:                "source": row.get("Source_ID", ""),
+src\wordworld\data\workbook.py:172:                "target": row.get("Target_ID", ""),
+src\wordworld\data\workbook.py:173:                "type": row.get("Relation_Type", ""),
+src\wordworld\data\workbook.py:174:                "initial_value": _to_int(row.get("Initial_Value")),
+src\wordworld\data\workbook.py:175:                "min_value": _to_int(row.get("Min_Value"), -100),
+src\wordworld\data\workbook.py:176:                "max_value": _to_int(row.get("Max_Value"), 100),
+src\wordworld\data\workbook.py:177:                "stage_rule": row.get("Stage_Rule", ""),
+src\wordworld\data\workbook.py:178:                "bidirectional": _to_bool(row.get("Is_Bidirectional")),
+src\wordworld\data\workbook.py:179:                "visible": _to_bool(row.get("Visible_To_Player")),
+src\wordworld\data\workbook.py:180:                "pre_condition": row.get("Pre_Condition", ""),
+src\wordworld\data\workbook.py:181:                "on_reach_effect": row.get("On_Reach_Effect", ""),
+src\wordworld\data\workbook.py:190:        raw_range = row.get("Level_Range", "")
+src\wordworld\data\workbook.py:201:                "exp_formula": row.get("Exp_Formula", ""),
+src\wordworld\data\workbook.py:202:                "progress_exp": _to_int(row.get("Progress_Exp")),
+src\wordworld\data\workbook.py:204:                    "douqi": _to_int(row.get("Douqi_Gain")),
+src\wordworld\data\workbook.py:205:                    "hp": _to_int(row.get("HP_Gain")),
+src\wordworld\data\workbook.py:206:                    "atk": _to_int(row.get("ATK_Gain")),
+src\wordworld\data\workbook.py:207:                    "def": _to_int(row.get("DEF_Gain")),
+src\wordworld\data\workbook.py:208:                    "spd": _to_int(row.get("SPD_Gain")),
+src\wordworld\data\workbook.py:218:            "text": row.get(f"Opt{index}_Text", ""),
+src\wordworld\data\workbook.py:219:            "conditions": row.get(f"Opt{index}_Condition", ""),
+src\wordworld\data\workbook.py:220:            "next": row.get(f"Opt{index}_Next", ""),
+src\wordworld\data\workbook.py:221:            "effects": row.get(f"Opt{index}_Effect", ""),
+src\wordworld\data\workbook.py:224:        if row.get(f"Opt{index}_Text")
+src\wordworld\data\workbook.py:232:            "name": row.get("Name", row["Map_ID"]),
+src\wordworld\data\workbook.py:233:            "region": row.get("Region", ""),
+src\wordworld\data\workbook.py:234:            "unlock_condition": row.get("Unlock_Condition", ""),
+src\wordworld\data\workbook.py:235:            "recommend_level": _to_int(row.get("Recommend_Level"), 1),
+src\wordworld\data\workbook.py:236:            "stamina_cost": _to_int(row.get("Explore_Stamina_Cost"), 5),
+src\wordworld\data\workbook.py:237:            "safe_zone": _to_bool(row.get("Safe_Zone")),
+src\wordworld\data\workbook.py:238:            "exit_event": row.get("Exit_Event", ""),
+src\wordworld\data\workbook.py:239:            "description": row.get("Description", ""),
+src\wordworld\data\workbook.py:242:        if row.get("Map_ID")
+src\wordworld\data\workbook.py:250:            "map_id": row.get("Map_ID", ""),
+src\wordworld\data\workbook.py:251:            "weight": _to_int(row.get("Weight"), 1),
+src\wordworld\data\workbook.py:252:            "text": row.get("Text", ""),
+src\wordworld\data\workbook.py:253:            "conditions": row.get("Pre_Condition", ""),
+src\wordworld\data\workbook.py:257:        if row.get("Event_ID")
+src\wordworld\data\workbook.py:265:            "name": row.get("Name", row["Enemy_ID"]),
+src\wordworld\data\workbook.py:266:            "type": row.get("Type", ""),
+src\wordworld\data\workbook.py:267:            "level": _to_int(row.get("Level"), 1),
+src\wordworld\data\workbook.py:268:            "hp": _to_int(row.get("HP"), 30),
+src\wordworld\data\workbook.py:269:            "atk": _to_int(row.get("ATK"), 5),
+src\wordworld\data\workbook.py:270:            "def": _to_int(row.get("DEF"), 2),
+src\wordworld\data\workbook.py:271:            "spd": _to_int(row.get("SPD"), 5),
+src\wordworld\data\workbook.py:272:            "drop_table": row.get("Drop_Table", ""),
+src\wordworld\data\workbook.py:273:            "exp_reward": _to_int(row.get("Exp_Reward"), 10),
+src\wordworld\data\workbook.py:274:            "win_next": row.get("Win_Next", ""),
+src\wordworld\data\workbook.py:275:            "lose_next": row.get("Lose_Next", ""),
+src\wordworld\data\workbook.py:276:            "notes": row.get("Notes", ""),
+src\wordworld\data\workbook.py:277:            "can_kill": "non_lethal" not in str(row.get("Notes", "")),
+src\wordworld\data\workbook.py:279:                skill.strip() for skill in row.get("Skills", "").split(",") if skill.strip()
+src\wordworld\data\workbook.py:283:        if row.get("Enemy_ID")
+src\wordworld\data\workbook.py:291:            "name": row.get("Name", row["Item_ID"]),
+src\wordworld\data\workbook.py:292:            "type": row.get("Type", ""),
+src\wordworld\data\workbook.py:293:            "use_condition": row.get("Use_Condition", ""),
+src\wordworld\data\workbook.py:294:            "use_effect": row.get("Use_Effect", ""),
+src\wordworld\data\workbook.py:295:            "description": row.get("Description", ""),
+src\wordworld\data\workbook.py:298:        if row.get("Item_ID")
+src\wordworld\data\workbook.py:306:            "name": row.get("Name", row["Skill_ID"]),
+src\wordworld\data\workbook.py:307:            "type": row.get("Type", ""),
+src\wordworld\data\workbook.py:308:            "rank": row.get("Rank", ""),
+src\wordworld\data\workbook.py:309:            "effect": row.get("Effect", ""),
+src\wordworld\data\workbook.py:310:            "description": row.get("Description", ""),
+src\wordworld\data\workbook.py:313:        if row.get("Skill_ID")
+src\wordworld\data\workbook.py:321:            "name": row.get("Name", row["Realm_ID"]),
+src\wordworld\data\workbook.py:322:            "min_level": _to_int(row.get("Min_Level"), 1),
+src\wordworld\data\workbook.py:323:            "max_level": _to_int(row.get("Max_Level"), 99),
+src\wordworld\data\workbook.py:326:        if row.get("Realm_ID")
+src\wordworld\data\workbook.py:360:            row["Flag_ID"]: _to_int(row.get("Default_Value"))
+src\wordworld\data\workbook.py:362:            if row.get("Flag_ID")
+src\wordworld\data\workbook.py:365:            row["Character_ID"]: row.get("Name", row["Character_ID"])
+src\wordworld\data\workbook.py:367:            if row.get("Character_ID")
+src\wordworld\core\engine.py:813:                "name": self.npc_names.get("player", "萧炎"),
+src\wordworld\core\engine.py:846:        nested_player = player.get("player")
+src\wordworld\core\engine.py:848:            player.setdefault("name", nested_player.get("name", "萧炎"))
+src\wordworld\core\engine.py:849:            attributes = nested_player.get("attributes", {})
+src\wordworld\core\engine.py:852:                    player.setdefault(key, value)
+src\wordworld\core\engine.py:858:            player.setdefault(attribute_id, rule["initial"])
+src\wordworld\core\engine.py:860:        flags = player.get("flags", [])
+src\wordworld\core\engine.py:864:            player.setdefault("flags", [])
+src\wordworld\core\engine.py:870:            inventory = player.get("inventory", {})
+src\wordworld\core\engine.py:878:        player.setdefault("name", self.npc_names.get("player", "萧炎"))
+src\wordworld\core\engine.py:879:        player.setdefault(
+src\wordworld\core\engine.py:882:        player.setdefault("visited", {})
+src\wordworld\core\engine.py:883:        player.setdefault("relationships", {})
+src\wordworld\core\engine.py:884:        player.setdefault("relationship_triggers", [])
+src\wordworld\core\engine.py:885:        player.setdefault("active_statuses", [])
+src\wordworld\core\engine.py:886:        player.setdefault("last_map", "map_wutan")
+src\wordworld\core\engine.py:887:        player.setdefault("adventure_points", 0)
+src\wordworld\core\engine.py:901:            old_stage = int(player.get("story_stage", player.get("story_steps", 0)))
+src\wordworld\core\engine.py:919:        player.setdefault("story_substage", 0)
+src\wordworld\core\engine.py:920:        player.setdefault("known_skills", ["skill_bajibang", "skill_flame_mantra"])
+src\wordworld\core\engine.py:921:        player.setdefault("day", 1)
+src\wordworld\core\engine.py:922:        player.setdefault("time_period", 0)
+src\wordworld\core\engine.py:923:        player.setdefault("completed_schedule_nodes", [])
+src\wordworld\core\engine.py:924:        player.setdefault("pending_schedule_node", "")
+src\wordworld\core\engine.py:925:        player.setdefault("training_wins", 0)
+src\wordworld\core\engine.py:926:        player.setdefault("progress", 0.0)
+src\wordworld\core\engine.py:928:        if player.get("current_event") not in self.events:
+src\wordworld\core\engine.py:936:        values = player.setdefault("relationships", {})
+src\wordworld\core\engine.py:938:            values.setdefault(relation_id, int(rule.get("initial_value", 0)))
+src\wordworld\core\engine.py:953:            if rule.get("bidirectional"):
+src\wordworld\core\engine.py:958:        relation_id = self.relationship_index.get(reference)
+src\wordworld\core\engine.py:972:        for item in rule.get("stage_rule", "").split("|"):
+src\wordworld\core\engine.py:989:            target_name = self.npc_names.get(rule["target"], rule["target"])
+src\wordworld\core\engine.py:993:            int(rule.get("min_value", -100)),
+src\wordworld\core\engine.py:994:            min(int(rule.get("max_value", 100)), int(value)),
+src\wordworld\core\engine.py:997:        target_name = self.npc_names.get(rule["target"], rule["target"])
+src\wordworld\core\engine.py:1008:            target_name = self.npc_names.get(rule["target"], rule["target"])
+src\wordworld\core\engine.py:1017:        expression = rule.get("on_reach_effect")
+src\wordworld\core\engine.py:1031:        event_id = self.player.get("current_event", self.start_event)
+src\wordworld\core\engine.py:1038:        visited = self.player.setdefault("visited", {})
+src\wordworld\core\engine.py:1039:        visited[event_id] = visited.get(event_id, 0) + 1
+src\wordworld\core\engine.py:1054:        return LEGACY_STAT_ALIASES.get(key, key)
+src\wordworld\core\engine.py:1061:            return token[5:] in self.player.get("items", [])
+src\wordworld\core\engine.py:1064:            actual = 1 if name in self.player.get("flags", []) else 0
+src\wordworld\core\engine.py:1074:            actual = int(self.player.get(self._canonical_stat(key), 0))
+src\wordworld\core\engine.py:1086:        for stat, value in conditions.get("stat_min", {}).items():
+src\wordworld\core\engine.py:1087:            if player.get(self._canonical_stat(stat), 0) < value:
+src\wordworld\core\engine.py:1089:        for stat, value in conditions.get("stat_max", {}).items():
+src\wordworld\core\engine.py:1090:            if player.get(self._canonical_stat(stat), 0) > value:
+src\wordworld\core\engine.py:1092:        for flag in conditions.get("has_flags", []):
+src\wordworld\core\engine.py:1093:            if flag not in player.get("flags", []):
+src\wordworld\core\engine.py:1095:        for flag in conditions.get("not_flags", []):
+src\wordworld\core\engine.py:1096:            if flag in player.get("flags", []):
+src\wordworld\core\engine.py:1098:        for item in conditions.get("has_items", []):
+src\wordworld\core\engine.py:1099:            if item not in player.get("items", []):
+src\wordworld\core\engine.py:1101:        for item in conditions.get("not_items", []):
+src\wordworld\core\engine.py:1102:            if item in player.get("items", []):
+src\wordworld\core\engine.py:1110:        if not self.check_conditions(event.get("conditions")):
+src\wordworld\core\engine.py:1113:        for index, option in enumerate(event.get("options", []), start=1):
+src\wordworld\core\engine.py:1114:            if self.check_conditions(option.get("conditions")):
+src\wordworld\core\engine.py:1173:        self.player[key] = self.player.get(key, 0) + value
+src\wordworld\core\engine.py:1198:                self.player[canonical_key] = self.player.get(canonical_key, 0) + value
+src\wordworld\core\engine.py:1207:            value = int(player.get(attribute_id, rule["initial"]))
+src\wordworld\core\engine.py:1235:            return REALM_BREAKTHROUGH_CHANCE_BP.get(realm_index, 1)
+src\wordworld\core\engine.py:1248:            player[attribute_id] = player.get(attribute_id, 0) + gain
+src\wordworld\core\engine.py:1250:                player["max_hp"] = player.get("max_hp", player["hp"]) + gain
+src\wordworld\core\engine.py:1252:        skill_id = LEVEL_SKILL_MILESTONES.get(level)
+src\wordworld\core\engine.py:1260:        if float(self.player.get("progress", 0)) < 100.0:
+src\wordworld\core\engine.py:1313:        level = int(player.get("level", 1))
+src\wordworld\core\engine.py:1318:        progress = float(player.get("progress", 0.0))
+src\wordworld\core\engine.py:1322:        exp = int(player.get("exp", 0))
+src\wordworld\core\engine.py:1349:            if event.get("pool") not in {"", "main"}
+src\wordworld\core\engine.py:1350:            and self.check_conditions(event.get("conditions"))
+src\wordworld\core\engine.py:1356:            return self.player.get("current_event", self.start_event)
+src\wordworld\core\engine.py:1357:        weights = [max(1, int(event.get("weight", 1))) for event in candidates]
+src\wordworld\core\engine.py:1361:        next_id = option.get("next", "")
+src\wordworld\core\engine.py:1363:            return self.player.get("current_event", self.start_event)
+src\wordworld\core\engine.py:1387:        logs = self.apply_effects(option.get("effects"))
+src\wordworld\core\engine.py:1397:        level = int(self.player.get("level", 1))
+src\wordworld\core\engine.py:1404:        return self.maps.get(self.player.get("last_map", ""), self.maps["map_wutan"])
+src\wordworld\core\engine.py:1413:        node_id = self.player.get("pending_schedule_node", "")
+src\wordworld\core\engine.py:1417:        completed = set(self.player.get("completed_schedule_nodes", []))
+src\wordworld\core\engine.py:1430:            goals.append(f"{names.get(key, key)} {self.player.get(key, 0)}/{required}")
+src\wordworld\core\engine.py:1459:        if player.get("pending_schedule_node"):
+src\wordworld\core\engine.py:1461:        completed = set(player.get("completed_schedule_nodes", []))
+src\wordworld\core\engine.py:1481:            int(self.player.get(key, 0)) >= required
+src\wordworld\core\engine.py:1500:        phase_id = MAP_STORY_UNLOCKS.get(map_id)
+src\wordworld\core\engine.py:1511:        return int(self.player.get("story_stage", 0)) >= required_stage
+src\wordworld\core\engine.py:1514:        phase_id = MAP_STORY_UNLOCKS.get(map_id)
+src\wordworld\core\engine.py:1521:        map_rule = self.maps.get(map_id)
+src\wordworld\core\engine.py:1534:        current_region = REGION_BY_MAP.get(self.player["last_map"], "未知")
+src\wordworld\core\engine.py:1535:        target_region = REGION_BY_MAP.get(map_id, "未知")
+src\wordworld\core\engine.py:1536:        transit_map_id = TRANSIT_HUBS.get((current_region, target_region))
+src\wordworld\core\engine.py:1538:            transit_name = TRANSIT_HUB_NAMES.get(transit_map_id, transit_map_id)
+src\wordworld\core\engine.py:1539:            visited = self.player.setdefault("visited", {})
+src\wordworld\core\engine.py:1540:            if not visited.get(transit_map_id):
+src\wordworld\core\engine.py:1541:                hub_rule = self.maps.get(transit_map_id, {})
+src\wordworld\core\engine.py:1544:                    f"请先抵达{hub_rule.get('name', transit_map_id)}，再尝试前往{target_region}。"
+src\wordworld\core\engine.py:1562:                f"你通过{TRANSIT_HUB_NAMES.get(transit_map_id, '中转站')}"
+src\wordworld\core\engine.py:1618:            and self.check_conditions(encounter.get("conditions"))
+src\wordworld\core\engine.py:1639:            if self.check_conditions(option.get("conditions"))
+src\wordworld\core\engine.py:1648:        logs = self.apply_effects(option.get("effects"))
+src\wordworld\core\engine.py:1649:        next_id = option.get("next", "")
+src\wordworld\core\engine.py:1691:        enemy = self.enemies.get(enemy_id)
+src\wordworld\core\engine.py:1729:            for skill_id in self.player.get("known_skills", [])
+src\wordworld\core\engine.py:1763:        for item_id in self.player.get("items", []):
+src\wordworld\core\engine.py:1764:            item = self.item_rules.get(item_id, {})
+src\wordworld\core\engine.py:1765:            hp_gain = self._effect_gain(item.get("use_effect", ""), "hp")
+src\wordworld\core\engine.py:1766:            douqi_gain = self._effect_gain(item.get("use_effect", ""), "douqi")
+src\wordworld\core\engine.py:1767:            if hp_gain > 0 and missing_hp > 0 and self.check_conditions(item.get("use_condition")):
+src\wordworld\core\engine.py:1798:            finisher_threshold = FINISHER_SKILLS.get(skill["id"])
+src\wordworld\core\engine.py:1852:            item = self.item_rules.get(item_id, {})
+src\wordworld\core\engine.py:1853:            hp_gain = self._effect_gain(item.get("use_effect", ""), "hp")
+src\wordworld\core\engine.py:1854:            douqi_gain = self._effect_gain(item.get("use_effect", ""), "douqi")
+src\wordworld\core\engine.py:1877:                skill = self.skills.get(skill_id or "")
+src\wordworld\core\engine.py:1889:                finisher_threshold = FINISHER_SKILLS.get(skill["id"])
+src\wordworld\core\engine.py:1964:        stage = int(self.player.get("story_stage", 0))
+src\wordworld\core\engine.py:1970:        stage = int(self.player.get("story_stage", 0))
+src\wordworld\core\engine.py:1977:        substage = int(self.player.get("story_substage", 0))
+src\wordworld\core\engine.py:1996:            if not self.check_conditions(subnode.get("condition")):
+src\wordworld\core\engine.py:2004:            logs = self.apply_effects(subnode.get("effect"))
+src\wordworld\core\engine.py:2010:        if not self.check_conditions(phase.get("condition")):
+src\wordworld\core\engine.py:2020:        logs = self.apply_effects(phase.get("effect"))
+src\wordworld\core\engine.py:2028:        return self.item_rules.get(item_id, {}).get("name", item_id)
+src\wordworld\core\engine.py:2034:        item = self.item_rules.get(item_id)
+src\wordworld\core\engine.py:2035:        if item is None or not item.get("use_effect"):
+src\wordworld\core\engine.py:2038:        if not self.check_conditions(item.get("use_condition")):
+src\wordworld\core\engine.py:2073:            if not rule.get("visible", False):
+src\wordworld\core\engine.py:2075:            if rule.get("pre_condition") and not self.check_conditions(
+src\wordworld\core\engine.py:2080:            target_name = self.npc_names.get(target, target)
+src\wordworld\core\engine.py:2086:        items = "、".join(self.player.get("items", [])) or "无"
+
+[Showing results with pagination = limit: 250]

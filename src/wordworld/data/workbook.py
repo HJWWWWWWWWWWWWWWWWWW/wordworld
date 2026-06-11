@@ -26,7 +26,7 @@ def _to_int(value: Any, default: int = 0) -> int:
 
 
 def _to_bool(value: Any) -> bool:
-    return str(value).strip().lower() in {"1", "yes", "true", "y"}
+    return str(value).strip().lower() in {"1", "yes", "True", "y"}
 
 
 def _cell_value(cell: ET.Element) -> str:

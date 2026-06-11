@@ -17,7 +17,7 @@ from textual.events import Key, Mount
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Label, RichLog, Static
 
-from wordworld.core.engine import GameEngine
+from wordworld.core.engine import GameEngine, wallet_display
 from wordworld.config.paths import SAVE_PATH
 
 
@@ -152,7 +152,7 @@ class CharacterScreen(InfoScreen):
             f"进度 {p['progress']:.1f}%  阅历 {p['adventure_points']}",
             "",
             f"生命 {p['hp']}/{p['max_hp']}  {_hp_bar(p['hp'], p['max_hp'])}",
-            f"斗气 {p['douqi']}  体力 {p['stamina']}  银两 {p['silver']}",
+            f"斗气 {p['douqi']}  体力 {p['stamina']}  资金 {wallet_display(p.get('wallet', {}))}",
             f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}",
             f"暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
             f"灵魂 {p['soul']}  炼药 {p['alchemy']}  声望 {p['reputation']}",

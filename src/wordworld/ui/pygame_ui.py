@@ -18,8 +18,11 @@ import pygame
 from wordworld.core.engine import (
     GameEngine, STORY_PHASES, COMBO_MAX, COMBO_DAMAGE_PER_STACK, SKILL_ELEMENTS,
     ELEMENT_TYPES, ELEMENT_WEAKNESS, REGION_BY_MAP, item_price,
+    EQUIPMENT_DATA, EQUIPMENT_SLOTS, TIME_PERIODS, EXPLORATION_ACTIONS,
+    wallet_display, wallet_add, wallet_can_afford, wallet_normalize, wallet_total,
 )
 from wordworld.config.paths import SAVE_PATH
+from wordworld.ui.item_art import draw_item_icon
 
 # ═══════════════════════════════════════════════════════════════════
 # 常量
@@ -48,8 +51,20 @@ ENTITY_NPC = 14
 ENTITY_TREASURE = 15
 ENTITY_ENEMY = 16
 ENTITY_EXIT = 17
+ENTITY_ENCOUNTER = 18  # 探索随机遭遇
 
-# 颜色
+# 场景
+SCENE_EXPLORE = "explore"
+SCENE_TRAVEL = "travel"
+SCENE_SHOP = "shop"
+SCENE_INN = "inn"
+SCENE_MENU = "menu"
+SCENE_INVENTORY = "inventory"
+SCENE_COMBAT = "combat"
+SCENE_ENCOUNTER = "encounter"
+SCENE_GUILD = "guild"
+SCENE_SKILL_SELECT = "skill_select"
+SCENE_ITEM_SELECT = "item_select"
 C_BG = (18, 18, 24)
 C_FLOOR = (42, 42, 54)
 C_WALL = (65, 65, 80)
@@ -63,6 +78,7 @@ C_INN = (100, 200, 200)
 C_GUILD = (200, 140, 240)
 C_TREASURE = (240, 200, 40)
 C_EXIT = (100, 220, 160)
+C_ENCOUNTER = (240, 140, 60)
 C_PANEL = (24, 24, 32)
 C_TEXT = (220, 220, 230)
 C_ACCENT = (200, 160, 40)
@@ -76,11 +92,12 @@ C_BUTTON_HOVER = (70, 70, 100)
 ENTITY_COLORS = {
     ENTITY_ENEMY: C_ENEMY, ENTITY_TREASURE: C_TREASURE, ENTITY_NPC: C_NPC,
     ENTITY_SHOP: C_SHOP, ENTITY_INN: C_INN, ENTITY_GUILD: C_GUILD,
-    ENTITY_EXIT: C_EXIT,
+    ENTITY_EXIT: C_EXIT, ENTITY_ENCOUNTER: C_ENCOUNTER,
 }
 ENTITY_LABELS = {
     ENTITY_ENEMY: "敌", ENTITY_TREASURE: "宝", ENTITY_NPC: "人",
     ENTITY_SHOP: "商", ENTITY_INN: "栈", ENTITY_GUILD: "会", ENTITY_EXIT: "出",
+    ENTITY_ENCOUNTER: "!",
 }
 
 _NPC_CANONICAL_VISUALS: Dict[str, Dict[str, Any]] = {
@@ -1162,6 +1179,14 @@ class PygameGame:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        # ── 音效 ──
+        self.sound_enabled = True
+        try:
+            pygame.mixer.init()
+            self._init_sounds()
+        except Exception:
+            self.sound_enabled = False
+
         self.font_title = _load_font(22)
         self.font_body = _load_font(16)
         self.font_small = _load_font(13)
@@ -1182,7 +1207,7 @@ class PygameGame:
         self._msg("斗气大陆的故事由此开始。方向键移动，空格交互，M 菜单。")
 
         # 场景
-        self.scene = "explore"
+        self.scene = SCENE_EXPLORE
         self.combat_ui: Optional[CombatView] = None
         self.shop_items: List[str] = []
         self.shop_sell_mode = False
@@ -1190,6 +1215,61 @@ class PygameGame:
         self.select_idx = 0
         self.travel_options: List[Tuple[str, str, str]] = []  # (map_id, name, route)
         self.travel_idx = 0
+        # 遭遇/对话框
+        self.encounter_options_data: List[Tuple[int, Dict[str, Any]]] = []
+        self.encounter_idx = 0
+        self.encounter_text = ""
+        # 战斗子菜单
+        self.skill_list: List[Dict[str, Any]] = []
+        self.skill_idx = 0
+        self.item_list: List[str] = []
+        self.item_idx = 0
+
+    # ── 音效 ──────────────────────────────────────────────────
+
+    def _init_sounds(self) -> None:
+        """生成简单波表音效（无外部文件依赖）。"""
+        self.sounds: Dict[str, Optional[pygame.mixer.Sound]] = {}
+        try:
+            import struct
+            def _make_sound(freq: int, duration_ms: int, wave_type: str = "square",
+                            vol: float = 0.3) -> Optional[pygame.mixer.Sound]:
+                sample_rate = 22050
+                n_samples = int(sample_rate * duration_ms / 1000)
+                buf = bytearray()
+                for i in range(n_samples):
+                    t = i / sample_rate
+                    if wave_type == "square":
+                        v = 1 if (i * freq // sample_rate) % 2 == 0 else -1
+                    elif wave_type == "sine":
+                        import math as _m
+                        v = _m.sin(2 * _m.pi * freq * t)
+                    elif wave_type == "noise":
+                        v = (hash(str(i)) % 200 - 100) / 100.0
+                    else:
+                        v = 0
+                    # 衰减
+                    decay = max(0, 1.0 - i / n_samples)
+                    v *= decay * vol
+                    buf.extend(struct.pack('h', int(v * 16000)))
+                return pygame.mixer.Sound(pygame.mixer.Sound(buffer=bytes(buf)).get_raw())
+            self.sounds["step"] = _make_sound(220, 60, "noise", 0.12)
+            self.sounds["hit"] = _make_sound(110, 150, "square", 0.35)
+            self.sounds["kill"] = _make_sound(55, 300, "square", 0.4)
+            self.sounds["skill"] = _make_sound(440, 200, "sine", 0.3)
+            self.sounds["item"] = _make_sound(880, 120, "sine", 0.25)
+            self.sounds["menu"] = _make_sound(660, 80, "square", 0.15)
+            self.sounds["alert"] = _make_sound(330, 250, "square", 0.3)
+            self.sounds["equip"] = _make_sound(550, 100, "sine", 0.2)
+        except Exception:
+            self.sound_enabled = False
+
+    def _play_sound(self, name: str) -> None:
+        if not self.sound_enabled:
+            return
+        s = self.sounds.get(name)
+        if s:
+            s.play()
 
     # ── 消息 ──────────────────────────────────────────────────
 
@@ -1279,7 +1359,7 @@ class PygameGame:
             self._travel_to(reachable[0][0])
             return
 
-        self.scene = "travel"
+        self.scene = SCENE_TRAVEL
         self.travel_options = [(mid, name, route) for mid, name, route in reachable]
         self.travel_idx = 0
 
@@ -1300,36 +1380,38 @@ class PygameGame:
                 self._on_key(event)
 
     def _on_key(self, e: pygame.event.Event) -> None:
-        if self.scene == "explore":
+        if self.scene == SCENE_EXPLORE:
             self._key_explore(e)
-        elif self.scene == "combat" and self.combat_ui:
-            self.combat_ui.handle_key(e, self.engine)
+        elif self.scene == SCENE_COMBAT and self.combat_ui:
+            self.combat_ui.handle_key(e, self.engine, self)
             if self.engine.combat is None:
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
                 self.combat_ui = None
                 self._msg(self.engine.last_message)
+        elif self.scene == SCENE_ENCOUNTER:
+            self._key_encounter(e)
         elif self.scene == "dialogue":
             if e.key in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_ESCAPE):
-                self.scene = "explore"
-        elif self.scene == "shop":
+                self.scene = SCENE_EXPLORE
+        elif self.scene == SCENE_SHOP:
             self._key_shop(e)
-        elif self.scene == "inn":
+        elif self.scene == SCENE_INN:
             if e.key == pygame.K_SPACE or e.key == pygame.K_RETURN:
                 if self.engine.rest():
                     self._msg("休息完毕，生命与体力已恢复。")
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
             elif e.key == pygame.K_ESCAPE:
-                self.scene = "explore"
-        elif self.scene == "menu":
+                self.scene = SCENE_EXPLORE
+        elif self.scene == SCENE_MENU:
             self._key_menu(e)
-        elif self.scene == "inventory":
+        elif self.scene == SCENE_INVENTORY:
             self._key_inventory(e)
-        elif self.scene == "travel":
+        elif self.scene == SCENE_TRAVEL:
             self._key_travel(e)
 
     def _key_travel(self, e: pygame.event.Event) -> None:
         if e.key == pygame.K_ESCAPE:
-            self.scene = "explore"
+            self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_UP:
             self.travel_idx = max(0, self.travel_idx - 1)
         elif e.key == pygame.K_DOWN:
@@ -1338,7 +1420,7 @@ class PygameGame:
             if self.travel_options:
                 mid = self.travel_options[self.travel_idx][0]
                 self._travel_to(mid)
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
 
     def _key_explore(self, e: pygame.event.Event) -> None:
         k = e.key
@@ -1352,8 +1434,8 @@ class PygameGame:
             return
         elif k == pygame.K_r:    self._do_rest(); return
         elif k == pygame.K_c:    self._do_cultivate(); return
-        elif k == pygame.K_i:    self.scene = "inventory"; self.select_idx = 0; return
-        elif k == pygame.K_m:    self.scene = "menu"; self.menu_idx = 0; return
+        elif k == pygame.K_i:    self.scene = SCENE_INVENTORY; self.select_idx = 0; return
+        elif k == pygame.K_m:    self.scene = SCENE_MENU; self.menu_idx = 0; return
         elif k == pygame.K_ESCAPE: self.running = False; return
 
         if dx or dy:
@@ -1368,8 +1450,14 @@ class PygameGame:
             self._on_step()
 
     def _on_step(self) -> None:
-        """每步触发可能遭遇。"""
-        if random.random() < 0.04:
+        """每步触发可能遭遇（战斗或剧情奇遇）。"""
+        self._play_sound("step")
+        r = random.random()
+        # 剧情奇遇: 20% 概率触发
+        if r < 0.06 and self.engine.encounters:
+            self._trigger_random_encounter()
+        # 随机战斗: 4% 概率再判定
+        elif r < 0.10:
             level = int(self.engine.player["level"])
             candidates = [
                 eid for eid, ed in self.engine.enemies.items()
@@ -1378,9 +1466,28 @@ class PygameGame:
             if candidates and random.random() < 0.4:
                 self.engine.begin_combat(random.choice(candidates))
                 if self.engine.combat:
-                    self.scene = "combat"
+                    self._play_sound("alert")
+                    self.scene = SCENE_COMBAT
                     self.combat_ui = CombatView()
                     self._msg(f"遭遇了 {self.engine.combat['name']}！")
+
+    def _trigger_random_encounter(self) -> None:
+        """触发当前地图的随机剧情奇遇。"""
+        cur = self.engine.player.get("last_map", "")
+        map_encounters = [
+            enc for enc in self.engine.encounters
+            if enc["map_id"] == cur
+            and self.engine.check_conditions(enc.get("conditions"))
+        ]
+        if not map_encounters:
+            return
+        enc = random.choice(map_encounters)
+        self.engine.active_encounter = enc
+        self.encounter_text = enc.get("text", "")
+        self.encounter_options_data = self.engine.encounter_options()
+        self.encounter_idx = 0
+        self.scene = SCENE_ENCOUNTER
+        self._play_sound("alert")
 
     def _interact_nearby(self) -> None:
         """与相邻格或玩家位置上的实体交互。"""
@@ -1393,6 +1500,7 @@ class PygameGame:
 
     def _trigger_entity(self, x: int, y: int, etype: int) -> None:
         """触发指定实体。"""
+        self._play_sound("menu")
         if etype == ENTITY_EXIT:
             self._exit_map()
         elif etype == ENTITY_ENEMY:
@@ -1413,7 +1521,6 @@ class PygameGame:
         md = self.engine.current_map()
         map_level = md.get("recommend_level", 1)
         level = int(self.engine.player["level"])
-        # 选择等级在玩家±3 且接近地图推荐等级的敌人
         candidates = [
             eid for eid, ed in self.engine.enemies.items()
             if abs(ed.get("level", 1) - max(level, map_level)) <= 5
@@ -1425,26 +1532,28 @@ class PygameGame:
         if candidates:
             self.engine.begin_combat(random.choice(candidates))
             if self.engine.combat:
-                self.scene = "combat"
+                self._play_sound("alert")
+                self.scene = SCENE_COMBAT
                 self.combat_ui = CombatView()
                 self._msg(f"与 {self.engine.combat['name']} 展开了战斗！")
                 self.tile_entities.pop((x, y), None)
                 self.entity_labels.pop((x, y), None)
 
     def _open_treasure(self, x: int, y: int) -> None:
-        silver = random.randint(5, 25)
-        self.engine.apply_effects(f"silver:+{silver}")
+        copper = random.randint(50, 250)
+        self.engine.apply_effects(f"silver:+{copper}")
+        wtext = wallet_display(wallet_normalize({"copper":copper,"silver":0,"gold":0,"ancient":0}))
         # 随机给个道具
         items = list(self.engine.item_rules.keys())
         if items and random.random() < 0.4:
             pick = random.choice(items)
             if pick not in self.engine.player["items"]:
                 self.engine.player["items"].append(pick)
-                self._msg(f"发现宝箱！获得 {silver} 银两 和 {self.engine.item_name(pick)}。")
+                self._msg(f"发现宝箱！获得 {wtext} 和 {self.engine.item_name(pick)}。")
             else:
-                self._msg(f"发现宝箱！获得 {silver} 银两。")
+                self._msg(f"发现宝箱！获得 {wtext}。")
         else:
-            self._msg(f"发现宝箱！获得 {silver} 银两。")
+            self._msg(f"发现宝箱！获得 {wtext}。")
         self.tile_entities.pop((x, y), None)
         self.entity_labels.pop((x, y), None)
 
@@ -1452,7 +1561,7 @@ class PygameGame:
 
     def _open_shop(self) -> None:
         """打开商店——基于 Excel 物品类型定价。"""
-        self.scene = "shop"
+        self.scene = SCENE_SHOP
         self.shop_sell_mode = False
         # 商店出售消耗品和装备（排除 quest/currency/key 类）
         shop_types = {"consumable", "equipment", "book", "material", "heavenly_flame"}
@@ -1464,7 +1573,7 @@ class PygameGame:
 
     def _key_shop(self, e: pygame.event.Event) -> None:
         if e.key == pygame.K_ESCAPE:
-            self.scene = "explore"
+            self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_TAB:
             self.shop_sell_mode = not self.shop_sell_mode
             self.select_idx = 0
@@ -1485,13 +1594,13 @@ class PygameGame:
         item_id = self.shop_items[self.select_idx]
         rule = self.engine.item_rules[item_id]
         buy_price, _ = item_price(rule.get("type", ""))
-        if self.engine.player["silver"] >= buy_price:
-            self.engine.player["silver"] -= buy_price
+        if wallet_can_afford(self.engine.player.get("wallet", {}), buy_price):
+            self.engine.player["wallet"] = wallet_add(self.engine.player["wallet"], -buy_price)
             if item_id not in self.engine.player["items"]:
                 self.engine.player["items"].append(item_id)
             self._msg(f"购买了 {self.engine.item_name(item_id)}，花费 {buy_price} 银两。")
         else:
-            self._msg(f"银两不足！需要 {buy_price}，当前 {self.engine.player['silver']}。")
+            self._msg(f"资金不足！需要 {buy_price} 铜币。")
 
     def _sell_item(self) -> None:
         inv = self.engine.player.get("items", [])
@@ -1501,11 +1610,11 @@ class PygameGame:
         rule = self.engine.item_rules.get(item_id, {})
         _, sell_price = item_price(rule.get("type", ""))
         self.engine.player["items"].remove(item_id)
-        self.engine.player["silver"] += sell_price
+        self.engine.player["wallet"] = wallet_add(self.engine.player["wallet"], sell_price)
         self._msg(f"出售了 {self.engine.item_name(item_id)}，获得 {sell_price} 银两。")
 
     def _open_inn(self) -> None:
-        self.scene = "inn"
+        self.scene = SCENE_INN
         md = self.engine.current_map()
         self._msg(f"欢迎来到 {md.get('name', '客栈')}。按空格休息（恢复生命和体力），Esc 离开。")
 
@@ -1540,6 +1649,24 @@ class PygameGame:
         self._msg(text)
         self.scene = "dialogue"
 
+    # ── 剧情奇遇 ─────────────────────────────────────────────
+
+    def _key_encounter(self, e: pygame.event.Event) -> None:
+        if e.key == pygame.K_UP:
+            self.encounter_idx = max(0, self.encounter_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.encounter_idx = min(len(self.encounter_options_data) - 1, self.encounter_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            opt_num = self.encounter_options_data[self.encounter_idx][0]
+            ok = self.engine.choose_encounter_option(opt_num)
+            self._play_sound("item" if ok else "hit")
+            self._msg(self.engine.last_message)
+            self.scene = SCENE_EXPLORE
+        elif e.key == pygame.K_ESCAPE:
+            self.engine.leave_encounter()
+            self._msg(self.engine.last_message)
+            self.scene = SCENE_EXPLORE
+
     def _do_rest(self) -> None:
         if self.engine.rest():
             self._msg("休息完毕，生命与体力已恢复。")
@@ -1555,37 +1682,46 @@ class PygameGame:
     # ── 菜单 ─────────────────────────────────────────────────
 
     def _key_menu(self, e: pygame.event.Event) -> None:
-        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "退出游戏"]
+        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "读取存档", "退出游戏"]
         if e.key == pygame.K_UP:
             self.menu_idx = max(0, self.menu_idx - 1)
         elif e.key == pygame.K_DOWN:
             self.menu_idx = min(len(items) - 1, self.menu_idx + 1)
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if self.menu_idx == 0:
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
             elif self.menu_idx == 1:
-                self.scene = "explore"  # 状态在右侧面板
+                self.scene = SCENE_EXPLORE  # 状态在右侧面板
             elif self.menu_idx == 2:
-                self.scene = "inventory"
+                self.scene = SCENE_INVENTORY
                 self.select_idx = 0
             elif self.menu_idx == 3:
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
                 skills = self.engine.player.get("known_skills", [])
                 names = [self.engine.skills.get(s, {}).get("name", s) for s in skills]
                 self._msg(f"已学斗技：{'、'.join(names) if names else '无'}")
             elif self.menu_idx == 4:
                 self.engine.save()
+                self._play_sound("item")
                 self._msg("游戏已保存。")
-                self.scene = "explore"
+                self.scene = SCENE_EXPLORE
             elif self.menu_idx == 5:
+                if self.engine.load():
+                    self._load_map()
+                    self._play_sound("item")
+                    self._msg("存档已读取。")
+                else:
+                    self._msg("没有找到存档文件。")
+                self.scene = SCENE_EXPLORE
+            elif self.menu_idx == 6:
                 self.running = False
         elif e.key in (pygame.K_ESCAPE, pygame.K_m):
-            self.scene = "explore"
+            self.scene = SCENE_EXPLORE
 
     def _key_inventory(self, e: pygame.event.Event) -> None:
         inv = self.engine.player.get("items", [])
         if e.key == pygame.K_ESCAPE or e.key == pygame.K_i:
-            self.scene = "explore"
+            self.scene = SCENE_EXPLORE
         elif e.key == pygame.K_UP:
             self.select_idx = max(0, self.select_idx - 1)
         elif e.key == pygame.K_DOWN:
@@ -1593,13 +1729,29 @@ class PygameGame:
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             if inv and self.select_idx < len(inv):
                 item_id = inv[self.select_idx]
-                rule = self.engine.item_rules.get(item_id, {})
-                use_effect = rule.get("use_effect", "")
-                if use_effect:
-                    self.engine.combat_action("item", skill_id=item_id)
+                eq = EQUIPMENT_DATA.get(item_id)
+                if eq:
+                    self.engine.equip_item(item_id)
+                    self._play_sound("equip")
                     self._msg(self.engine.last_message)
                 else:
-                    self._msg(f"{self.engine.item_name(item_id)}：{rule.get('description', '无描述')}")
+                    rule = self.engine.item_rules.get(item_id, {})
+                    use_effect = rule.get("use_effect", "")
+                    if use_effect:
+                        self.engine.use_item(item_id)
+                        self._play_sound("item")
+                        self._msg(self.engine.last_message)
+                    else:
+                        self._msg(f"{self.engine.item_name(item_id)}：{rule.get('description', '无描述')}")
+        elif e.key == pygame.K_u:
+            # 卸下装备快捷键
+            if inv and self.select_idx < len(inv):
+                item_id = inv[self.select_idx]
+                eq = EQUIPMENT_DATA.get(item_id)
+                if eq:
+                    self.engine.unequip_item(eq["slot"])
+                    self._play_sound("equip")
+                    self._msg(self.engine.last_message)
 
     # ══════════════════════════════════════════════════════════
     # 渲染
@@ -1607,17 +1759,19 @@ class PygameGame:
 
     def _render(self) -> None:
         self.screen.fill(C_BG)
-        if self.scene == "combat" and self.combat_ui:
+        if self.scene == SCENE_COMBAT and self.combat_ui:
             self.combat_ui.render(self.screen, self.engine, self.font_title, self.font_body)
-        elif self.scene == "shop":
+        elif self.scene == SCENE_ENCOUNTER:
+            self._render_encounter()
+        elif self.scene == SCENE_SHOP:
             self._render_shop()
-        elif self.scene == "inn":
+        elif self.scene == SCENE_INN:
             self._render_inn()
-        elif self.scene == "menu":
+        elif self.scene == SCENE_MENU:
             self._render_menu()
-        elif self.scene == "inventory":
+        elif self.scene == SCENE_INVENTORY:
             self._render_inventory()
-        elif self.scene == "travel":
+        elif self.scene == SCENE_TRAVEL:
             self._render_travel()
         else:
             self._render_explore()
@@ -2054,15 +2208,28 @@ class PygameGame:
         pygame.draw.rect(self.screen, C_QI_BAR, (x, y, int(bw * qr), 5))
         y += 12
 
-        # 属性
+        # 属性（含装备加成）
         for name, key in [
             ("攻击", "atk"), ("防御", "def"), ("速度", "spd"),
             ("灵魂", "soul"), ("声望", "reputation"),
-            ("银两", "silver"), ("体力", "stamina"), ("阅历", "adventure_points"),
         ]:
-            ln = self.font_small.render(f"{name}: {p.get(key, 0)}", True, C_TEXT)
+            val = p.get(key, 0)
+            bonus = self.engine.get_equipped_bonus(key)
+            if bonus:
+                ln = self.font_small.render(f"{name}: {val}(+{bonus})", True, C_ACCENT)
+            else:
+                ln = self.font_small.render(f"{name}: {val}", True, C_TEXT)
             self.screen.blit(ln, (x, y))
             y += 16
+        # 钱包
+        wallet = p.get("wallet", {})
+        wtext = wallet_display(wallet)
+        ln = self.font_small.render(f"资金: {wtext}", True, C_ACCENT)
+        self.screen.blit(ln, (x, y)); y += 16
+        # 体力/阅历
+        for name, key in [("体力", "stamina"), ("阅历", "adventure_points")]:
+            ln = self.font_small.render(f"{name}: {p.get(key, 0)}", True, C_TEXT)
+            self.screen.blit(ln, (x, y)); y += 16
 
         y += 6
         md = self.engine.current_map()
@@ -2098,6 +2265,31 @@ class PygameGame:
             self.screen.blit(t, (mx, my))
             my -= 16
 
+    # ── 剧情奇遇界面 ───────────────────────────────────────
+
+    def _render_encounter(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("⚡ 奇 遇", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 30))
+        # 遭遇文本
+        lines = _wrap_text(self.font_body, self.encounter_text, w - 80)
+        for i, line in enumerate(lines):
+            tl = self.font_body.render(line, True, C_TEXT)
+            self.screen.blit(tl, (40, 80 + i * 24))
+        # 选项
+        oy = 80 + len(lines) * 24 + 20
+        self.screen.blit(
+            self.font_small.render("[↑↓]选择  [空格]确认  [Esc]离开", True, (120, 120, 130)),
+            (40, oy)
+        )
+        oy += 30
+        for i, (num, opt) in enumerate(self.encounter_options_data):
+            icon = "▶ " if i == self.encounter_idx else "  "
+            color = C_ACCENT if i == self.encounter_idx else C_TEXT
+            ot = self.font_body.render(f"{icon}{opt['text']}", True, color)
+            self.screen.blit(ot, (60, oy + i * 28))
+
     # ── 地图切换界面 ───────────────────────────────────────
 
     def _render_travel(self) -> None:
@@ -2125,7 +2317,7 @@ class PygameGame:
         title = self.font_title.render(f"坊市 — {mode}", True, C_ACCENT)
         self.screen.blit(title, (w // 2 - title.get_width() // 2, 20))
         silver = self.font_body.render(
-            f"持有银两: {self.engine.player['silver']}  [Tab]切换买卖  [Esc]离开",
+            f"资金: {wallet_display(self.engine.player.get('wallet',{}))}  [Tab]切换买卖  [Esc]离开",
             True, C_TEXT
         )
         self.screen.blit(silver, (w // 2 - silver.get_width() // 2, 56))
@@ -2148,7 +2340,11 @@ class PygameGame:
             else:
                 line = f"{icon}{name} [{itype}]  {buy_p}银两"
             t = self.font_body.render(line, True, color)
-            self.screen.blit(t, (80, list_y + i * 28))
+            draw_item_icon(
+                self.screen, item_id, rule, 74, list_y + i * 28 - 2, 24,
+                i == self.select_idx,
+            )
+            self.screen.blit(t, (104, list_y + i * 28))
             if i >= 14:
                 break
 
@@ -2164,7 +2360,7 @@ class PygameGame:
         p = self.engine.player
         t3 = self.font_small.render(
             f"当前: 生命 {p['hp']}/{p['max_hp']}  体力 {p.get('stamina', 0)}"
-            f"  银两 {p.get('silver', 0)}",
+            f"  资金: {wallet_display(p.get('wallet', {}))}",
             True, (150, 150, 160)
         )
         self.screen.blit(t3, (w // 2 - t3.get_width() // 2, h // 3 + 80))
@@ -2176,7 +2372,7 @@ class PygameGame:
         w, h = self.screen.get_size()
         t = self.font_title.render("游 戏 菜 单", True, C_ACCENT)
         self.screen.blit(t, (w // 2 - t.get_width() // 2, 40))
-        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "退出游戏"]
+        items = ["返回游戏", "状态详情", "物品背包", "技能列表", "保存游戏", "读取存档", "退出游戏"]
         for i, item in enumerate(items):
             icon = "▶ " if i == self.menu_idx else "  "
             color = C_ACCENT if i == self.menu_idx else C_TEXT
@@ -2188,34 +2384,70 @@ class PygameGame:
     def _render_inventory(self) -> None:
         self.screen.fill((20, 20, 30))
         w, h = self.screen.get_size()
+
+        # 标题 + 操作提示
         t = self.font_title.render("背 包", True, C_ACCENT)
-        self.screen.blit(t, (w // 2 - t.get_width() // 2, 20))
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 10))
         self.screen.blit(
-            self.font_small.render("[↑↓]选择  [空格]使用  [I/Esc]返回", True, (120, 120, 130)),
-            (w // 2 - 120, 56)
+            self.font_small.render("[↑↓]选择 [空格]装备/使用 [U]卸下 [I/Esc]返回", True, (120, 120, 130)),
+            (w // 2 - 160, 44)
         )
+
+        # ── 装备槽（左侧） ──
+        equipped = self.engine.player.get("equipped", {})
+        slot_names = {"weapon": "武器", "armor": "防具", "accessory": "饰品"}
+        sy = 75
+        pygame.draw.rect(self.screen, (30, 30, 40), (30, sy - 5, 240, 95), border_radius=6)
+        self.screen.blit(self.font_small.render("── 已装备 ──", True, C_ACCENT), (42, sy))
+        for j, slot in enumerate(EQUIPMENT_SLOTS):
+            item_id = equipped.get(slot)
+            name = EQUIPMENT_DATA.get(item_id, {}).get("name", "空") if item_id else "空"
+            eq_color = C_ACCENT if item_id else (100, 100, 110)
+            eq_line = self.font_small.render(f"{slot_names[slot]}: {name}", True, eq_color)
+            if item_id:
+                draw_item_icon(
+                    self.screen, item_id, self.engine.item_rules.get(item_id, {}),
+                    40, sy + 18 + j * 22, 20,
+                )
+            self.screen.blit(eq_line, (64, sy + 22 + j * 22))
+
+        # ── 背包物品（右侧） ──
         inv = self.engine.player.get("items", [])
         if not inv:
             mt = self.font_body.render("背包空空如也", True, (100, 100, 110))
-            self.screen.blit(mt, (w // 2 - mt.get_width() // 2, h // 2))
-            return
-        for i, item_id in enumerate(inv):
-            rule = self.engine.item_rules.get(item_id, {})
-            name = self.engine.item_name(item_id)
-            desc = rule.get("description", "")
-            use = rule.get("use_effect", "")
-            icon = "▶ " if i == self.select_idx else "  "
-            color = C_ACCENT if i == self.select_idx else C_TEXT
-            line = f"{icon}{name}"
-            if use:
-                line += f" [可使用]"
-            t = self.font_body.render(line, True, color)
-            self.screen.blit(t, (80, 90 + i * 28))
-            if desc and i == self.select_idx:
-                dt = self.font_small.render(f"  {desc}", True, (150, 150, 160))
-                self.screen.blit(dt, (80, 90 + i * 28 + 18))
-            if i >= 15:
-                break
+            self.screen.blit(mt, (320, h // 2))
+        else:
+            for i, item_id in enumerate(inv):
+                rule = self.engine.item_rules.get(item_id, {})
+                name = self.engine.item_name(item_id)
+                eq = EQUIPMENT_DATA.get(item_id)
+                is_equippable = eq is not None
+                icon = "▶ " if i == self.select_idx else "  "
+                color = C_ACCENT if i == self.select_idx else C_TEXT
+                line = f"{icon}{name}"
+                if is_equippable:
+                    line += f" [+{eq.get('atk',0) or eq.get('def',0) or eq.get('hp',0)}{'攻' if eq.get('atk') else '防' if eq.get('def') else '命'}]"
+                elif rule.get("use_effect"):
+                    line += " [可使用]"
+                t2 = self.font_body.render(line, True, color)
+                draw_item_icon(
+                    self.screen, item_id, rule, 304, 72 + i * 26, 24,
+                    i == self.select_idx,
+                )
+                self.screen.blit(t2, (330, 75 + i * 26))
+                if i >= 16:
+                    break
+            # 提示
+            if self.select_idx < len(inv):
+                sid = inv[self.select_idx]
+                srule = self.engine.item_rules.get(sid, {})
+                sdesc = srule.get("description", "")
+                seq = EQUIPMENT_DATA.get(sid)
+                if seq:
+                    sdesc = f"装备: {seq['name']} ({seq['slot']}) ATK+{seq['atk']} DEF+{seq['def']} HP+{seq['hp']}"
+                if sdesc:
+                    dt = self.font_small.render(f"  {sdesc}", True, (150, 150, 160))
+                    self.screen.blit(dt, (310, h - 28))
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -2228,29 +2460,95 @@ class CombatView:
     def __init__(self) -> None:
         self.actions = ["普通攻击", "施展斗技", "防御", "使用丹药", "蓄力", "逃跑", "自动战斗"]
         self.selected = 0
+        self.sub_mode = ""  # "" | "skill" | "item"
+        self.sub_idx = 0
 
-    def handle_key(self, e: pygame.event.Event, engine: GameEngine) -> None:
+    def handle_key(self, e: pygame.event.Event, engine: GameEngine, game: Any = None) -> None:
+        if self.sub_mode == "skill":
+            self._handle_skill_select(e, engine)
+            return
+        if self.sub_mode == "item":
+            self._handle_item_select(e, engine)
+            return
+
         if e.key == pygame.K_UP:
             self.selected = max(0, self.selected - 1)
         elif e.key == pygame.K_DOWN:
             self.selected = min(len(self.actions) - 1, self.selected + 1)
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
-            cmd_map = {
-                "普通攻击": "attack", "施展斗技": "skill", "防御": "defend",
-                "使用丹药": "item", "蓄力": "charge", "逃跑": "escape", "自动战斗": "auto",
-            }
-            cmd = cmd_map.get(self.actions[self.selected], "attack")
-            if cmd == "skill":
+            act = self.actions[self.selected]
+            if act == "施展斗技":
                 skills = engine.combat_skills()
-                engine.combat_action("skill", skill_id=skills[0]["id"] if skills else None)
+                if skills:
+                    self.sub_mode = "skill"
+                    self.sub_idx = 0
+                else:
+                    engine.last_message = "尚未习得任何斗技。"
+            elif act == "使用丹药":
+                items = self._combat_usable_items(engine)
+                if items:
+                    self.sub_mode = "item"
+                    self.sub_idx = 0
+                else:
+                    engine.last_message = "没有可用的丹药。"
             else:
+                cmd_map = {
+                    "普通攻击": "attack", "防御": "defend",
+                    "蓄力": "charge", "逃跑": "escape", "自动战斗": "auto",
+                }
+                cmd = cmd_map.get(act, "attack")
                 engine.combat_action(cmd)
+                if game:
+                    game._play_sound("hit" if cmd == "attack" else "menu")
+        elif e.key == pygame.K_ESCAPE:
+            if game:
+                engine.combat_action("escape")
+                if engine.combat is None:
+                    game.scene = SCENE_EXPLORE
+
+    def _handle_skill_select(self, e: pygame.event.Event, engine: GameEngine) -> None:
+        skills = engine.combat_skills()
+        if e.key == pygame.K_ESCAPE:
+            self.sub_mode = ""
+        elif e.key == pygame.K_UP:
+            self.sub_idx = max(0, self.sub_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.sub_idx = min(len(skills) - 1, self.sub_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if skills:
+                engine.combat_action("skill", skill_id=skills[self.sub_idx]["id"])
+                self.sub_mode = ""
+
+    def _handle_item_select(self, e: pygame.event.Event, engine: GameEngine) -> None:
+        items = self._combat_usable_items(engine)
+        if e.key == pygame.K_ESCAPE:
+            self.sub_mode = ""
+        elif e.key == pygame.K_UP:
+            self.sub_idx = max(0, self.sub_idx - 1)
+        elif e.key == pygame.K_DOWN:
+            self.sub_idx = min(len(items) - 1, self.sub_idx + 1)
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if items:
+                engine.combat_action("item", skill_id=items[self.sub_idx])
+                self.sub_mode = ""
+
+    @staticmethod
+    def _combat_usable_items(engine: GameEngine) -> List[str]:
+        """返回可使用的回复类物品列表。"""
+        result = []
+        for item_id in engine.player.get("items", []):
+            item = engine.item_rules.get(item_id, {})
+            effect = item.get("use_effect", "")
+            if "hp:+" in effect or "douqi:+" in effect:
+                result.append(item_id)
+        return result
 
     @staticmethod
     def _element_color(element: str) -> Tuple[int, int, int]:
         return {
             "火": (239, 91, 45), "冰": (111, 204, 229), "雷": (189, 143, 245),
-            "风": (104, 205, 153), "毒": (145, 187, 70), "土": (190, 142, 76),
+            "风": (104, 205, 153), "毒": (145, 187, 70), "木": (76, 175, 80),
+            "土": (190, 142, 76),
         }.get(element, (205, 72, 72))
 
     def _draw_battle_background(
@@ -2452,24 +2750,42 @@ class CombatView:
 
         # 菜单
         my_ = py_ + 80
-        for i, act in enumerate(self.actions):
-            icon = "▶ " if i == self.selected else "  "
-            color = (200, 160, 40) if i == self.selected else (220, 220, 230)
-            t = font_body.render(f"{icon}{act}", True, color)
-            col = i % 4
-            row = i // 4
-            screen.blit(t, (bx + col * 95, my_ + row * 26))
-
-        # 斗技快捷
-        skills = engine.combat_skills()
-        if skills:
-            s = skills[0]
-            elem = SKILL_ELEMENTS.get(s["id"], "?")
-            st = font_body.render(
-                f"斗技: {s['name']} [{elem}] {engine._skill_cost(s)}斗气",
-                True, (140, 180, 220)
-            )
-            screen.blit(st, (bx, my_ + 60))
+        if self.sub_mode:
+            # 子菜单：技能选择或物品选择
+            sub_title = "选择斗技" if self.sub_mode == "skill" else "选择丹药"
+            sub_label = font_title.render(sub_title, True, C_ACCENT)
+            screen.blit(sub_label, (bx, my_ - 28))
+            sub_items: List[str] = []
+            if self.sub_mode == "skill":
+                sub_items = [f"{s['name']} [{SKILL_ELEMENTS.get(s['id'], '?')}] {engine._skill_cost(s)}斗气"
+                             for s in engine.combat_skills()]
+            else:
+                combat_item_ids = self._combat_usable_items(engine)
+                sub_items = [f"{engine.item_name(iid)} {'+' + engine.item_rules.get(iid, {}).get('use_effect', '')}"
+                             for iid in combat_item_ids]
+            for i, line in enumerate(sub_items):
+                icon = "▶ " if i == self.sub_idx else "  "
+                color = C_ACCENT if i == self.sub_idx else C_TEXT
+                t = font_body.render(f"{icon}{line}", True, color)
+                text_x = bx + 10
+                if self.sub_mode == "item":
+                    item_id = combat_item_ids[i]
+                    draw_item_icon(
+                        screen, item_id, engine.item_rules.get(item_id, {}),
+                        bx + 8, my_ + i * 24 - 2, 22, i == self.sub_idx,
+                    )
+                    text_x = bx + 32
+                screen.blit(t, (text_x, my_ + i * 24))
+                if i >= 6:
+                    break
+        else:
+            for i, act in enumerate(self.actions):
+                icon = "▶ " if i == self.selected else "  "
+                color = (200, 160, 40) if i == self.selected else (220, 220, 230)
+                t = font_body.render(f"{icon}{act}", True, color)
+                col = i % 4
+                row = i // 4
+                screen.blit(t, (bx + col * 95, my_ + row * 26))
 
         if engine.last_message:
             msg = engine.last_message[:55]

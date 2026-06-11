@@ -5,15 +5,68 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from wordworld.data.workbook import load_game_data
+from wordworld.data.equipment_data import EQUIPMENT_DATA as _GEN_EQUIPMENT
+from wordworld.data.item_data import ITEM_DATA as _GEN_ITEMS
+from wordworld.data.loot_table import LOOT_TABLE
+from wordworld.data.flame_data import HEAVENLY_FLAMES_FULL
+from wordworld.data.technique_data import TECHNIQUE_DATA
+from wordworld.data.skill_book_data import SKILL_BOOK_DATA
+from wordworld.data.skill_elements_full import SKILL_ELEMENTS_FULL
+from wordworld.data.elemental_rules import ELEMENTAL_RULES
+from wordworld.data.furnace_data import FURNACE_DATA
+from wordworld.data.recipe_data import ALCHEMY_RECIPE_DATA
 from wordworld.config.paths import SAVE_PATH, WORKBOOK_PATH
 
 
 LEGACY_STAT_ALIASES = {
     "attack": "atk",
     "defense": "def",
-    "gold": "silver",
     "neili": "douqi",
 }
+
+# ── 四币货币系统 ───────────────────────────────────────────
+# 100铜=1银, 100银=1金, 1000金=1远古币
+COPPER_PER_SILVER = 100
+SILVER_PER_GOLD = 100
+GOLD_PER_ANCIENT = 1000
+
+def wallet_display(wallet: Dict[str, int]) -> str:
+    """格式化显示钱包。"""
+    parts = []
+    if wallet.get("ancient", 0) > 0:
+        parts.append(f"{wallet['ancient']}远古币")
+    if wallet.get("gold", 0) > 0:
+        parts.append(f"{wallet['gold']}金")
+    if wallet.get("silver", 0) > 0:
+        parts.append(f"{wallet['silver']}银")
+    parts.append(f"{wallet.get('copper', 0)}铜")
+    return " ".join(parts) if parts else "0铜"
+
+def wallet_total(wallet: Dict[str, int]) -> int:
+    """钱包总和（铜币等价）。"""
+    return (wallet.get("copper", 0) +
+            wallet.get("silver", 0) * COPPER_PER_SILVER +
+            wallet.get("gold", 0) * COPPER_PER_SILVER * SILVER_PER_GOLD +
+            wallet.get("ancient", 0) * COPPER_PER_SILVER * SILVER_PER_GOLD * GOLD_PER_ANCIENT)
+
+def wallet_normalize(wallet: Dict[str, int]) -> Dict[str, int]:
+    """自动进位规范化钱包。"""
+    total = wallet_total(wallet)
+    ancient = total // (COPPER_PER_SILVER * SILVER_PER_GOLD * GOLD_PER_ANCIENT)
+    total %= (COPPER_PER_SILVER * SILVER_PER_GOLD * GOLD_PER_ANCIENT)
+    gold = total // (COPPER_PER_SILVER * SILVER_PER_GOLD)
+    total %= (COPPER_PER_SILVER * SILVER_PER_GOLD)
+    silver = total // COPPER_PER_SILVER
+    copper = total % COPPER_PER_SILVER
+    return {"copper": copper, "silver": silver, "gold": gold, "ancient": ancient}
+
+def wallet_add(wallet: Dict[str, int], copper_amount: int) -> Dict[str, int]:
+    """钱包加铜币（可负数为扣减），自动进位。"""
+    total = wallet_total(wallet) + copper_amount
+    return wallet_normalize({"copper": max(0, total), "silver": 0, "gold": 0, "ancient": 0})
+
+def wallet_can_afford(wallet: Dict[str, int], copper_price: int) -> bool:
+    return wallet_total(wallet) >= copper_price
 
 # 不受任何事件影响的满值关系（家人与导师）
 IMMUNE_RELATIONSHIPS = {
@@ -57,6 +110,16 @@ REALM_BREAKTHROUGH_CHANCE_BP = {
     10: 1,    # 斗圣高阶→斗帝: 0.01%
 }
 
+# ── 炼药术系统 ─────────────────────────────────────────────
+# 十品炼药术：一品→九品→帝品
+ALCHEMY_GRADES = ["一品", "二品", "三品", "四品", "五品", "六品", "七品", "八品", "九品", "帝品"]
+ALCHEMY_SUB_PER_GRADE = 10       # 每品10个小进度
+ALCHEMY_EXP_PER_SUB = 100        # 每个小进度需要100经验
+ALCHEMY_EXP_PER_GRADE = ALCHEMY_SUB_PER_GRADE * ALCHEMY_EXP_PER_SUB  # 1000
+
+# 炼药配方（从生成数据导入，504种）
+ALCHEMY_RECIPES = ALCHEMY_RECIPE_DATA
+
 TIME_PERIODS = ["清晨", "午后", "傍晚", "深夜"]
 
 EXPLORATION_ACTIONS = {
@@ -89,9 +152,12 @@ EXPLORATION_ACTIONS = {
 
 # 自动战斗中的终结类斗技只会在敌方生命不高于该比例时使用。
 # ── 属性克制系统 ───────────────────────────────────────────
-# 五大斗气属性，克制链：火→风→毒→冰→雷→火
-ELEMENT_TYPES = ["火", "冰", "雷", "风", "毒"]
-ELEMENT_WEAKNESS = {"火": "风", "风": "毒", "毒": "冰", "冰": "雷", "雷": "火"}
+# 七元素克制链：火→木→土→雷→冰→风→毒→火
+ELEMENT_TYPES = ["火", "冰", "雷", "风", "毒", "木", "土"]
+ELEMENT_WEAKNESS = {
+    "火": "木", "木": "土", "土": "雷", "雷": "冰",
+    "冰": "风", "风": "毒", "毒": "火",
+}
 ELEMENT_ADVANTAGE = {v: k for k, v in ELEMENT_WEAKNESS.items()}
 
 # ── 技能元素自动分配 ───────────────────────────────────────
@@ -101,6 +167,8 @@ _ELEMENT_KW = {
     "雷": ["雷","电","霆","闪","霹","雳","轰","thunder","lightning","bolt","arc"],
     "风": ["风","云","飘","岚","飓","卷","翔","wind","gale","tempest","cyclone","gust"],
     "毒": ["毒","蛇","蝎","蛊","腐","瘴","瘟","紫","poison","venom","toxic","corrosive"],
+    "木": ["木","树","林","森","藤","叶","花","草","根","芽","wood","forest","leaf","vine","plant"],
+    "土": ["土","地","岩","石","山","沙","泥","尘","earth","rock","stone","sand","ground"],
 }
 _HAND_ASSIGNED = {
     "skill_bajibang": "火", "skill_flame_mantra": "火",
@@ -122,6 +190,25 @@ def _build_skill_elements(skills: Dict[str, Any]) -> Dict[str, str]:
 SKILL_ELEMENTS: Dict[str, str] = {}
 
 ENEMY_ELEMENTS: Dict[str, Dict[str, str]] = {}
+
+# ── 纳戒系统 ───────────────────────────────────────────────
+BASE_INVENTORY_CAPACITY = 50
+STORAGE_RINGS = [
+    {"id": "item_storage_ring_1", "name": "低阶纳戒", "tier": "spirit", "capacity": 100,
+     "desc": "低阶纳戒，内含100格空间。", "price_buy": 50000, "price_sell": 10000},
+    {"id": "item_storage_ring_2", "name": "中阶纳戒", "tier": "earth", "capacity": 200,
+     "desc": "中阶纳戒，内含200格空间。", "price_buy": 150000, "price_sell": 30000},
+    {"id": "item_storage_ring_3", "name": "高阶纳戒", "tier": "heaven", "capacity": 400,
+     "desc": "高阶纳戒，内含400格空间。", "price_buy": 500000, "price_sell": 100000},
+    {"id": "item_storage_ring_4", "name": "顶级纳戒", "tier": "saint", "capacity": 1000,
+     "desc": "顶级纳戒，内含1000格空间，可纳山河。", "price_buy": 2000000, "price_sell": 400000},
+]
+
+# ── 拍卖行 ─────────────────────────────────────────────────
+AUCTION_MARKUP_MIN = 1.5   # 最低加价倍数
+AUCTION_MARKUP_MAX = 5.0   # 最高加价倍数
+AUCTION_REFRESH_PERIODS = 4  # 每4个时段刷新一次
+AUCTION_LISTING_COUNT = 8    # 每次刷新上架数量
 
 # ── 物品定价（按类型） ─────────────────────────────────────
 ITEM_PRICE_TABLE: Dict[str, Tuple[int, int]] = {
@@ -152,6 +239,10 @@ FINISHER_SKILLS = {
     "skill_huangquan_finger": 0.30,
     "skill_annihilate_sky_seal": 0.30,
 }
+
+# ── 装备系统 ───────────────────────────────────────────────
+EQUIPMENT_SLOTS = ["weapon", "armor", "accessory"]
+EQUIPMENT_DATA: Dict[str, Dict[str, Any]] = _GEN_EQUIPMENT  # 2142件
 
 # 上一版存档只保存数字阶段。该列表用于把旧数字位置迁移到稳定阶段 ID。
 LEGACY_STORY_PHASE_IDS_V2 = [
@@ -864,14 +955,109 @@ class GameEngine:
         self.encounters: List[Dict[str, Any]] = data["encounters"]
         self.enemies: Dict[str, Dict[str, Any]] = data["enemies"]
         self.item_rules: Dict[str, Dict[str, Any]] = data["items"]
+        # 合并生成的扩展道具
+        for gid, gitem in _GEN_ITEMS.items():
+            if gid not in self.item_rules:
+                self.item_rules[gid] = {
+                    "name": gitem["name"],
+                    "type": gitem["type"],
+                    "description": gitem.get("desc", ""),
+                    "use_effect": gitem.get("effect", ""),
+                    "tier": gitem.get("tier", "iron"),
+                    "price_buy": gitem.get("price_buy", 0),
+                    "price_sell": gitem.get("price_sell", 0),
+                }
+        # 合并生成的装备到物品表（商店和掉落使用）
+        for eid, eq in _GEN_EQUIPMENT.items():
+            if eid not in self.item_rules:
+                self.item_rules[eid] = {
+                    "name": eq["name"],
+                    "type": "equipment",
+                    "description": f"{eq['tier_name']}{'武器' if eq['slot'] == 'weapon' else '防具' if eq['slot'] == 'armor' else '饰品'} "
+                                   f"[{eq['rarity']}] ATK+{eq['atk']} DEF+{eq['def']} HP+{eq['hp']}",
+                    "use_effect": "",
+                    "tier": eq["tier"],
+                    "price_buy": (eq["atk"] + eq["def"] + eq["hp"]) * 5,
+                    "price_sell": (eq["atk"] + eq["def"] + eq["hp"]) * 2,
+                    "slot": eq["slot"],
+                }
+        # 合并23异火
+        for flame in HEAVENLY_FLAMES_FULL:
+            fid = flame["id"]
+            if fid not in self.item_rules:
+                self.item_rules[fid] = {
+                    "name": flame["name"], "type": "heavenly_flame",
+                    "description": flame["desc"], "use_effect": "",
+                    "tier": flame["tier"],
+                    "price_buy": flame["price_buy"], "price_sell": flame["price_sell"],
+                }
+        # 合并100功法
+        for tech in TECHNIQUE_DATA:
+            tid = tech["id"]
+            if tid not in self.item_rules:
+                self.item_rules[tid] = {
+                    "name": tech["name"], "type": "technique",
+                    "description": tech["desc"], "use_effect": tech["effect"],
+                    "tier": tech["tier"], "element": tech["element"],
+                    "price_buy": tech["price_buy"], "price_sell": tech["price_sell"],
+                }
+        # 合并211技能书
+        for book in SKILL_BOOK_DATA:
+            bid = book["id"]
+            if bid not in self.item_rules:
+                self.item_rules[bid] = {
+                    "name": book["name"], "type": "book",
+                    "description": book["desc"], "use_effect": f"learn:{book['skill_id']}",
+                    "tier": book["tier"],
+                    "price_buy": book["price_buy"], "price_sell": book["price_sell"],
+                }
+        # 合并药鼎到物品表
+        for fdata in FURNACE_DATA:
+            fid = fdata["id"]
+            if fid not in self.item_rules:
+                self.item_rules[fid] = {
+                    "name": fdata["name"], "type": "furnace",
+                    "description": f"{ALCHEMY_GRADES[fdata['grade']-1]}药鼎 | {fdata['desc']} "
+                                   f"加成+{fdata['bonus']}% | {fdata['special']}"
+                                   + (f" | 可用{fdata['max_uses']}次" if fdata['max_uses'] > 0 else " | 无限使用"),
+                    "use_effect": "", "tier": ["iron","refined","spirit","treasure","earth","heaven","mystic","saint","emperor","divine"][fdata['grade']-1],
+                    "price_buy": fdata["price_buy"], "price_sell": fdata["price_sell"],
+                }
+        # 合并纳戒
+        for ring in STORAGE_RINGS:
+            rid = ring["id"]
+            if rid not in self.item_rules:
+                self.item_rules[rid] = {
+                    "name": ring["name"], "type": "storage_ring",
+                    "description": ring["desc"], "use_effect": f"capacity:+{ring['capacity']}",
+                    "tier": ring["tier"],
+                    "price_buy": ring["price_buy"], "price_sell": ring["price_sell"],
+                }
+        # 合并新技能元素映射
+        SKILL_ELEMENTS.update(SKILL_ELEMENTS_FULL)
         self.skills: Dict[str, Dict[str, Any]] = data["skills"]
         SKILL_ELEMENTS.update(_build_skill_elements(self.skills))
+        # 合并生成的扩展技能（211个新技能）
+        for book in SKILL_BOOK_DATA:
+            sid = book.get("skill_id", "")
+            if sid and sid not in self.skills:
+                self.skills[sid] = {
+                    "name": book["skill_name"],
+                    "description": book["desc"],
+                    "effect": f"atk:+{book['atk_bonus']}" if book["atk_bonus"] > 0 else book.get("effect", ""),
+                    "type": "skill",
+                }
+                if book.get("element", "无") != "无":
+                    SKILL_ELEMENTS[sid] = book["element"]
         self.realms: List[Dict[str, Any]] = data["realms"]
         self.active_encounter: Optional[Dict[str, Any]] = None
         self.active_exploration: Optional[Dict[str, Any]] = None
         self.combat: Optional[Dict[str, Any]] = None
         self.player: Dict[str, Any] = self._create_new_player()
         self.last_message: str = ""
+        self.auction_listings: List[Dict[str, Any]] = []
+        self.auction_last_map = ""
+        self.auction_last_period = -1
 
     def new_game(self, name: Optional[str] = None) -> None:
         self.player = self._create_new_player()
@@ -925,6 +1111,19 @@ class GameEngine:
                 "story_phase_id": STORY_PHASES[0]["id"],
                 "story_substage": 0,
                 "known_skills": ["skill_bajibang", "skill_flame_mantra"],
+                "equipped": {"weapon": None, "armor": None, "accessory": None},
+                "equipped_technique": None,
+                "known_techniques": [],
+                "alchemy_grade": 1,
+                "alchemy_sub": 0,
+                "alchemy_exp": 0,
+                "known_recipes": ["recipe_1","recipe_2","recipe_4","recipe_5","recipe_6"],
+                "equipped_furnace": None,
+                "furnace_uses": {},
+                "reverse_progress": {},
+                "inventory_capacity": BASE_INVENTORY_CAPACITY,
+                "storage_overflow": [],
+                "wallet": {"copper": 500, "silver": 0, "gold": 0, "ancient": 0},
                 "day": 1,
                 "time_period": 0,
                 "completed_schedule_nodes": [],
@@ -933,6 +1132,12 @@ class GameEngine:
                 "progress": 0.0,
             }
         )
+        # 新游戏：移除attribute_rules遗留的silver（币系统已改用wallet）
+        for old_key in ("silver", "gold"):
+            if old_key in player and isinstance(player.get(old_key), (int, float)):
+                amount = int(player.pop(old_key, 0))
+                if amount > 0:
+                    player["wallet"] = wallet_add(player.get("wallet", {}), amount)
         self._ensure_player_state(player)
         return player
 
@@ -982,6 +1187,25 @@ class GameEngine:
         player.setdefault("active_statuses", [])
         player.setdefault("last_map", "map_wutan")
         player.setdefault("adventure_points", 0)
+        player.setdefault("equipped", {"weapon": None, "armor": None, "accessory": None})
+        player.setdefault("equipped_technique", None)
+        player.setdefault("known_techniques", [])
+        player.setdefault("alchemy_grade", 1)
+        player.setdefault("alchemy_sub", 0)
+        player.setdefault("alchemy_exp", 0)
+        player.setdefault("known_recipes", ["recipe_1","recipe_2","recipe_4","recipe_5","recipe_6"])
+        player.setdefault("equipped_furnace", None)
+        player.setdefault("furnace_uses", {})
+        player.setdefault("reverse_progress", {})
+        player.setdefault("inventory_capacity", BASE_INVENTORY_CAPACITY)
+        player.setdefault("storage_overflow", [])
+        # 币系统迁移：旧存档silver/gold → wallet
+        player.setdefault("wallet", {"copper": 0, "silver": 0, "gold": 0, "ancient": 0})
+        for old_key in ("silver", "gold"):
+            if old_key in player and isinstance(player.get(old_key), (int, float)):
+                amount = int(player.pop(old_key, 0))
+                if amount > 0:
+                    player["wallet"] = wallet_add(player["wallet"], amount)
         if "story_phase_id" in player:
             phase_id = player["story_phase_id"]
             matching_stage = next(
@@ -1264,6 +1488,12 @@ class GameEngine:
 
         key, raw_value = token.split(":", 1)
         key = self._canonical_stat(key)
+        # 货币特殊处理
+        if key == "silver":
+            value = int(raw_value)
+            self.player["wallet"] = wallet_add(self.player["wallet"], value)
+            sign = "+" if value >= 0 else ""
+            return [f"银两 {sign}{value}"]
         if key not in self.attribute_rules:
             raise ValueError(f"不支持的效果表达式：{token}")
         value = int(raw_value)
@@ -1301,6 +1531,8 @@ class GameEngine:
     def _clamp_player_stats(self, player: Optional[Dict[str, Any]] = None) -> None:
         player = player if player is not None else self.player
         for attribute_id, rule in self.attribute_rules.items():
+            if attribute_id in ("silver", "gold"):
+                continue  # 货币已迁移到wallet系统
             value = int(player.get(attribute_id, rule["initial"]))
             player[attribute_id] = max(rule["min"], min(rule["max"], value))
 
@@ -2057,7 +2289,7 @@ class GameEngine:
     def _estimated_attack_damage(self, bonus: int = 0, multiplier: float = 1.0) -> int:
         if self.combat is None:
             return 0
-        return max(1, int((self.player["atk"] + bonus) * multiplier) - self.combat["def"])
+        return max(1, int((self.effective_atk() + bonus) * multiplier) - self.combat["def"])
 
     @staticmethod
     def _effect_gain(effect: str, stat: str) -> int:
@@ -2089,7 +2321,7 @@ class GameEngine:
 
         hp_ratio = self.player["hp"] / max(1, self.player["max_hp"])
         enemy_ratio = self.combat["hp"] / max(1, self.combat["max_hp"])
-        enemy_damage = max(1, self.combat["atk"] - self.player["def"])
+        enemy_damage = max(1, self.combat["atk"] - self.effective_def())
         healing_items = self._combat_healing_items()
 
         if healing_items and (hp_ratio <= 0.40 or self.player["hp"] <= enemy_damage * 2):
@@ -2214,6 +2446,32 @@ class GameEngine:
             bonus = 0
             multiplier = 1.0
 
+            # 当前使用的元素
+            current_element = ""
+            if action == "skill":
+                current_element = SKILL_ELEMENTS.get(skill_id or "", "")
+
+            # ── 元素同系连击增益 ──
+            last_element = combat.get("last_element", "")
+            element_streak = combat.get("element_streak", 0)
+            if current_element and current_element == last_element:
+                element_streak += 1
+                streak_mult = ELEMENTAL_RULES["same_element_combo"].get(str(element_streak), 1.0)
+                if streak_mult > 1.0:
+                    multiplier *= streak_mult
+                    logs.append(f"✨ {current_element}系{element_streak}连击！伤害x{streak_mult:.1f}")
+            else:
+                element_streak = 1
+            # ── 跨元素组合效果 ──
+            if current_element and last_element and current_element != last_element:
+                cross_key = f"{last_element}+{current_element}"
+                cross_effect = ELEMENTAL_RULES["cross_element_effects"].get(cross_key)
+                if cross_effect:
+                    multiplier *= cross_effect["mult"]
+                    logs.append(f"💫 元素组合【{cross_effect['name']}】！伤害x{cross_effect['mult']:.1f}")
+            combat["last_element"] = current_element
+            combat["element_streak"] = element_streak
+
             # 蓄力加成
             if combat.get("charged"):
                 multiplier *= CHARGE_DAMAGE_MULTIPLIER
@@ -2267,7 +2525,7 @@ class GameEngine:
 
             damage = max(
                 1,
-                int((self.player["atk"] + bonus) * multiplier)
+                int((self.effective_atk() + bonus) * multiplier)
                 - combat["def"]
                 + random.randint(-2, 3),
             )
@@ -2306,7 +2564,7 @@ class GameEngine:
         # 敌执行意图（不影响玩家防御标记）
         hp_ratio = combat["hp"] / max(1, combat["max_hp"])
         if enemy_intent == "defend":
-            enemy_damage = max(1, (combat["atk"] - self.player["def"] + random.randint(-2, 3)) // 2)
+            enemy_damage = max(1, (combat["atk"] - self.effective_def() + random.randint(-2, 3)) // 2)
         elif enemy_intent == "skill":
             # 从 Excel 敌人配置中随机选取技能
             enemy_data = self.enemies.get(combat["enemy_id"], {})
@@ -2328,12 +2586,12 @@ class GameEngine:
                     skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
             enemy_damage = max(
                 1,
-                int(combat["atk"] * 1.3) + skill_bonus - self.player["def"] + random.randint(-1, 5),
+                int(combat["atk"] * 1.3) + skill_bonus - self.effective_def() + random.randint(-1, 5),
             )
             logs.append(f"{combat['name']}施展了「{skill_name}」！")
             combat["combo"] = 0
         else:
-            enemy_damage = max(1, combat["atk"] - self.player["def"] + random.randint(-2, 3))
+            enemy_damage = max(1, combat["atk"] - self.effective_def() + random.randint(-2, 3))
 
         # 玩家闪避判定
         dodge_rate = int(self.player.get("dodge_rate", 5))
@@ -2393,9 +2651,53 @@ class GameEngine:
                         logs.append(f"获得{self.item_name(item_id)}")
                     elif parts[0] in self.attribute_rules:
                         logs.extend(self.apply_effects(f"{parts[0]}:+{parts[1]}"))
+        # ── 等级匹配掉落（装备+道具）──
+        enemy_level = int(combat.get("level", 1))
+        extra_drops = self._random_loot(enemy_level, count=random.randint(0, 2))
+        for drop_id in extra_drops:
+            if drop_id not in self.player["items"]:
+                self.player["items"].append(drop_id)
+            logs.append(f"获得{self.item_name(drop_id)}")
         self.combat = None
         self.advance_time(getattr(self, "combat_time_cost", 0))
         return logs
+
+    @staticmethod
+    def _tier_for_level(level: int) -> str:
+        """根据等级返回对应的装备/道具层级ID。"""
+        tiers = [
+            ("iron", 1, 9), ("refined", 10, 19), ("spirit", 20, 29),
+            ("treasure", 30, 39), ("earth", 40, 49), ("heaven", 50, 59),
+            ("mystic", 60, 69), ("saint", 70, 79), ("emperor", 80, 89),
+            ("divine", 90, 100),
+        ]
+        for tid, lo, hi in tiers:
+            if lo <= level <= hi:
+                return tid
+        return "iron"
+
+    @staticmethod
+    def _random_loot(enemy_level: int, count: int = 1) -> List[str]:
+        """从层级掉落池中随机抽取指定数量的物品。"""
+        tier = GameEngine._tier_for_level(enemy_level)
+        pool = LOOT_TABLE.get(tier, [])
+        if not pool:
+            return []
+        results = []
+        ids = [p[0] for p in pool]
+        weights = [p[1] for p in pool]
+        total_weight = sum(weights)
+        for _ in range(count):
+            if total_weight <= 0:
+                break
+            r = random.randint(1, total_weight)
+            cumulative = 0
+            for i, w in enumerate(weights):
+                cumulative += w
+                if r <= cumulative:
+                    results.append(ids[i])
+                    break
+        return results
 
     def story_requirement(self) -> int:
         phase = self.current_story_phase()
@@ -2472,12 +2774,405 @@ class GameEngine:
     def item_name(self, item_id: str) -> str:
         return self.item_rules.get(item_id, {}).get("name", item_id)
 
+    # ── 装备系统 ─────────────────────────────────────────────
+
+    def get_equipped_bonus(self, stat: str) -> int:
+        """返回已装备物品对指定属性的总加成。"""
+        equipped = self.player.get("equipped", {})
+        total = 0
+        for slot, item_id in equipped.items():
+            if item_id and item_id in EQUIPMENT_DATA:
+                total += EQUIPMENT_DATA[item_id].get(stat, 0)
+        return total
+
+    def effective_atk(self) -> int:
+        return int(self.player.get("atk", 0)) + self.get_equipped_bonus("atk")
+
+    def effective_def(self) -> int:
+        return int(self.player.get("def", 0)) + self.get_equipped_bonus("def")
+
+    def effective_max_hp(self) -> int:
+        base = int(self.player.get("max_hp", 100))
+        return base + self.get_equipped_bonus("hp")
+
+    def equip_item(self, item_id: str) -> bool:
+        """装备一件物品。返回是否成功。"""
+        if item_id not in self.player.get("items", []):
+            self.last_message = "背包中没有该物品。"
+            return False
+        eq = EQUIPMENT_DATA.get(item_id)
+        if eq is None:
+            self.last_message = "该物品无法装备。"
+            return False
+        slot = eq["slot"]
+        equipped = self.player.setdefault("equipped", {"weapon": None, "armor": None, "accessory": None})
+        # 卸下同槽位旧装备
+        old = equipped.get(slot)
+        if old:
+            if old not in self.player["items"]:
+                self.player["items"].append(old)
+        equipped[slot] = item_id
+        self.player["items"].remove(item_id)
+        self.last_message = f"装备了{eq['name']}（{slot}）。"
+        if old:
+            self.last_message += f" 卸下了{EQUIPMENT_DATA.get(old, {}).get('name', old)}。"
+        return True
+
+    def unequip_item(self, slot: str) -> bool:
+        """卸下指定槽位的装备。"""
+        equipped = self.player.get("equipped", {})
+        item_id = equipped.get(slot)
+        if not item_id:
+            self.last_message = f"{slot} 槽位没有装备。"
+            return False
+        equipped[slot] = None
+        self.player["items"].append(item_id)
+        name = EQUIPMENT_DATA.get(item_id, {}).get("name", item_id)
+        self.last_message = f"卸下了{name}。"
+        return True
+
+    # ── 功法系统 ─────────────────────────────────────────────
+
+    def equip_technique(self, tech_id: str) -> bool:
+        """装备功法（提供被动属性加成）。"""
+        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tech_id), None)
+        if tech is None:
+            self.last_message = "找不到该功法。"
+            return False
+        if tech_id not in self.player.get("known_techniques", []):
+            self.player.setdefault("known_techniques", []).append(tech_id)
+        self.player["equipped_technique"] = tech_id
+        self.last_message = f"运起功法：{tech['name']}（{tech['element']}系）"
+        return True
+
+    def unequip_technique(self) -> bool:
+        tid = self.player.get("equipped_technique")
+        if not tid:
+            self.last_message = "当前未装备功法。"
+            return False
+        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), {})
+        self.player["equipped_technique"] = None
+        self.last_message = f"收功：{tech.get('name', tid)}"
+        return True
+
+    LEARN_EFFECT_PATTERN = re.compile(r"^learn:(.+)$")
+
+    # ── 炼药术系统（完整版：药鼎+丹方学习+逆向研究）─────
+
+    def alchemy_grade_name(self) -> str:
+        g = int(self.player.get("alchemy_grade", 1))
+        return ALCHEMY_GRADES[g - 1] if 1 <= g <= 10 else "未入门"
+
+    def alchemy_progress_text(self) -> str:
+        g = int(self.player.get("alchemy_grade", 1))
+        sub = int(self.player.get("alchemy_sub", 0))
+        exp = int(self.player.get("alchemy_exp", 0))
+        return f"{ALCHEMY_GRADES[g-1]}炼药师 [{sub+1}/10] {exp}/{ALCHEMY_EXP_PER_SUB}"
+
+    def equip_furnace(self, furnace_id: str) -> bool:
+        """装备药鼎。"""
+        fdata = next((f for f in FURNACE_DATA if f["id"] == furnace_id), None)
+        if fdata is None:
+            self.last_message = "找不到该药鼎。"
+            return False
+        # 检查背包
+        if furnace_id not in self.player.get("items", []):
+            self.last_message = "背包中没有该药鼎。"
+            return False
+        # 卸下旧鼎
+        old = self.player.get("equipped_furnace")
+        if old:
+            if old not in self.player["items"]:
+                self.player["items"].append(old)
+        self.player["items"].remove(furnace_id)
+        self.player["equipped_furnace"] = furnace_id
+        uses = self.player.get("furnace_uses", {})
+        if furnace_id not in uses:
+            uses[furnace_id] = 0
+        self.last_message = f"装备了{fdata['name']}（{ALCHEMY_GRADES[fdata['grade']-1]}药鼎）"
+        if fdata["max_uses"] > 0:
+            self.last_message += f"，剩余使用次数：{fdata['max_uses'] - uses[furnace_id]}"
+        return True
+
+    def _get_furnace_data(self) -> dict:
+        fid = self.player.get("equipped_furnace")
+        if not fid:
+            return {"bonus": 0, "grade": 0, "max_uses": 0, "special": "", "name": "无"}
+        return next((f for f in FURNACE_DATA if f["id"] == fid), {"bonus": 0, "grade": 0, "max_uses": 0, "special": "", "name": "无"})
+
+    def craft_pill(self, recipe_id: str) -> bool:
+        """炼制丹药。需习得丹方、装备药鼎。"""
+        recipe = next((r for r in ALCHEMY_RECIPES if r["id"] == recipe_id), None)
+        if recipe is None:
+            self.last_message = "无效的丹方ID。"
+            return False
+
+        # 检查是否习得丹方
+        if recipe_id not in self.player.get("known_recipes", []):
+            self.last_message = "尚未习得该丹方，无法炼制。"
+            return False
+
+        # 检查药鼎
+        fdata = self._get_furnace_data()
+        if fdata["grade"] == 0:
+            self.last_message = "没有药鼎！请先装备一个药鼎才能炼药。"
+            return False
+
+        # 检查药鼎使用次数
+        fid = self.player.get("equipped_furnace")
+        if fid and fdata["max_uses"] > 0:
+            uses = self.player.get("furnace_uses", {})
+            used = uses.get(fid, 0)
+            if used >= fdata["max_uses"]:
+                self.last_message = f"{fdata['name']}已因使用次数耗尽而损坏！请更换药鼎。"
+                self.player["equipped_furnace"] = None
+                return False
+
+        pill_id = recipe["output"]
+        req_grade = recipe["grade"]
+        materials = recipe["materials"]
+        base_rate = recipe["base_rate"]
+        player_grade = int(self.player.get("alchemy_grade", 1))
+
+        # 检查材料
+        missing = []
+        for mat_id, count in materials:
+            have = self.player.get("items", []).count(mat_id)
+            if have < count:
+                missing.append(f"{self.item_name(mat_id)}x{count}(有{have})")
+        if missing:
+            self.last_message = f"材料不足：{'、'.join(missing)}"
+            return False
+
+        # 成功率：基础 + 品级差 + 药鼎加成
+        grade_diff = player_grade - req_grade
+        success_rate = min(98, max(3, base_rate + grade_diff * 8 + fdata["bonus"] // 2))
+
+        # 消耗材料（圣鼎以上概率省材）
+        for mat_id, count in materials:
+            actual = count
+            if "省材" in fdata["special"] and random.random() < 0.2:
+                actual = max(1, count - 1)
+            for _ in range(actual):
+                self.player["items"].remove(mat_id)
+
+        # 药鼎消耗次数
+        if fid and fdata["max_uses"] > 0:
+            uses = self.player.get("furnace_uses", {})
+            uses[fid] = uses.get(fid, 0) + 1
+
+        if random.randint(1, 100) <= success_rate:
+            # 成功
+            count_out = 1
+            if "双倍" in fdata["special"] and random.random() < 0.1 + (0.1 if "20%" in fdata["special"] else 0) + (0.1 if "30%" in fdata["special"] else 0):
+                count_out = 2
+            for _ in range(count_out):
+                if pill_id not in self.player["items"]:
+                    self.player["items"].append(pill_id)
+                else:
+                    self.player["items"].append(pill_id)
+            exp_gain = req_grade * 15 + random.randint(5, 15)
+            if "经验" in fdata["special"]:
+                exp_gain = int(exp_gain * 1.2)
+            self._gain_alchemy_exp(exp_gain)
+            msg = f"炼制成功！获得 {self.item_name(pill_id)}"
+            if count_out > 1:
+                msg += f" x{count_out}"
+            msg += f"（成功率{success_rate}%）炼药经验+{exp_gain}"
+            self.last_message = msg
+            return True
+        else:
+            exp_gain = req_grade * 5
+            self._gain_alchemy_exp(exp_gain)
+            self.last_message = f"炼制失败…丹炉冒出黑烟（成功率{success_rate}%）炼药经验+{exp_gain}"
+            return False
+
+    def study_alchemy(self) -> bool:
+        """研读丹方，获得少量炼药经验。"""
+        exp_gain = 5 + random.randint(1, 10)
+        self._gain_alchemy_exp(exp_gain)
+        self.advance_time(1)
+        self.last_message = f"研读丹方，炼药经验+{exp_gain} [{self.alchemy_progress_text()}]"
+        return True
+
+    def breakthrouth_alchemy(self) -> bool:
+        g = int(self.player.get("alchemy_grade", 1))
+        sub = int(self.player.get("alchemy_sub", 0))
+        exp = int(self.player.get("alchemy_exp", 0))
+        if g >= 10 and sub >= 9 and exp >= ALCHEMY_EXP_PER_SUB:
+            self.last_message = "已是帝品炼药师，无需突破。"
+            return False
+        if sub < 9 or exp < ALCHEMY_EXP_PER_SUB:
+            self.last_message = "当前进度经验未满，无法突破。"
+            return False
+        chance_bp = REALM_BREAKTHROUGH_CHANCE_BP.get(g, 1)
+        success = random.randint(1, 10000) <= chance_bp
+        self.advance_time(1)
+        if success:
+            self.player["alchemy_grade"] = g + 1
+            self.player["alchemy_sub"] = 0
+            self.player["alchemy_exp"] = 0
+            self.last_message = f"突破成功！晋升{ALCHEMY_GRADES[g]}炼药师！（概率{chance_bp/100:.1f}%）"
+        else:
+            self.player["alchemy_sub"] = 9
+            self.player["alchemy_exp"] = ALCHEMY_EXP_PER_SUB // 2
+            self.last_message = f"突破失败…丹火反噬。（概率{chance_bp/100:.1f}%）"
+        return success
+
+    def _gain_alchemy_exp(self, amount: int) -> None:
+        g = int(self.player.get("alchemy_grade", 1))
+        sub = int(self.player.get("alchemy_sub", 0))
+        exp = int(self.player.get("alchemy_exp", 0)) + amount
+        while exp >= ALCHEMY_EXP_PER_SUB:
+            exp -= ALCHEMY_EXP_PER_SUB
+            sub += 1
+            if sub >= ALCHEMY_SUB_PER_GRADE:
+                sub = ALCHEMY_SUB_PER_GRADE - 1
+                exp = ALCHEMY_EXP_PER_SUB
+                break
+        if g >= 10:
+            sub = min(sub, ALCHEMY_SUB_PER_GRADE - 1)
+            exp = min(exp, ALCHEMY_EXP_PER_SUB)
+        self.player["alchemy_grade"] = g
+        self.player["alchemy_sub"] = sub
+        self.player["alchemy_exp"] = exp
+
+    def available_recipes(self) -> List[dict]:
+        """返回玩家已习得且品级可用的丹方列表。"""
+        player_grade = int(self.player.get("alchemy_grade", 1))
+        known = self.player.get("known_recipes", [])
+        result = []
+        for r in ALCHEMY_RECIPES:
+            if r["id"] in known and r["grade"] <= player_grade + 1:
+                grade_diff = player_grade - r["grade"]
+                fdata = self._get_furnace_data()
+                success_rate = min(98, max(3, r["base_rate"] + grade_diff * 8 + fdata["bonus"] // 2))
+                mat_names = [f"{self.item_name(mid)}x{c}" for mid, c in r["materials"]]
+                result.append({
+                    "id": r["id"], "name": r["name"],
+                    "output": self.item_name(r["output"]),
+                    "grade": r["grade"], "rate": success_rate,
+                    "materials": mat_names, "mats_raw": r["materials"],
+                })
+        return result
+
+    # ── 逆向研究 ─────────────────────────────────────────────
+
+    def reverse_engineer(self, pill_item_id: str) -> bool:
+        """逆向研究丹药——必定销毁丹药，概率识别一种材料。
+        识别出全部材料后自动习得对应丹方。"""
+        items = self.player.get("items", [])
+        if pill_item_id not in items:
+            self.last_message = "背包中没有该丹药。"
+            return False
+
+        # 找到该丹药对应的丹方
+        recipe = next((r for r in ALCHEMY_RECIPES if r["output"] == pill_item_id), None)
+        if recipe is None:
+            self.last_message = "该丹药没有已知丹方可逆向。"
+            return False
+
+        rid = recipe["id"]
+        # 如果已习得丹方，无需逆向
+        if rid in self.player.get("known_recipes", []):
+            self.last_message = "已习得该丹方，无需逆向研究。"
+            return False
+
+        # 必定销毁丹药
+        self.player["items"].remove(pill_item_id)
+
+        # 初始化逆向进度
+        rp = self.player.setdefault("reverse_progress", {})
+        if rid not in rp:
+            rp[rid] = {"known": [], "total": [m[0] for m in recipe["materials"]]}
+        progress = rp[rid]
+        unknown = [m for m in progress["total"] if m not in progress["known"]]
+
+        if not unknown:
+            # 全部识别完毕，习得丹方
+            self.player.setdefault("known_recipes", []).append(rid)
+            rp.pop(rid, None)
+            self.last_message = f"逆向研究成功！已习得丹方：{recipe['name']}（炼制{self.item_name(pill_item_id)}）"
+            return True
+
+        # 尝试识别一个未知材料（概率按材料tier递减）
+        target_mat = random.choice(unknown)
+        mat_item = self.item_rules.get(target_mat, {})
+        mat_tier = mat_item.get("tier", "iron")
+        tier_levels = {"iron": 1, "refined": 2, "spirit": 3, "treasure": 4,
+                       "earth": 5, "heaven": 6, "mystic": 7, "saint": 8, "emperor": 9, "divine": 10}
+        tlv = tier_levels.get(mat_tier, 1)
+        identify_chance = max(5, 80 - tlv * 8)  # 铁器85% → 神阶5%
+
+        if random.randint(1, 100) <= identify_chance:
+            progress["known"].append(target_mat)
+            exp_gain = tlv * 30 + random.randint(10, 20)
+            self._gain_alchemy_exp(exp_gain)
+            remaining = [m for m in progress["total"] if m not in progress["known"]]
+            self.last_message = (
+                f"逆向研究：识别出材料「{self.item_name(target_mat)}」！"
+                f"（识别率{identify_chance}%）炼药经验+{exp_gain}"
+                + (f" 剩余未知材料：{len(remaining)}种" if remaining else " 全部材料已识别！")
+            )
+            # 全部识别完毕
+            if not remaining:
+                self.player.setdefault("known_recipes", []).append(rid)
+                rp.pop(rid, None)
+                self.last_message += f"\n已自动习得丹方：{recipe['name']}！"
+        else:
+            exp_gain = tlv * 5
+            self._gain_alchemy_exp(exp_gain)
+            self.last_message = (
+                f"逆向研究失败…丹药已毁，未能识别出任何新材料。"
+                f"（识别率{identify_chance}%）炼药经验+{exp_gain}"
+            )
+
+        return True
+
+    def get_reverse_progress(self, pill_item_id: str) -> Optional[dict]:
+        """获取某丹药的逆向研究进度。"""
+        recipe = next((r for r in ALCHEMY_RECIPES if r["output"] == pill_item_id), None)
+        if recipe is None:
+            return None
+        rid = recipe["id"]
+        rp = self.player.get("reverse_progress", {})
+        if rid in rp:
+            p = rp[rid]
+            known_names = [self.item_name(m) for m in p["known"]]
+            total_names = [self.item_name(m) for m in p["total"]]
+            return {"known": known_names, "total": total_names, "recipe_name": recipe["name"]}
+        return None
+
     def use_item(self, item_id: str) -> bool:
         if item_id not in self.player["items"]:
             self.last_message = "背包中没有该道具。"
             return False
         item = self.item_rules.get(item_id)
-        if item is None or not item.get("use_effect"):
+        if item is None:
+            self.last_message = "该道具不存在。"
+            return False
+        etype = item.get("type", "")
+        effect = item.get("use_effect", "")
+        # 功法书学习
+        if etype == "technique":
+            tid = item_id
+            if tid.startswith("tech_"):
+                self.player["items"].remove(item_id)
+                return self.equip_technique(tid)
+        # 技能书学习
+        learn_match = self.LEARN_EFFECT_PATTERN.match(effect)
+        if learn_match:
+            skill_id = learn_match.group(1)
+            if skill_id in self.player.get("known_skills", []):
+                self.last_message = "已习得该斗技。"
+                return False
+            self.player["items"].remove(item_id)
+            self.player.setdefault("known_skills", []).append(skill_id)
+            skill_name = self.skills.get(skill_id, {}).get("name", skill_id)
+            self.last_message = f"研读{item['name']}，习得斗技：{skill_name}！"
+            return True
+        # 通用物品使用
+        if not item.get("use_effect"):
             self.last_message = "该道具当前不能直接使用。"
             return False
         if not self.check_conditions(item.get("use_condition")):
@@ -2491,6 +3186,168 @@ class GameEngine:
     def is_ending(self) -> bool:
         return self.current_story_phase() is None
 
+    # ── 背包容量 ─────────────────────────────────────────────
+
+    def inventory_used(self) -> int:
+        return len(self.player.get("items", []))
+
+    def inventory_capacity(self) -> int:
+        return int(self.player.get("inventory_capacity", BASE_INVENTORY_CAPACITY))
+
+    def can_add_item(self) -> bool:
+        return self.inventory_used() < self.inventory_capacity()
+
+    def add_item_safe(self, item_id: str) -> bool:
+        """安全添加物品，背包满则放入溢出区。"""
+        if self.inventory_used() < self.inventory_capacity():
+            self.player["items"].append(item_id)
+            return True
+        else:
+            self.player.setdefault("storage_overflow", []).append(item_id)
+            self.last_message = "背包已满，物品已暂存溢出区（请扩容或清理背包）"
+            return False
+
+    def equip_storage_ring(self, ring_id: str) -> bool:
+        """使用纳戒扩容背包。"""
+        ring = next((r for r in STORAGE_RINGS if r["id"] == ring_id), None)
+        if ring is None:
+            self.last_message = "这不是纳戒。"
+            return False
+        if ring_id not in self.player.get("items", []):
+            self.last_message = "背包中没有该纳戒。"
+            return False
+        self.player["items"].remove(ring_id)
+        current_cap = int(self.player.get("inventory_capacity", BASE_INVENTORY_CAPACITY))
+        self.player["inventory_capacity"] = current_cap + ring["capacity"]
+        # 从溢出区移入
+        overflow = self.player.get("storage_overflow", [])
+        moved = 0
+        while overflow and self.inventory_used() < self.inventory_capacity():
+            self.player["items"].append(overflow.pop(0))
+            moved += 1
+        self.last_message = (
+            f"使用{ring['name']}，背包容量+{ring['capacity']}（当前{self.inventory_capacity()}格）"
+            + (f"，从溢出区移入{moved}件物品" if moved else "")
+        )
+        return True
+
+    # ── 拍卖行 ───────────────────────────────────────────────
+
+    def refresh_auction(self, map_id: str = "") -> List[Dict[str, Any]]:
+        """刷新拍卖行商品（按当前地图等级生成高价稀有物品）。"""
+        if not map_id:
+            map_id = self.player.get("last_map", "map_wutan")
+        md = self.maps.get(map_id, {})
+        map_level = md.get("recommend_level", 1)
+
+        listings = []
+        # 高tier物品池
+        player_level = int(self.player.get("level", 1))
+        target_tier = self._tier_for_level(max(map_level, player_level))
+        # 偏向高tier
+        all_tiers = ["iron","refined","spirit","treasure","earth","heaven","mystic","saint","emperor","divine"]
+        tier_idx = all_tiers.index(target_tier) if target_tier in all_tiers else 3
+
+        pool = []
+        # 装备
+        for eid, eq in _GEN_EQUIPMENT.items():
+            et = eq.get("tier", "iron")
+            eti = all_tiers.index(et) if et in all_tiers else 0
+            if eti >= tier_idx - 1 and eti <= tier_idx + 2:  # 当前tier±范围
+                pool.append((eid, eq["name"], "equipment", eq))
+        # 消耗品/材料/异火
+        for iid, item_def in self.item_rules.items():
+            it = item_def.get("tier", "iron")
+            eti = all_tiers.index(it) if it in all_tiers else 0
+            itype = item_def.get("type", "")
+            if eti >= tier_idx - 1 and eti <= tier_idx + 2:
+                if itype in ("consumable","material","heavenly_flame","book","technique","storage_ring","furnace"):
+                    pool.append((iid, item_def.get("name", iid), itype, item_def))
+
+        # 随机抽取
+        if pool:
+            picks = random.sample(pool, min(AUCTION_LISTING_COUNT, len(pool)))
+            for pid, pname, ptype, pdata in picks:
+                base_price = pdata.get("price_buy", 100) if isinstance(pdata, dict) else 100
+                markup = random.uniform(AUCTION_MARKUP_MIN, AUCTION_MARKUP_MAX)
+                price = max(100, int(base_price * markup))
+                time_left = random.randint(2, 6)
+                # 顶级物品（tier>=saint）或异火：使用远古币
+                itier = (pdata.get("tier","") if isinstance(pdata, dict) else "")
+                use_ancient = (itier in ("saint","emperor","divine") or ptype == "heavenly_flame") and random.random() < 0.3
+                currency = "ancient" if use_ancient else "copper"
+                if use_ancient:
+                    price = max(1, price // 100000)  # 转为远古币价格
+                listings.append({
+                    "id": pid, "name": pname, "type": ptype,
+                    "price": price, "time_left": time_left, "currency": currency,
+                })
+
+        self.auction_listings = listings
+        self.auction_last_map = map_id
+        self.auction_last_period = int(self.player.get("time_period", 0)) + int(self.player.get("day", 1)) * 4
+        return listings
+
+    def get_auction_listings(self, map_id: str = "") -> List[Dict[str, Any]]:
+        """获取当前拍卖行商品（过期自动刷新）。"""
+        if not map_id:
+            map_id = self.player.get("last_map", "map_wutan")
+        current_period = int(self.player.get("time_period", 0)) + int(self.player.get("day", 1)) * 4
+        # 换地图或过时段自动刷新
+        if (map_id != self.auction_last_map or
+            current_period - self.auction_last_period >= AUCTION_REFRESH_PERIODS or
+            not self.auction_listings):
+            return self.refresh_auction(map_id)
+        return self.auction_listings
+
+    def auction_buy(self, listing_index: int) -> bool:
+        """从拍卖行购买物品。"""
+        listings = self.get_auction_listings()
+        if listing_index < 0 or listing_index >= len(listings):
+            self.last_message = "无效的商品编号。"
+            return False
+        item = listings[listing_index]
+        currency = item.get("currency", "copper")
+        wallet = self.player.get("wallet", {})
+        if currency == "ancient":
+            if wallet.get("ancient", 0) < item["price"]:
+                self.last_message = f"远古币不足！需要 {item['price']} 远古币。"
+                return False
+            wallet["ancient"] -= item["price"]
+        else:
+            if not wallet_can_afford(wallet, item["price"]):
+                self.last_message = f"资金不足！需要 {item['price']} 铜币。"
+                return False
+            self.player["wallet"] = wallet_add(wallet, -item["price"])
+        if not self.can_add_item():
+            self.last_message = "背包已满，无法购买。"
+            return False
+        self.add_item_safe(item["id"])
+        self.auction_listings.pop(listing_index)
+        unit = "远古币" if currency == "ancient" else "铜币"
+        self.last_message = f"以 {item['price']} {unit}拍得 {item['name']}！"
+        return True
+
+    def auction_sell(self, item_index: int, price: int) -> bool:
+        """将背包物品上架拍卖行。"""
+        inv = self.player.get("items", [])
+        if item_index < 0 or item_index >= len(inv):
+            self.last_message = "无效的物品编号。"
+            return False
+        if price < 1:
+            self.last_message = "价格必须大于0。"
+            return False
+        item_id = inv[item_index]
+        rule = self.item_rules.get(item_id, {})
+        self.player["items"].pop(item_index)
+        self.auction_listings.append({
+            "id": item_id, "name": self.item_name(item_id),
+            "type": rule.get("type", "misc"),
+            "price": price, "time_left": 6, "player_sold": True,
+        })
+        self.last_message = f"已将 {self.item_name(item_id)} 上架拍卖行，标价 {price} 银两。"
+        return True
+
     def is_finished(self) -> bool:
         return self.is_ending()
 
@@ -2503,7 +3360,7 @@ class GameEngine:
             "atk",
             "def",
             "spd",
-            "silver",
+            "wallet",
             "reputation",
             "alchemy",
             "soul",
