@@ -96,7 +96,7 @@ FURNACE_DATA=[
     "bonus": 35,
     "max_uses": -1,
     "special": "成功率+20%,双倍20%",
-    "desc": "帝器药鼎，远古斗帝所留。",
+    "desc": "帝器药鼎，远古灵帝所留。",
     "price_buy": 600000,
     "price_sell": 120000
   },

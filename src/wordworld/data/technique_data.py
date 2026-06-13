@@ -9,7 +9,7 @@ TECHNIQUE_DATA = [
     "tier": "refined",
     "element": "火",
     "effect": "atk:+8, fire_power:+15%",
-    "desc": "[火系功法] 以烈焰斗气强化火属性攻击力。",
+    "desc": "[火系功法] 以烈焰灵力强化火属性攻击力。",
     "price_buy": 500,
     "price_sell": 250
   },
@@ -141,7 +141,7 @@ TECHNIQUE_DATA = [
     "tier": "treasure",
     "element": "火",
     "effect": "douqi_max:+48, fire_power:+22%",
-    "desc": "[火系功法] 离火归元，斗气上限大增。",
+    "desc": "[火系功法] 离火归元，灵力上限大增。",
     "price_buy": 3000,
     "price_sell": 1500
   },
@@ -174,7 +174,7 @@ TECHNIQUE_DATA = [
     "tier": "treasure",
     "element": "火",
     "effect": "douqi_max:+64, douqi_regen:+8",
-    "desc": "[火系功法] 丹火养气，斗气自生不息。",
+    "desc": "[火系功法] 丹火养气，灵力自生不息。",
     "price_buy": 3000,
     "price_sell": 1500
   },
@@ -405,7 +405,7 @@ TECHNIQUE_DATA = [
     "tier": "treasure",
     "element": "冰",
     "effect": "douqi_max:+56, ice_power:+25%",
-    "desc": "[冰系功法] 太阴月华，斗气与寒冰双修。",
+    "desc": "[冰系功法] 太阴月华，灵力与寒冰双修。",
     "price_buy": 3000,
     "price_sell": 1500
   },
@@ -625,7 +625,7 @@ TECHNIQUE_DATA = [
     "tier": "treasure",
     "element": "雷",
     "effect": "douqi_max:+48, thunder_power:+22%",
-    "desc": "[雷系功法] 雷元归一，斗气上限大增。",
+    "desc": "[雷系功法] 雷元归一，灵力上限大增。",
     "price_buy": 3000,
     "price_sell": 1500
   },
@@ -955,7 +955,7 @@ TECHNIQUE_DATA = [
     "tier": "spirit",
     "element": "木",
     "effect": "douqi_max:+52, wood_power:+17%",
-    "desc": "[木系功法] 森林吐息，斗气上限大增。",
+    "desc": "[木系功法] 森林吐息，灵力上限大增。",
     "price_buy": 1500,
     "price_sell": 750
   },
@@ -1208,7 +1208,7 @@ TECHNIQUE_DATA = [
     "tier": "spirit",
     "element": "土",
     "effect": "douqi_max:+39, earth_power:+17%",
-    "desc": "[土系功法] 矿脉吸灵，斗气与土攻。",
+    "desc": "[土系功法] 矿脉吸灵，灵力与土攻。",
     "price_buy": 1500,
     "price_sell": 750
   },
@@ -1307,7 +1307,7 @@ TECHNIQUE_DATA = [
     "tier": "earth",
     "element": "土",
     "effect": "douqi_max:+100, earth_power:+30%",
-    "desc": "[土系功法] 大地归元，斗气与土攻。",
+    "desc": "[土系功法] 大地归元，灵力与土攻。",
     "price_buy": 6000,
     "price_sell": 3000
   },
@@ -1527,7 +1527,7 @@ TECHNIQUE_DATA = [
     "tier": "earth",
     "element": "毒",
     "effect": "douqi_max:+70, poison_power:+27%",
-    "desc": "[毒系功法] 毒元归一，斗气大增。",
+    "desc": "[毒系功法] 毒元归一，灵力大增。",
     "price_buy": 6000,
     "price_sell": 3000
   },

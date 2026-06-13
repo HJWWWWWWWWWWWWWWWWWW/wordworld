@@ -51,25 +51,25 @@ def apply_skills(eid, skill_list):
 
 # 1. Add missing skills first
 MISSING_SKILLS = [
-    # 加玛帝国人物
+    # 沧澜帝国人物
     ("skill_heavy_sword", "玄重尺法", "物理", "玄阶高级", "atk:+35,spd:-10",
-     "以玄重尺施展的重型攻击。萧炎前期主要战斗方式。", "玄重尺"),
+     "以玄重尺施展的重型攻击。林烬前期主要战斗方式。", "玄重尺"),
     ("skill_fire_serpent", "火蛇之舞", "火系", "玄阶低级", "atk:+30",
-     "以火属性斗气凝聚火蛇攻击。双头火灵蛇等火系魔兽的进阶技能。", "火蛇"),
+     "以火属性灵力凝聚火蛇攻击。双头火灵蛇等火系魔兽的进阶技能。", "火蛇"),
     ("skill_sand_king", "沙暴之王", "土系", "玄阶高级", "atk:+35,spd:-15",
      "操控沙暴吞噬敌人。沙漠中的强大魔兽或沙盗首领的绝技。", "沙暴"),
 
-    # 黑角域
+    # 暗角域
     ("skill_eight_gates_palm", "八扇掌", "物理", "玄阶高级", "atk:+40",
      "八扇门主的独门掌法，八掌连环威力递增。", "八扇门"),
     ("skill_arena_rage", "竞技场狂怒", "物理", "玄阶中级", "atk:+35,def:-15",
-     "黑角域竞技场之王以无数生死搏杀磨砺出的狂暴战法。", "竞技场"),
+     "暗角域竞技场之王以无数生死搏杀磨砺出的狂暴战法。", "竞技场"),
     ("skill_underground_authority", "地下君临", "物理", "地阶低级", "atk:+45,soul:+10",
-     "黑印城地下之主的威压。在黑角域地下世界，他就是规则。", "黑印城"),
+     "黑印城地下之主的威压。在暗角域地下世界，他就是规则。", "黑印城"),
 
     # 迦南学院
     ("skill_skyfire_guard", "天火守护", "火系", "地阶低级", "atk:+50,def:+20",
-     "天焚炼气塔守护者的火系防御技能。以塔中陨落心炎余烬淬炼而成。", "炼气塔"),
+     "天焚炼气塔守护者的火系防御技能。以塔中陨心源火余烬淬炼而成。", "炼气塔"),
 
     # 出云帝国
     ("skill_golden_goose_formation", "金雁阵", "风系", "地阶低级", "atk:+50,spd:+20",
@@ -88,16 +88,16 @@ MISSING_SKILLS = [
     # 莽荒古域
     ("skill_manghuang_survival", "莽荒生存术", "物理", "地阶低级", "atk:+50,def:+25",
      "莽荒镇长在古域边缘生存数十年磨砺出的战斗本能。", "莽荒镇"),
-    ("skill_small_dan_elder_art", "小丹塔秘传", "辅助", "天阶低级", "atk:+70,soul:+40",
-     "小丹塔大长老的炼药战斗一体之术。药武双修。", "小丹塔"),
+    ("skill_small_dan_elder_art", "小丹阁秘传", "辅助", "天阶低级", "atk:+70,soul:+40",
+     "小丹阁大长老的炼药战斗一体之术。药武双修。", "小丹阁"),
 
     # 龙岛
-    ("skill_ancient_dragon_spirit_roar", "古龙魂啸", "龙系", "天阶中级", "atk:+90,soul:+40",
-     "古龙王残魂以最后的龙魂之力发出咆哮。", "古龙残魂"),
+    ("skill_ancient_dragon_spirit_roar", "虚空龙魂啸", "龙系", "天阶中级", "atk:+90,soul:+40",
+     "虚空龙王残魂以最后的龙魂之力发出咆哮。", "虚空龙残魂"),
 
     # 远古种族
-    ("skill_gu_general_art", "古族将诀", "远古", "天阶低级", "atk:+80,def:+30",
-     "古族大将修炼的远古将诀。攻守兼备。", "古族大将"),
+    ("skill_gu_general_art", "云族将诀", "远古", "天阶低级", "atk:+80,def:+30",
+     "云族大将修炼的远古将诀。攻守兼备。", "云族大将"),
     ("skill_nether_python_usurp", "冥蟒篡位术", "暗系", "地阶高级", "atk:+65,poison:+20",
      "冥蟒篡位者以毒计夺取王位时修炼的阴毒功法。", "冥蟒篡位"),
     ("skill_sky_phoenix_elder_art", "天凰诀", "风系", "天阶低级", "atk:+80,spd:+30",
@@ -107,17 +107,17 @@ MISSING_SKILLS = [
     ("skill_alliance_commander_art", "联军统帅令", "辅助", "天阶中级", "atk:+85,def:+40",
      "联军总指挥统御万军的战阵之术。", "联军"),
     ("skill_five_emperor_gate_art", "五帝破空诀", "远古", "帝阶", "atk:+150,soul:+60",
-     "五帝破空之门守卫的终极武学。五位斗帝留下的守护之力。", "五帝破空"),
+     "五帝破空之门守卫的终极武学。五位灵帝留下的守护之力。", "五帝破空"),
 
-    # 魂殿补充
+    # 黑渊殿补充
     ("skill_soul_hall_vice_art", "副殿主诀", "灵魂", "天阶中级", "atk:+90,soul:+50",
-     "魂殿副殿主的独门魂技。仅次于殿主魂灭生。", "魂殿副殿主"),
+     "黑渊殿副殿主的独门魂技。仅次于殿主魂灭生。", "黑渊殿副殿主"),
     ("skill_three_heavenly_elders_art", "三天尊阵", "灵魂", "天阶中级", "atk:+100,soul:+60",
-     "魂殿三天尊联手施展的魂阵。", "魂殿天尊"),
+     "黑渊殿三天尊联手施展的魂阵。", "黑渊殿天尊"),
 
     # 古帝洞府
     ("skill_emperor_cave_dragon_guard", "洞府龙卫诀", "龙系", "天阶高级", "atk:+100,def:+50",
-     "古帝洞府守护龙魂的功法。陀舍古帝亲自点化的守护者。", "洞府守护"),
+     "古帝洞府守护龙魂的功法。源帝亲自点化的守护者。", "洞府守护"),
     ("skill_emperor_pill_guard", "帝丹护法", "远古", "天阶高级", "atk:+95,def:+55",
      "帝品雏丹守护者的功法。以帝丹余韵淬炼而成。", "帝品雏丹"),
 
@@ -149,7 +149,7 @@ for data in MISSING_SKILLS:
 # ASSIGN PROPER SKILLS TO ALL REMAINING BOSSES
 # ══════════════════════════════════════════════════════════
 BOSS_SKILL_MAP = {
-    # ── 加玛帝国 ──
+    # ── 沧澜帝国 ──
     "boss_mu_she": ["skill_beast_charge", "skill_sword_qi", "skill_body_fortify"],
     "boss_twin_head_fire_snake": ["skill_fire_spit", "skill_fire_serpent", "skill_venom_inject"],
     "boss_amethyst_wing_lion": ["skill_beast_roar", "skill_wind_slash", "skill_beast_charge", "skill_bloodline_pressure"],
@@ -159,7 +159,7 @@ BOSS_SKILL_MAP = {
     "boss_guard_beast_of_temple": ["skill_beast_roar", "skill_bloodline_pressure", "skill_earth_shake"],
     "boss_fire_ape_king": ["skill_fire_spit", "skill_beast_roar", "skill_earth_shake"],
 
-    # ── 黑角域 ──
+    # ── 暗角域 ──
     "boss_blood_sect_leader": ["skill_blood_art", "skill_blood_transform", "skill_life_drain", "skill_body_fortify"],
     "boss_eight_gates_master": ["skill_eight_gates_palm", "skill_sword_qi", "skill_body_fortify"],
     "boss_black_alliance_commander": ["skill_sword_qi", "skill_palm_strike", "skill_body_fortify", "skill_bloodline_pressure"],
@@ -193,7 +193,7 @@ BOSS_SKILL_MAP = {
     "boss_yan_clan_elder_chief": ["skill_yan_clan_elder_art", "skill_fire_spit", "skill_bloodline_pressure"],
     "boss_lei_clan_elder_chief": ["skill_lei_clan_elder_art", "skill_lightning_bolt", "skill_bloodline_pressure"],
 
-    # ── 魂殿 ──
+    # ── 黑渊殿 ──
     "boss_soul_hall_vice_leader": ["skill_soul_hall_vice_art", "skill_soul_handprint", "skill_ten_thousand_souls"],
     "boss_soul_hall_three_elders": ["skill_three_heavenly_elders_art", "skill_soul_pain", "skill_soul_absorption"],
 
@@ -205,7 +205,7 @@ BOSS_SKILL_MAP = {
     # ── 药族 ──
     "boss_yao_clan_guardian": ["skill_alchemy", "skill_pill_boost", "skill_ancient_seal_art", "skill_bloodline_pressure"],
 
-    # ── 小丹塔 ──
+    # ── 小丹阁 ──
     "boss_small_dan_tower_elder": ["skill_small_dan_elder_art", "skill_alchemy", "skill_pill_boost"],
 
     # ── 古帝洞府 ──
@@ -223,7 +223,7 @@ BOSS_SKILL_MAP = {
 # ELITE SKILL MAP - named elites get proper techniques
 # ══════════════════════════════════════════════════════════
 ELITE_SKILL_MAP = {
-    # ── 加玛帝国 ──
+    # ── 沧澜帝国 ──
     "elite_wolf_head_leader": ["skill_sword_qi", "skill_beast_charge", "skill_battle_cry"],
     "elite_xiao_guard_captain": ["skill_sword_qi", "skill_body_fortify", "skill_palm_strike"],
     "elite_wutan_arena_champ": ["skill_arena_rage", "skill_palm_strike", "skill_body_fortify"],
@@ -245,7 +245,7 @@ ELITE_SKILL_MAP = {
     "elite_black_rock_gang_boss": ["skill_sword_qi", "skill_palm_strike", "skill_body_fortify"],
     "elite_desert_ancient_guardian": ["skill_ancient_seal_art", "skill_earth_shake", "skill_body_fortify"],
 
-    # ── 云岚宗 ──
+    # ── 青岚宗 ──
     "elite_yunlan_elder": ["skill_cloud_wind_sword", "skill_wind_wall", "skill_sword_qi"],
     "elite_yunlan_enforcer": ["skill_cloud_wind_sword", "skill_sword_qi", "skill_body_fortify"],
     "elite_yunlan_guard_captain": ["skill_cloud_wind_sword", "skill_wind_wall", "skill_defensive_stance"],
@@ -253,7 +253,7 @@ ELITE_SKILL_MAP = {
     "elite_yunlan_ritual_master": ["skill_cloud_wind_sword", "skill_wind_slash", "skill_body_fortify"],
     "elite_yunlan_sword_master": ["skill_cloud_wind_sword", "skill_sword_qi", "skill_wind_slash"],
 
-    # ── 黑角域 ──
+    # ── 暗角域 ──
     "elite_blood_sect_elder": ["skill_blood_art", "skill_blood_transform", "skill_life_drain"],
     "elite_black_alliance_captain": ["skill_sword_qi", "skill_battle_cry", "skill_body_fortify"],
     "elite_eight_gates_enforcer": ["skill_eight_gates_palm", "skill_sword_qi", "skill_body_fortify"],
@@ -291,7 +291,7 @@ ELITE_SKILL_MAP = {
     "elite_mulan_valley_herbalist": ["skill_mulan_herb_art", "skill_pill_boost", "skill_body_fortify"],
     "elite_chuyun_imperial_guard": ["skill_sword_qi", "skill_defensive_stance", "skill_body_fortify"],
 
-    # ── 魂殿 ──
+    # ── 黑渊殿 ──
     "elite_soul_hall_protector": ["skill_soul_handprint", "skill_soul_absorption", "skill_soul_chain"],
     "elite_soul_hall_elder_protector": ["skill_soul_handprint", "skill_soul_pain", "skill_soul_chain"],
     "elite_soul_hall_soul_reaper": ["skill_soul_rend", "skill_soul_absorption", "skill_life_drain"],

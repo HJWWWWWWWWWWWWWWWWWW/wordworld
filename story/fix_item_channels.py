@@ -31,10 +31,10 @@ gather_to_remove = {
     "gather_dragon_scale",      # 龙鳞碎片 → 北龙王/南龙王/西龙王 drop
     "gather_dragon_saliva",     # 龙涎灵草 → 龙岛boss drop
     "gather_bodhi_leaf",        # 菩提叶 → 菩提古树 encounter
-    "gather_demon_crystal",     # 妖火结晶 → 净莲妖火 encounter
+    "gather_demon_crystal",     # 妖火结晶 → 净世白莲火 encounter
     "gather_ancient_relic",     # 远古遗物 → 远古遗迹 boss
     # Rare items - encounter/NPC only
-    "gather_forbidden_pill",    # 禁药配方残页 → 黑角域 encounter
+    "gather_forbidden_pill",    # 禁药配方残页 → 暗角域 encounter
     "gather_transforming_herb", # 化形草 → 兽域 encounter
     "gather_ancient_seed",      # 古域灵种 → 莽荒古域 encounter
     "gather_beast_blood",       # 魔兽精血瓶 → 兽域 encounter/boss

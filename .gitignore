@@ -1,6 +1,36 @@
+# Build artifacts
+build/
+dist/
+*.spec
+*.stackdump
+
+# Python
 __pycache__/
 *.py[cod]
+.venv/
+venv/
+env/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Save files
 saves/*.json
 !saves/.gitkeep
-.idea/workspace.xml
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.xlsx.bak
+*.bak

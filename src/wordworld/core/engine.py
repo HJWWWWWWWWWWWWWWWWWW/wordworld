@@ -76,11 +76,11 @@ def wallet_can_afford(wallet: Dict[str, int], copper_price: int) -> bool:
 
 # 不受任何事件影响的满值关系（家人与导师）
 IMMUNE_RELATIONSHIPS = {
-    "rel_player_xiao_zhan",  # 萧战-父亲
+    "rel_player_xiao_zhan",  # 林战-父亲
     "rel_player_xiao_ding",  # 萧鼎-二哥
     "rel_player_xiao_li",    # 萧厉-三哥
-    "rel_player_xun_er",     # 萧薰儿
-    "rel_player_yao_lao",    # 药老-导师
+    "rel_player_xun_er",     # 萧云曦
+    "rel_player_xuanlu_elder",    # 玄炉老人-导师
 }
 
 COMPARISON_PATTERN = re.compile(r"^(.+?)(>=|<=|==|!=|>|<)(-?\d+)$")
@@ -103,17 +103,17 @@ REALM_BOUNDARY_LEVELS = {9, 19, 29, 39, 49, 59, 69, 79, 89, 94, 99}
 # 境界突破成功率表：realm_index → chance%
 REALM_BREAKTHROUGH_CHANCE_BP = {
     # 境界突破概率（万分之一为单位，1bp = 0.01%）
-    0: 5000,  # 斗之气→斗者: 50%
-    1: 3500,  # 斗者→斗师: 35%
+    0: 5000,  # 斗之气→灵者: 50%
+    1: 3500,  # 灵者→斗师: 35%
     2: 2500,  # 斗师→大斗师: 25%
-    3: 1500,  # 大斗师→斗灵: 15%  ← 大幅下降起点
-    4: 800,   # 斗灵→斗王: 8%
-    5: 400,   # 斗王→斗皇: 4%
-    6: 200,   # 斗皇→斗宗: 2%
-    7: 80,    # 斗宗→斗尊: 0.8%
-    8: 30,    # 斗尊→斗圣: 0.3%
-    9: 5,     # 斗圣→斗圣高阶: 0.05%
-    10: 1,    # 斗圣高阶→斗帝: 0.01%
+    3: 1500,  # 大斗师→灵师: 15%  ← 大幅下降起点
+    4: 800,   # 灵师→灵王: 8%
+    5: 400,   # 灵王→灵皇: 4%
+    6: 200,   # 灵皇→灵宗: 2%
+    7: 80,    # 灵宗→灵尊: 0.8%
+    8: 30,    # 灵尊→灵圣: 0.3%
+    9: 5,     # 灵圣→灵圣高阶: 0.05%
+    10: 1,    # 灵圣高阶→灵帝: 0.01%
 }
 
 # ── 炼药术系统 ─────────────────────────────────────────────
@@ -173,7 +173,7 @@ EXPLORATION_ACTIONS = {
     },
 }
 
-# 自动战斗中的终结类斗技只会在敌方生命不高于该比例时使用。
+# 自动战斗中的终结类灵技只会在敌方生命不高于该比例时使用。
 # ── 属性克制系统 ───────────────────────────────────────────
 # 七元素克制链：火→木→土→雷→冰→风→毒→火
 ELEMENT_TYPES = ["火", "冰", "雷", "风", "毒", "木", "土"]
@@ -285,7 +285,7 @@ FINISHER_SKILLS = {
 EQUIPMENT_SLOTS = ["weapon", "armor", "accessory"]
 EQUIPMENT_DATA: Dict[str, Dict[str, Any]] = _GEN_EQUIPMENT  # 2142件
 
-# ── 异火系统 ───────────────────────────────────────────────
+# ── 源火系统 ───────────────────────────────────────────────
 FLAME_TIER_BONUS: Dict[str, Dict[str, int]] = {
     "iron":     {"atk": 2, "spd": 1, "fire_power": 5},
     "refined":  {"atk": 4, "spd": 2, "fire_power": 8},
@@ -358,21 +358,21 @@ def _story_phase(
 
 # 主线必须按因果顺序显式排列，禁止再通过列表插入拼接时间线。
 STORY_PHASES = [
-    _story_phase("fallen_genius", "天才陨落", "斗气持续衰退，族内试炼迫近。", "稳住根基并重新证明自己。", "失败会失去族内资源与信任。", 2, "level>=2", "reputation:+3,rel:npc_xiao_zhan:+3", [
-        ("查明斗气衰退", "观察身体与戒指的异常。", "soul>=5", "soul:+1"),
+    _story_phase("fallen_genius", "天才陨落", "灵力持续衰退，族内试炼迫近。", "稳住根基并重新证明自己。", "失败会失去族内资源与信任。", 2, "level>=2", "reputation:+3,rel:npc_lin_zhan:+3", [
+        ("查明灵力衰退", "观察身体与戒指的异常。", "soul>=5", "soul:+1"),
         ("族内试炼翻身", "在演武场重新证明实力。", "training_wins>=1", "reputation:+3"),
     ]),
-    _story_phase("three_year_pact", "退婚与三年之约", "云岚宗登门退婚，萧家尊严受到挑战。", "维护家族尊严并立下三年之约。", "软弱回应会让萧家声望受损。", 3, "reputation>=5", "flag:three_year_pact=1,rel:npc_nalan_yanran:-10", [
-        ("应对退婚", "在大厅冲突中维护萧家尊严。", "reputation>=5", "rel:npc_xiao_zhan:+5"),
-        ("立下三年之约", "公开承担未来决战的责任。", "level>=3", "flag:three_year_pact=1,reputation:+5"),
+    _story_phase("three_year_pact", "退婚与三年战约", "青岚宗登门退婚，林家尊严受到挑战。", "维护家族尊严并立下三年战约。", "软弱回应会让林家声望受损。", 3, "reputation>=5", "flag:three_year_pact=1,rel:npc_su_wanqing:-10", [
+        ("应对退婚", "在大厅冲突中维护林家尊严。", "reputation>=5", "rel:npc_lin_zhan:+5"),
+        ("立下三年战约", "公开承担未来决战的责任。", "level>=3", "flag:three_year_pact=1,reputation:+5"),
     ]),
-    _story_phase("ring_awakening", "戒中导师", "退婚风波后，戒中的神秘灵魂终于现身。", "建立师徒关系并获得成长道路。", "无法取得信任会失去关键指导。", 3, "soul>=6,flag:three_year_pact=1", "flag:ring_awakened=1,rel:npc_yao_lao:+10,douqi:+5", [
-        ("药老现身", "确认斗气流失的真正原因。", "soul>=6", "flag:ring_awakened=1"),
-        ("学习炼药与焚决", "建立师徒信任并选择成长路线。", "adventure_points>=3", "rel:npc_yao_lao:+10,alchemy:+3"),
+    _story_phase("ring_awakening", "戒中导师", "退婚风波后，戒中的神秘灵魂终于现身。", "建立师徒关系并获得成长道路。", "无法取得信任会失去关键指导。", 3, "soul>=6,flag:three_year_pact=1", "flag:ring_awakened=1,rel:npc_xuanlu_elder:+10,douqi:+5", [
+        ("玄炉老人现身", "确认灵力流失的真正原因。", "soul>=6", "flag:ring_awakened=1"),
+        ("学习炼药与源火决", "建立师徒信任并选择成长路线。", "adventure_points>=3", "rel:npc_xuanlu_elder:+10,alchemy:+3"),
     ]),
-    _story_phase("wutan_growth", "乌坦城成长", "离开家族前，你需要功法、资金与实战经验。", "解决坊市冲突并完成离家准备。", "基础不足会使后续历练举步维艰。", 4, "level>=4", "flag:left_wutan=1,reputation:+5", [
+    _story_phase("wutan_growth", "青石城成长", "离开家族前，你需要功法、资金与实战经验。", "解决坊市冲突并完成离家准备。", "基础不足会使后续历练举步维艰。", 4, "level>=4", "flag:left_wutan=1,reputation:+5", [
         ("经营坊市资源", "通过炼药、交易或探索筹集资源。", "silver>=20", "alchemy:+2"),
-        ("解决家族冲突", "保护萧家利益并赢得成人认可。", "training_wins>=2", "reputation:+5"),
+        ("解决家族冲突", "保护林家利益并赢得成人认可。", "training_wins>=2", "reputation:+5"),
         ("告别家族", "准备独自踏上历练之路。", "adventure_points>=5", "flag:left_wutan=1"),
     ]),
     _story_phase("mountain_training", "魔兽山脉历练", "魔兽山脉中有药材、强敌与新的伙伴。", "完成独立生存训练并穿越山脉。", "缺乏实战会无法深入沙漠。", 5, "level>=6,flag:left_wutan=1", "rel:npc_xiao_yixian:+10,exp:+50", [
@@ -380,117 +380,117 @@ STORY_PHASES = [
         ("结识小医仙", "共同探索遗迹并建立信任。", "reputation>=10", "rel:npc_xiao_yixian:+10"),
         ("面对厄难毒体", "帮助伙伴控制危险体质。", "rel:npc_xiao_yixian>=35", "flag:poison_companion=1"),
     ]),
-    _story_phase("desert_flame", "塔戈尔沙漠与青莲地心火", "异火线索指向蛇人族领地。", "深入沙漠并夺取青莲地心火。", "异火争夺失败会严重拖慢成长。", 6, "level>=10", "item:+item_green_lotus_flame,rel:npc_cai_lin:+15,douqi:+20", [
+    _story_phase("desert_flame", "赤沙荒漠与青莲源火", "源火线索指向蛇人族领地。", "深入沙漠并夺取青莲源火。", "源火争夺失败会严重拖慢成长。", 6, "level>=10", "item:+item_green_lotus_flame,rel:npc_chi_lin:+15,douqi:+20", [
         ("保护青鳞", "解决石漠城危机并保护青鳞。", "reputation>=10", "rel:npc_qing_lin:+10"),
-        ("寻找青莲地心火", "追踪地穴中的异火线索。", "soul>=12", "flag:green_lotus_found=1"),
-        ("美杜莎神殿争夺", "在多方冲突中取得异火并保留转圜余地。", "level>=10,rel:npc_cai_lin>=-40", "rel:npc_cai_lin:+10"),
+        ("寻找青莲源火", "追踪地穴中的源火线索。", "soul>=12", "flag:green_lotus_found=1"),
+        ("赤鳞神殿争夺", "在多方冲突中取得源火并保留转圜余地。", "level>=10,rel:npc_chi_lin>=-40", "rel:npc_chi_lin:+10"),
     ]),
-    _story_phase("alchemy_conference", "炼药师大会", "返回加玛帝国后，炼药师大会成为积累声望的关键机会。", "通过考核、解决丹王势力威胁并夺得大会认可。", "失败会失去帝都盟友与公开声望。", 7, "alchemy>=12,soul>=12", "reputation:+10,alchemy:+5,item:+item_elixir", [
+    _story_phase("alchemy_conference", "炼药师大会", "返回沧澜帝国后，炼药师大会成为积累声望的关键机会。", "通过考核、解决丹王势力威胁并夺得大会认可。", "失败会失去帝都盟友与公开声望。", 7, "alchemy>=12,soul>=12", "reputation:+10,alchemy:+5,item:+item_elixir", [
         ("取得炼药师资格", "通过公会测试并获得参赛身份。", "alchemy>=10", "reputation:+3"),
-        ("处理纳兰家烙毒", "以异火与炼药能力换取关键人脉。", "soul>=12", "reputation:+4"),
+        ("处理纳兰家烙毒", "以源火与炼药能力换取关键人脉。", "soul>=12", "reputation:+4"),
         ("赢得炼药师大会", "在大会决赛中挫败敌对炼药师。", "alchemy>=12", "alchemy:+5,reputation:+8"),
     ]),
-    _story_phase("yunlan_duel", "三年之约决战", "约定期限已至，你必须登上云岚宗。", "击败纳兰嫣然并从宗门追击中脱身。", "失败会让三年努力失去意义。", 8, "level>=15,flag:three_year_pact=1", "flag:rival_resolved=1,flag:yunlan_hostile=1,reputation:+20", [
-        ("登上云岚宗", "突破宗门压力并抵达决战场。", "level>=15", "reputation:+5"),
-        ("击败纳兰嫣然", "兑现三年之约。", "flag:three_year_pact=1", "rel:npc_nalan_yanran:+20,reputation:+10"),
-        ("再上云岚宗击杀云棱", "处理萧家遇袭的直接责任人。", "reputation>=20", "flag:yunleng_defeated=1"),
-        ("逃离加玛帝国", "在云山追击下保全自己并前往黑角域。", "soul>=15", "flag:first_yunlan_escape=1"),
+    _story_phase("yunlan_duel", "三年战约决战", "约定期限已至，你必须登上青岚宗。", "击败苏婉清并从宗门追击中脱身。", "失败会让三年努力失去意义。", 8, "level>=15,flag:three_year_pact=1", "flag:rival_resolved=1,flag:yunlan_hostile=1,reputation:+20", [
+        ("登上青岚宗", "突破宗门压力并抵达决战场。", "level>=15", "reputation:+5"),
+        ("击败苏婉清", "兑现三年战约。", "flag:three_year_pact=1", "rel:npc_su_wanqing:+20,reputation:+10"),
+        ("再上青岚宗击杀青棱", "处理林家遇袭的直接责任人。", "reputation>=20", "flag:yunleng_defeated=1"),
+        ("逃离沧澜帝国", "在青山追击下保全自己并前往暗角域。", "soul>=15", "flag:first_yunlan_escape=1"),
     ]),
-    _story_phase("canaan_outer", "迦南学院外院", "离开加玛帝国后，你终于前往迦南学院。", "完成入院与外院成长，为进入内院做准备。", "无法进入内院会错失核心修炼资源。", 9, "level>=18", "flag:joined_canaan=1,reputation:+8", [
-        ("穿越黑角域", "通过黑域大平原与拍卖争夺抵达学院。", "adventure_points>=10,flag:first_yunlan_escape=1", "flag:first_black_corner_crossing=1"),
+    _story_phase("canaan_outer", "迦南学院外院", "离开沧澜帝国后，你终于前往迦南学院。", "完成入院与外院成长，为进入内院做准备。", "无法进入内院会错失核心修炼资源。", 9, "level>=18", "flag:joined_canaan=1,reputation:+8", [
+        ("穿越暗角域", "通过黑域大平原与拍卖争夺抵达学院。", "adventure_points>=10,flag:first_yunlan_escape=1", "flag:first_black_corner_crossing=1"),
         ("抵达迦南学院", "完成迟到后的入院考验。", "level>=18", "flag:joined_canaan=1"),
         ("建立新生队伍", "与同伴形成可靠的小队。", "reputation>=25", "reputation:+5"),
         ("通过内院选拔赛", "赢得进入内院的资格。", "training_wins>=3", "flag:entered_inner_academy=1"),
     ]),
     _story_phase("canaan_inner", "内院磐门与强榜", "内院资源竞争激烈，新生必须抱团立足。", "建立磐门并在强榜大赛中取得资格。", "没有自己的势力将持续受到压制。", 10, "flag:entered_inner_academy=1,reputation>=25", "flag:pan_gate_founded=1,reputation:+10", [
         ("建立磐门", "团结新生并建立稳定据点。", "reputation>=25", "flag:pan_gate_founded=1"),
-        ("结识紫研", "通过内院任务与紫研建立信任。", "adventure_points>=12", "rel:npc_ziyan:+10"),
+        ("结识紫妍", "通过内院任务与紫妍建立信任。", "adventure_points>=12", "rel:npc_zi_yan:+10"),
         ("挑战强榜大赛", "取得进入天焚炼气塔核心区域的资格。", "training_wins>=4", "flag:strong_rank_won=1"),
     ]),
-    _story_phase("fallen_heart", "炼气塔暴动与黑盟入侵", "强榜大赛后，陨落心炎冲破封印，韩枫也趁乱召集黑盟进攻内院。", "协助学院抵挡黑盟，并在封印崩溃时直面陨落心炎。", "黑盟与异火同时失控会彻底摧毁内院。", 11, "level>=25,flag:strong_rank_won=1", "flag:xiao_yan_trapped_in_tower=1,flag:han_feng_hostile=1,reputation:+10", [
-        ("调查炼气塔异动", "确认陨落心炎暴动征兆。", "soul>=20", "flag:fallen_heart_unstable=1"),
+    _story_phase("fallen_heart", "炼气塔暴动与暗盟入侵", "强榜大赛后，陨心源火冲破封印，冷煜也趁乱召集暗盟进攻内院。", "协助学院抵挡暗盟，并在封印崩溃时直面陨心源火。", "暗盟与源火同时失控会彻底摧毁内院。", 11, "level>=25,flag:strong_rank_won=1", "flag:xiao_yan_trapped_in_tower=1,flag:han_feng_hostile=1,reputation:+10", [
+        ("调查炼气塔异动", "确认陨心源火暴动征兆。", "soul>=20", "flag:fallen_heart_unstable=1"),
         ("进入塔底修炼", "在封印彻底崩溃前进入塔底。", "level>=25", "exp:+80"),
-        ("黑盟趁乱入侵", "协助苏千与内院长老抵挡韩枫和黑盟。", "reputation>=35,flag:fallen_heart_unstable=1", "flag:black_alliance_invaded=1"),
-        ("被陨落心炎吞入塔底", "在混战与封印崩溃中跌入岩浆世界。", "flag:black_alliance_invaded=1", "flag:xiao_yan_trapped_in_tower=1"),
+        ("暗盟趁乱入侵", "协助苏千与内院长老抵挡冷煜和暗盟。", "reputation>=35,flag:fallen_heart_unstable=1", "flag:black_alliance_invaded=1"),
+        ("被陨心源火吞入塔底", "在混战与封印崩溃中跌入岩浆世界。", "flag:black_alliance_invaded=1", "flag:xiao_yan_trapped_in_tower=1"),
     ]),
-    _story_phase("black_corner_war", "收服陨落心炎与清算韩枫", "被困塔底两年后，你必须炼化陨落心炎、破塔归来，并清算韩枫与黑盟。", "带着异火重返内院，反攻枫城并摧毁韩枫肉身。", "若无法脱困，内院和萧门都将长期承受黑盟威胁。", 12, "level>=28,flag:xiao_yan_trapped_in_tower=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1,reputation:+15,douqi:+30", [
-        ("炼化陨落心炎", "在岩浆世界承受异火炼体并完成融合。", "soul>=25,flag:fallen_heart_unstable=1", "item:+item_fallen_heart_flame"),
-        ("破塔重返内院", "结束两年闭关，返回内院与萧门。", "item:item_fallen_heart_flame", "flag:return_from_tower=1,reputation:+5"),
-        ("反攻枫城击溃韩枫", "联合学院强者摧毁韩枫肉身。", "level>=28,flag:han_feng_hostile=1", "flag:han_feng_body_destroyed=1"),
-        ("发现魂殿接应", "确认韩枫灵魂被魂殿救走。", "soul>=25,flag:han_feng_body_destroyed=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1"),
+    _story_phase("black_corner_war", "收服陨心源火与清算冷煜", "被困塔底两年后，你必须炼化陨心源火、破塔归来，并清算冷煜与暗盟。", "带着源火重返内院，反攻枫城并摧毁冷煜肉身。", "若无法脱困，内院和林门都将长期承受暗盟威胁。", 12, "level>=28,flag:xiao_yan_trapped_in_tower=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1,reputation:+15,douqi:+30", [
+        ("炼化陨心源火", "在岩浆世界承受源火炼体并完成融合。", "soul>=25,flag:fallen_heart_unstable=1", "item:+item_fallen_heart_flame"),
+        ("破塔重返内院", "结束两年闭关，返回内院与林门。", "item:item_fallen_heart_flame", "flag:return_from_tower=1,reputation:+5"),
+        ("反攻枫城击溃冷煜", "联合学院强者摧毁冷煜肉身。", "level>=28,flag:han_feng_hostile=1", "flag:han_feng_body_destroyed=1"),
+        ("发现黑渊接应", "确认冷煜灵魂被黑渊殿救走。", "soul>=25,flag:han_feng_body_destroyed=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1"),
     ]),
-    _story_phase("yunlan_war", "重返加玛与云岚宗大战", "父亲失踪、萧家遭难，线索指向云岚宗与魂殿。", "救援萧家、击败云山并重建故土秩序。", "拖延会让萧家与盟友被逐个击破。", 13, "level>=30,flag:first_yunlan_escape=1", "flag:yan_alliance_founded=1,reputation:+20", [
-        ("追查父亲失踪", "确认萧家危机与魂殿介入。", "reputation>=35", "flag:xiao_family_crisis=1"),
-        ("击败云山，药老被掳", "终结云岚宗威胁，但魂殿护法趁乱掳走药老。", "level>=30,flag:yunlan_hostile=1", "flag:yunlan_defeated=1,flag:yao_lao_captured=1"),
-        ("建立炎盟", "联合加玛帝国盟友保护萧家。", "reputation>=45", "flag:yan_alliance_founded=1"),
+    _story_phase("yunlan_war", "重返沧澜与青岚宗大战", "父亲失踪、林家遭难，线索指向青岚宗与黑渊殿。", "救援林家、击败青山并重建故土秩序。", "拖延会让林家与盟友被逐个击破。", 13, "level>=30,flag:first_yunlan_escape=1", "flag:yan_alliance_founded=1,reputation:+20", [
+        ("追查父亲失踪", "确认林家危机与黑渊介入。", "reputation>=35", "flag:xiao_family_crisis=1"),
+        ("击败青山，玄炉老人被掳", "终结青岚宗威胁，但黑渊护法趁乱掳走玄炉老人。", "level>=30,flag:yunlan_hostile=1", "flag:yunlan_defeated=1,flag:yao_lao_captured=1"),
+        ("建立灵盟", "联合沧澜帝国盟友保护林家。", "reputation>=45", "flag:yan_alliance_founded=1"),
     ]),
-    _story_phase("poison_sect_war", "出云帝国与毒宗之战", "炎盟刚刚建立，毒宗、金雁宗与慕兰谷便入侵加玛帝国。", "守住炎盟、重逢小医仙并解决厄难毒体危机。", "联盟初战失败会让故土再次陷入战乱。", 14, "level>=33,flag:yan_alliance_founded=1", "flag:northwest_stabilized=1,rel:npc_xiao_yixian:+15,reputation:+15", [
-        ("守卫加玛帝国", "带领炎盟击退三宗联军。", "reputation>=50", "flag:yan_alliance_defended=1"),
+    _story_phase("poison_sect_war", "出云帝国与毒宗之战", "灵盟刚刚建立，毒宗、金雁宗与慕兰谷便入侵沧澜帝国。", "守住灵盟、重逢小医仙并解决厄难毒体危机。", "联盟初战失败会让故土再次陷入战乱。", 14, "level>=33,flag:yan_alliance_founded=1", "flag:northwest_stabilized=1,rel:npc_xiao_yixian:+15,reputation:+15", [
+        ("守卫沧澜帝国", "带领灵盟击退三宗联军。", "reputation>=50", "flag:yan_alliance_defended=1"),
         ("重逢毒宗宗主", "确认小医仙身份并避免双方死战。", "rel:npc_xiao_yixian>=40", "rel:npc_xiao_yixian:+10"),
         ("暂时封印厄难毒体", "寻找毒丹之法，暂时压制小医仙的毒体。", "alchemy>=20,flag:poison_companion=1", "flag:poison_body_sealed=1"),
     ]),
-    _story_phase("return_black_corner", "重返黑角域", "魂殿线索与韩枫逃亡方向都指向黑角域。", "清算魔炎谷、擒获韩枫并取得前往中州的线索。", "缺少魂殿情报便无法继续追查药老。", 15, "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1,flag:mentor_prison_known=1,reputation:+15", [
-        ("清算魔炎谷", "摧毁黑角域中敌对势力的核心据点。", "reputation>=55", "flag:demon_flame_valley_defeated=1"),
-        ("擒获韩枫灵魂", "击败韩枫与魂殿接应者。", "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1"),
-        ("取得药老去向线索", "从韩枫与魂殿护法处确认药老被带往中州。", "soul>=30", "flag:mentor_prison_known=1"),
+    _story_phase("return_black_corner", "重返暗角域", "黑渊殿线索与冷煜逃亡方向都指向暗角域。", "清算魔焰谷、擒获冷煜并取得前往中州的线索。", "缺少黑渊殿情报便无法继续追查玄炉老人。", 15, "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1,flag:mentor_prison_known=1,reputation:+15", [
+        ("清算魔焰谷", "摧毁暗角域中敌对势力的核心据点。", "reputation>=55", "flag:demon_flame_valley_defeated=1"),
+        ("擒获冷煜灵魂", "击败冷煜与黑渊接应者。", "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1"),
+        ("取得玄炉老人去向线索", "从冷煜与黑渊护法处确认玄炉老人被带往中州。", "soul>=30", "flag:mentor_prison_known=1"),
     ]),
-    _story_phase("revisit_tower", "再探塔底与天火尊者", "黑角域清算后，炼气塔底的岩浆世界仍隐藏着第二朵心炎、火焰蜥蜴人与神秘存在。", "再入塔底、救出天火尊者并记录古帝玉的异常反应。", "忽略塔底异动会让后续追查古帝洞府时失去重要参照。", 16, "level>=36,flag:han_feng_captured=1", "flag:magma_depths_sensed=1,reputation:+8", [
-        ("返回迦南学院", "安置萧门与磐门并准备再入塔底。", "reputation>=58", "reputation:+3"),
+    _story_phase("revisit_tower", "再探塔底与天火尊者", "暗角域清算后，炼气塔底的岩浆世界仍隐藏着第二朵心炎、火焰蜥蜴人与神秘存在。", "再入塔底、救出天火尊者并记录古帝玉的异常反应。", "忽略塔底异动会让后续追查古帝洞府时失去重要参照。", 16, "level>=36,flag:han_feng_captured=1", "flag:magma_depths_sensed=1,reputation:+8", [
+        ("返回迦南学院", "安置林门与磐门并准备再入塔底。", "reputation>=58", "reputation:+3"),
         ("救出天火尊者", "深入岩浆世界并帮助残魂脱困。", "soul>=32", "flag:tianhuo_rescued=1"),
         ("记录古帝玉异动", "面对岩浆深处的神秘存在，记录古帝玉的异常反应。", "flag:tianhuo_rescued=1", "flag:magma_depths_sensed=1"),
     ]),
-    _story_phase("zhongzhou_arrival", "进入中州", "药老被魂殿掳走，新的线索指向强者云集的中州。", "在中州立足、寻找星陨阁并追查魂殿。", "没有据点与情报便无法展开营救。", 16, "level>=36,flag:mentor_prison_known=1", "flag:star_pavilion_found=1,reputation:+15", [
+    _story_phase("zhongzhou_arrival", "进入中州", "玄炉老人被黑渊殿掳走，新的线索指向强者云集的中州。", "在中州立足、寻找星落阁并追查黑渊殿。", "没有据点与情报便无法展开营救。", 16, "level>=36,flag:mentor_prison_known=1", "flag:star_pavilion_found=1,reputation:+15", [
         ("穿越空间虫洞", "经历空间风暴后抵达中州，并随韩家车队前往天北城。", "level>=35", "flag:han_family_helped=1,exp:+100"),
         ("解决天北城冲突", "帮助韩家抵挡洪家与风雷北阁追杀。", "flag:han_family_helped=1", "flag:tianbei_conflict_resolved=1,reputation:+5"),
         ("进入天目山血潭", "穿过鼠潮音波阵并借血潭完成突破。", "flag:tianbei_conflict_resolved=1", "flag:tianmu_blood_pool_crossed=1,douqi:+10"),
         ("四方阁大会立威", "在大会中击败王尘并与风尊者建立联系。", "training_wins>=5,flag:tianmu_blood_pool_crossed=1", "reputation:+10"),
-        ("找到风尊者与星陨阁", "联系药老旧友并建立营救据点。", "reputation>=50", "flag:star_pavilion_found=1,rel:npc_feng_zunzhe:+15"),
+        ("找到风尊者与星落阁", "联系玄炉老人旧友并建立营救据点。", "reputation>=50", "flag:star_pavilion_found=1,rel:npc_feng_zunzhe:+15"),
     ]),
-    _story_phase("ye_ice_valley", "叶城与冰河谷", "中州丹塔选拔将近，小医仙的厄难毒体也引来冰河谷追杀。", "帮助叶家取得资格，并彻底解决厄难毒体。", "毒体失控会危及小医仙与周围所有人。", 17, "level>=38,flag:poison_body_sealed=1", "flag:poison_body_resolved=1,reputation:+12", [
-        ("帮助叶家通过考核", "取得参加丹会的正式资格。", "alchemy>=28", "flag:dan_meeting_qualified=1"),
+    _story_phase("ye_ice_valley", "叶城与冰河谷", "中州丹阁选拔将近，小医仙的厄难毒体也引来冰河谷追杀。", "帮助叶家取得资格，并彻底解决厄难毒体。", "毒体失控会危及小医仙与周围所有人。", 17, "level>=38,flag:poison_body_sealed=1", "flag:poison_body_resolved=1,reputation:+12", [
+        ("帮助叶家通过考核", "取得参加丹阁的正式资格。", "alchemy>=28", "flag:dan_meeting_qualified=1"),
         ("迎战冰河谷", "保护小医仙并击退冰河谷追兵。", "level>=38,rel:npc_xiao_yixian>=50", "reputation:+5"),
         ("凝聚毒丹", "彻底控制厄难毒体而非继续封印。", "alchemy>=30,flag:poison_body_sealed=1", "flag:poison_body_resolved=1"),
     ]),
-    _story_phase("dan_meeting_flame", "丹会与三千焱炎火", "丹塔大会能提供声望、盟友与接近三千焱炎火的机会。", "赢得丹会并收服星域异火。", "失败会失去营救药老的重要支援。", 18, "level>=40,alchemy>=30,soul>=30,flag:dan_meeting_qualified=1", "alchemy:+15,reputation:+20", [
-        ("通过丹会选拔", "证明炼药与灵魂能力。", "alchemy>=30,soul>=30", "reputation:+10"),
-        ("赢得丹会", "在顶尖炼药师竞争中夺得名次。", "alchemy>=35", "flag:dan_meeting_won=1"),
-        ("进入星域收服异火", "处理魂殿干扰并取得三千焱炎火。", "level>=40,flag:dan_meeting_won=1", "item:+item_three_thousand_flame"),
+    _story_phase("dan_meeting_flame", "丹阁与三千星空火", "丹阁大会能提供声望、盟友与接近三千星空火的机会。", "赢得丹阁并收服星域源火。", "失败会失去营救玄炉老人的重要支援。", 18, "level>=40,alchemy>=30,soul>=30,flag:dan_meeting_qualified=1", "alchemy:+15,reputation:+20", [
+        ("通过丹阁选拔", "证明炼药与灵魂能力。", "alchemy>=30,soul>=30", "reputation:+10"),
+        ("赢得丹阁", "在顶尖炼药师竞争中夺得名次。", "alchemy>=35", "flag:dan_meeting_won=1"),
+        ("进入星域收服源火", "处理黑渊干扰并取得三千星空火。", "level>=40,flag:dan_meeting_won=1", "item:+item_three_thousand_flame"),
     ]),
-    _story_phase("save_mentor", "营救药老", "魂殿囚禁着药老，营救时机终于成熟。", "突袭亡魂山脉并救回药老灵魂。", "失败将失去导师和对抗魂殿的核心盟友。", 19, "level>=45,flag:star_pavilion_found=1,rel:npc_yao_lao>=60", "flag:yao_lao_rescued=1,rel:npc_yao_lao:+20,reputation:+20", [
-        ("突袭魂殿分殿", "依靠丹塔与星陨阁情报展开营救。", "reputation>=60", "flag:yao_lao_rescued=1"),
-        ("撤回星陨阁", "保护重伤的药老灵魂撤离。", "soul>=40,flag:yao_lao_rescued=1", "flag:mentor_soul_secured=1"),
-        ("准备复活材料", "确认重塑躯体仍缺少斗圣骸骨。", "alchemy>=40", "flag:saint_bones_needed=1"),
+    _story_phase("save_mentor", "营救玄炉老人", "黑渊囚禁着玄炉老人，营救时机终于成熟。", "突袭幽冥山脉并救回玄炉老人灵魂。", "失败将失去导师和对抗黑渊殿的核心盟友。", 19, "level>=45,flag:star_pavilion_found=1,rel:npc_xuanlu_elder>=60", "flag:yao_lao_rescued=1,rel:npc_xuanlu_elder:+20,reputation:+20", [
+        ("突袭黑渊分殿", "依靠丹阁与星落阁情报展开营救。", "reputation>=60", "flag:yao_lao_rescued=1"),
+        ("撤回星落阁", "保护重伤的玄炉老人灵魂撤离。", "soul>=40,flag:yao_lao_rescued=1", "flag:mentor_soul_secured=1"),
+        ("准备复活材料", "确认重塑躯体仍缺少灵圣骸骨。", "alchemy>=40", "flag:saint_bones_needed=1"),
     ]),
-    _story_phase("ancient_ruins", "远古遗迹", "远古遗迹现世，其中的斗圣骸骨是复活药老的关键。", "探索遗迹、取得龙凰本源果与斗圣骸骨。", "无法取得骸骨便不能为药老重塑躯体。", 20, "level>=48,soul>=35,flag:saint_bones_needed=1", "soul:+10", [
+    _story_phase("ancient_ruins", "远古遗迹", "远古遗迹现世，其中的灵圣骸骨是复活玄炉老人的关键。", "探索遗迹、取得龙凰本源果与灵圣骸骨。", "无法取得骸骨便不能为玄炉老人重塑躯体。", 20, "level>=48,soul>=35,flag:saint_bones_needed=1", "soul:+10", [
         ("定位遗迹入口", "识别空间波动并准备探索队伍。", "soul>=35", "exp:+50"),
         ("重逢青鳞", "在遗迹中与青鳞会合并应对远古天蛇力量。", "rel:npc_qing_lin>=35", "rel:npc_qing_lin:+10"),
-        ("取得龙凰本源果", "为紫研后续的龙皇血脉觉醒准备机缘。", "level>=48", "flag:dragon_phoenix_fruit_acquired=1"),
-        ("夺取斗圣骸骨", "击退争夺者并带回重塑躯体的核心材料。", "reputation>=70", "item:+item_earth_skill,flag:saint_bones_acquired=1"),
+        ("取得龙凰本源果", "为紫妍后续的龙皇血脉觉醒准备机缘。", "level>=48", "flag:dragon_phoenix_fruit_acquired=1"),
+        ("夺取灵圣骸骨", "击退争夺者并带回重塑躯体的核心材料。", "reputation>=70", "item:+item_earth_skill,flag:saint_bones_acquired=1"),
     ]),
-    _story_phase("revive_mentor", "复活药老", "斗圣骨骸已经到手，可以为药老重塑躯体。", "炼制新躯体并让药老完成灵魂融合。", "拖延会让魂殿再次找到虚弱的药老灵魂。", 21, "alchemy>=42,flag:saint_bones_acquired=1,flag:mentor_soul_secured=1", "flag:yao_lao_revived=1,reputation:+20", [
-        ("炼制斗圣躯体", "使用斗圣骸骨与异火完成躯体炼制。", "alchemy>=42,flag:saint_bones_acquired=1", "flag:saint_body_refined=1"),
-        ("药老复活", "让药老灵魂与新躯体完成融合。", "soul>=45,flag:saint_body_refined=1", "flag:yao_lao_revived=1,rel:npc_yao_lao:+15"),
+    _story_phase("revive_mentor", "复活玄炉老人", "灵圣骨骸已经到手，可以为玄炉老人重塑躯体。", "炼制新躯体并让玄炉老人完成灵魂融合。", "拖延会让黑渊殿再次找到虚弱的玄炉老人灵魂。", 21, "alchemy>=42,flag:saint_bones_acquired=1,flag:mentor_soul_secured=1", "flag:yao_lao_revived=1,reputation:+20", [
+        ("炼制灵圣躯体", "使用灵圣骸骨与源火完成躯体炼制。", "alchemy>=42,flag:saint_bones_acquired=1", "flag:saint_body_refined=1"),
+        ("玄炉老人复活", "让玄炉老人灵魂与新躯体完成融合。", "soul>=45,flag:saint_body_refined=1", "flag:yao_lao_revived=1,rel:npc_xuanlu_elder:+15"),
     ]),
-    _story_phase("flower_sect", "花宗与云韵传承", "药老复活后，花宗传承纷争将云韵卷入危机，也影响中州盟友格局。", "帮助云韵取得花宗传承并争取花宗支持。", "花宗落入敌对势力会削弱未来联盟。", 22, "level>=50,flag:yao_lao_revived=1", "flag:flower_sect_allied=1,rel:npc_yun_yun:+15,reputation:+10", [
-        ("赶往花宗", "响应云韵求援并查明宗主传承争议。", "reputation>=75", "rel:npc_yun_yun:+5"),
-        ("击败花宗敌手", "保护云韵完成传承。", "level>=50", "exp:+120"),
-        ("争取花宗支持", "让花宗成为星陨阁的盟友。", "rel:npc_yun_yun>=30", "flag:flower_sect_allied=1"),
+    _story_phase("flower_sect", "花宗与青韵传承", "玄炉老人复活后，花宗传承纷争将青韵卷入危机，也影响中州盟友格局。", "帮助青韵取得花宗传承并争取花宗支持。", "花宗落入敌对势力会削弱未来联盟。", 22, "level>=50,flag:yao_lao_revived=1", "flag:flower_sect_allied=1,rel:npc_qing_yun:+15,reputation:+10", [
+        ("赶往花宗", "响应青韵求援并查明宗主传承争议。", "reputation>=75", "rel:npc_qing_yun:+5"),
+        ("击败花宗敌手", "保护青韵完成传承。", "level>=50", "exp:+120"),
+        ("争取花宗支持", "让花宗成为星落阁的盟友。", "rel:npc_qing_yun>=30", "flag:flower_sect_allied=1"),
     ]),
-    _story_phase("dragon_island_legacy", "龙岛与龙皇血脉", "龙凰本源果被送往分裂的古龙岛，紫研需要完成血脉觉醒。", "帮助紫研觉醒龙皇血脉并稳住东龙岛。", "紫研失败会让太虚古龙族继续分裂。", 23, "level>=50,rel:npc_ziyan>=35,flag:dragon_phoenix_fruit_acquired=1", "flag:dragon_emperor_awakened=1,rel:npc_ziyan:+15,reputation:+10", [
-        ("抵达东龙岛", "穿越虚空并确认古龙族分裂局势。", "soul>=40", "flag:east_dragon_island_reached=1"),
-        ("守护龙凰晶层", "在三岛压力下保护紫研完成炼化。", "level>=50", "rel:npc_ziyan:+10"),
-        ("见证龙皇觉醒", "帮助紫研继承龙皇血脉。", "rel:npc_ziyan>=40", "flag:dragon_emperor_awakened=1"),
+    _story_phase("dragon_island_legacy", "虚空龙岛与龙皇血脉", "龙凰本源果被送往分裂的虚空龙岛，紫妍需要完成血脉觉醒。", "帮助紫妍觉醒龙皇血脉并稳住东龙岛。", "紫妍失败会让虚空龙族继续分裂。", 23, "level>=50,rel:npc_zi_yan>=35,flag:dragon_phoenix_fruit_acquired=1", "flag:dragon_emperor_awakened=1,rel:npc_zi_yan:+15,reputation:+10", [
+        ("抵达东龙岛", "穿越虚空并确认虚空龙族分裂局势。", "soul>=40", "flag:east_dragon_island_reached=1"),
+        ("守护龙凰晶层", "在三岛压力下保护紫妍完成炼化。", "level>=50", "rel:npc_zi_yan:+10"),
+        ("见证龙皇觉醒", "帮助紫妍继承龙皇血脉。", "rel:npc_zi_yan>=40", "flag:dragon_emperor_awakened=1"),
     ]),
-    _story_phase("gu_clan_tomb", "古族成人礼与天墓", "古族成人礼与天墓开启提供了接触萧族先祖的机会。", "赢得古族认可、获得萧玄传承，并强化星陨阁。", "失败会削弱古族联盟与血脉成长。", 24, "level>=52,rel:npc_xun_er>=60", "rel:npc_gu_yuan:+20,douqi:+50", [
-        ("参加古族成人礼", "在远古种族面前证明实力。", "reputation>=75", "rel:npc_gu_yuan:+10"),
+    _story_phase("gu_clan_tomb", "云族成人礼与天墓", "云族成人礼与天墓开启提供了接触林族先祖的机会。", "赢得云族认可、获得林玄传承，并强化星落阁。", "失败会削弱云族联盟与血脉成长。", 24, "level>=52,rel:npc_yun_xi>=60", "rel:npc_yun_yuan:+20,douqi:+50", [
+        ("参加云族成人礼", "在远古种族面前证明实力。", "reputation>=75", "rel:npc_yun_yuan:+10"),
         ("进入天墓", "与同伴穿越能量风暴。", "level>=50", "exp:+150"),
-        ("接受萧玄传承", "恢复萧族血脉并理解先祖使命。", "soul>=45", "flag:xiao_bloodline_awakened=1,douqi:+30"),
-        ("回归并强化星陨阁", "结束天墓修炼后，将星陨阁建设为更可靠的长期据点。", "flag:xiao_bloodline_awakened=1", "flag:star_pavilion_rebuilt=1,reputation:+10"),
+        ("接受林玄传承", "恢复林族血脉并理解先祖使命。", "soul>=45", "flag:xiao_bloodline_awakened=1,douqi:+30"),
+        ("回归并强化星落阁", "结束天墓修炼后，将星落阁建设为更可靠的长期据点。", "flag:xiao_bloodline_awakened=1", "flag:star_pavilion_rebuilt=1,reputation:+10"),
     ]),
-    _story_phase("northwest_fortress_war", "玄黄要塞与西北大陆大战", "魂殿联军进攻西北大陆，炎盟与萧家在玄黄要塞陷入苦战。", "返回故土、守住要塞并稳定西北联盟。", "故土失守会让天府联盟失去根基。", 25, "level>=54,flag:yan_alliance_founded=1", "flag:northwest_front_secured=1,reputation:+18", [
-        ("赶回玄黄要塞", "响应炎盟求援并集结故土盟友。", "reputation>=82", "flag:northwest_reinforced=1"),
-        ("守卫萧家与炎盟", "击退魂殿联军对西北大陆的进攻。", "level>=54", "reputation:+10"),
-        ("稳定西北战线", "重新整合加玛、出云与蛇人族力量。", "flag:northwest_stabilized=1", "flag:northwest_front_secured=1"),
+    _story_phase("northwest_fortress_war", "玄黄要塞与西北大陆大战", "黑渊联军进攻西北大陆，灵盟与林家在玄黄要塞陷入苦战。", "返回故土、守住要塞并稳定西北联盟。", "故土失守会让天元联盟失去根基。", 25, "level>=54,flag:yan_alliance_founded=1", "flag:northwest_front_secured=1,reputation:+18", [
+        ("赶回玄黄要塞", "响应灵盟求援并集结故土盟友。", "reputation>=82", "flag:northwest_reinforced=1"),
+        ("守卫林家与灵盟", "击退黑渊联军对西北大陆的进攻。", "level>=54", "reputation:+10"),
+        ("稳定西北战线", "重新整合沧澜、出云与蛇人族力量。", "flag:northwest_stabilized=1", "flag:northwest_front_secured=1"),
     ]),
     _story_phase("bodhi_tree", "莽荒古域与菩提古树", "菩提古树现世，进入莽荒古域还需面对兽潮与各方争夺。", "穿越莽荒古域、突破幻境并取得菩提心。", "心境不足会永远迷失。", 25, "level>=55,soul>=45", "soul:+20", [
         ("穿越莽荒古域兽潮", "与盟友突破古域入口和兽潮阻拦。", "reputation>=80", "exp:+100"),
@@ -498,127 +498,127 @@ STORY_PHASES = [
         ("突破菩提幻境", "分辨幻象并保持自我。", "soul>=45", "soul:+10"),
         ("取得菩提心", "吸收古树核心机缘并完成境界突破。", "level>=55", "item:+item_bodhi_heart,item:+item_bodhi_seed"),
     ]),
-    _story_phase("tianfu_alliance", "建立天府联盟", "魂殿全面施压，单一势力已无法抵抗。", "联合星陨阁、丹塔、炎盟与伙伴势力。", "联盟失败会让各方被逐个击破。", 26, "flag:star_pavilion_rebuilt=1,flag:yan_alliance_founded=1,reputation>=90", "flag:tianfu_alliance_founded=1,reputation:+20", [
-        ("调查灵族消失", "确认远古种族正在遭受魂族秘密袭击。", "soul>=50", "flag:ancient_clan_disappearances=1"),
-        ("整合星陨阁与炎盟", "统一两地情报与资源网络。", "reputation>=90", "reputation:+5"),
-        ("争取丹塔与伙伴势力", "让中州盟友加入共同防线。", "alchemy>=45,rel:npc_ziyan>=35", "reputation:+10"),
-        ("建立天府联盟", "形成能够正面对抗魂殿的联盟。", "flag:star_pavilion_rebuilt=1", "flag:tianfu_alliance_founded=1"),
+    _story_phase("tianfu_alliance", "建立天元联盟", "黑渊殿全面施压，单一势力已无法抵抗。", "联合星落阁、丹阁、灵盟与伙伴势力。", "联盟失败会让各方被逐个击破。", 26, "flag:star_pavilion_rebuilt=1,flag:yan_alliance_founded=1,reputation>=90", "flag:tianfu_alliance_founded=1,reputation:+20", [
+        ("调查灵族消失", "确认远古种族正在遭受玄族秘密袭击。", "soul>=50", "flag:ancient_clan_disappearances=1"),
+        ("整合星落阁与灵盟", "统一两地情报与资源网络。", "reputation>=90", "reputation:+5"),
+        ("争取丹阁与伙伴势力", "让中州盟友加入共同防线。", "alchemy>=45,rel:npc_zi_yan>=35", "reputation:+10"),
+        ("建立天元联盟", "形成能够正面对抗黑渊殿的联盟。", "flag:star_pavilion_rebuilt=1", "flag:tianfu_alliance_founded=1"),
     ]),
-    _story_phase("nether_spring", "九幽黄泉与妖暝", "建立天府联盟后，需要争取九幽地冥蟒族并强化彩鳞血脉。", "救出妖暝、取得妖圣精血并争取魔兽盟友。", "缺少魔兽盟友会让联盟侧翼空虚。", 27, "level>=58,flag:tianfu_alliance_founded=1", "flag:nether_python_allied=1,rel:npc_cai_lin:+15,reputation:+10", [
-        ("深入九幽黄泉", "帮助彩鳞寻找血脉突破机缘。", "rel:npc_cai_lin>=20", "rel:npc_cai_lin:+10"),
+    _story_phase("nether_spring", "九幽黄泉与妖暝", "建立天元联盟后，需要争取九幽地冥蟒族并强化赤鳞血脉。", "救出妖暝、取得妖圣精血并争取魔兽盟友。", "缺少魔兽盟友会让联盟侧翼空虚。", 27, "level>=58,flag:tianfu_alliance_founded=1", "flag:nether_python_allied=1,rel:npc_chi_lin:+15,reputation:+10", [
+        ("深入九幽黄泉", "帮助赤鳞寻找血脉突破机缘。", "rel:npc_chi_lin>=20", "rel:npc_chi_lin:+10"),
         ("救出妖暝", "推翻九幽地冥蟒族中的篡位者。", "level>=58", "flag:yaoming_restored=1"),
-        ("争取魔兽盟友", "让九幽地冥蟒族加入天府联盟。", "flag:yaoming_restored=1", "flag:nether_python_allied=1"),
+        ("争取魔兽盟友", "让九幽地冥蟒族加入天元联盟。", "flag:yaoming_restored=1", "flag:nether_python_allied=1"),
     ]),
-    _story_phase("dragon_island_war", "古龙岛三岛大战", "三大龙王拒绝承认紫研，古龙族战争爆发。", "帮助紫研击败三岛联军，但北龙王趁乱逃脱。", "北龙王仍会成为后续隐患。", 28, "level>=60,flag:dragon_emperor_awakened=1", "flag:north_dragon_escaped=1,rel:npc_ziyan:+15,reputation:+15", [
-        ("重返古龙岛", "响应紫研求援并集结东龙岛力量。", "rel:npc_ziyan>=45", "reputation:+5"),
-        ("迎战三大龙王", "打破三岛联军并保护紫研。", "level>=60", "exp:+200"),
+    _story_phase("dragon_island_war", "虚空龙岛三岛大战", "三大龙王拒绝承认紫妍，虚空龙族战争爆发。", "帮助紫妍击败三岛联军，但北龙王趁乱逃脱。", "北龙王仍会成为后续隐患。", 28, "level>=60,flag:dragon_emperor_awakened=1", "flag:north_dragon_escaped=1,rel:npc_zi_yan:+15,reputation:+15", [
+        ("重返虚空龙岛", "响应紫妍求援并集结东龙岛力量。", "rel:npc_zi_yan>=45", "reputation:+5"),
+        ("迎战三大龙王", "打破三岛联军并保护紫妍。", "level>=60", "exp:+200"),
         ("北龙王逃脱", "结束三岛大战并追踪北龙王去向。", "flag:dragon_emperor_awakened=1", "flag:north_dragon_escaped=1"),
     ]),
-    _story_phase("soul_hall_war", "血洗魂殿人殿", "天府联盟成立后，双方开始争夺中州主动权。", "摧毁魂殿核心分殿并夺回灵魂本源。", "若魂殿仍掌握灵魂本源，联盟将持续受制。", 29, "level>=62,flag:tianfu_alliance_founded=1", "flag:soul_hall_weakened=1,soul:+15,reputation:+20", [
-        ("血洗魂殿人殿", "摧毁魂殿灵魂收集据点。", "reputation>=105", "flag:soul_hall_core_exposed=1"),
+    _story_phase("soul_hall_war", "血洗黑渊人殿", "天元联盟成立后，双方开始争夺中州主动权。", "摧毁黑渊殿核心分殿并夺回灵魂本源。", "若黑渊殿仍掌握灵魂本源，联盟将持续受制。", 29, "level>=62,flag:tianfu_alliance_founded=1", "flag:soul_hall_weakened=1,soul:+15,reputation:+20", [
+        ("血洗黑渊人殿", "摧毁黑渊殿灵魂收集据点。", "reputation>=105", "flag:soul_hall_core_exposed=1"),
         ("夺回灵魂本源", "释放被囚灵魂并强化自身灵魂境界。", "soul>=55,flag:soul_hall_core_exposed=1", "soul:+15"),
-        ("逼退魂殿殿主", "迫使魂殿收缩，但殿主仍未被彻底击败。", "level>=62", "flag:soul_hall_weakened=1"),
+        ("逼退黑渊殿主", "迫使黑渊殿收缩，但殿主仍未被彻底击败。", "level>=62", "flag:soul_hall_weakened=1"),
     ]),
-    _story_phase("demon_flame", "净莲妖火", "残图汇聚，净莲妖火空间开启。", "突破妖火幻境并完成收服。", "失败会被妖火控制。", 30, "level>=64,soul>=55,flag:soul_hall_weakened=1", "douqi:+80", [
+    _story_phase("demon_flame", "净世白莲火", "残图汇聚，净世白莲火空间开启。", "突破妖火幻境并完成收服。", "失败会被妖火控制。", 30, "level>=64,soul>=55,flag:soul_hall_weakened=1", "douqi:+80", [
         ("集齐妖火残图", "借助联盟情报定位妖火空间。", "soul>=50", "flag:demon_flame_map=1"),
         ("突破妖火幻境", "抵抗净莲妖圣留下的幻境。", "soul>=55", "soul:+10"),
-        ("收服净莲妖火", "与盟友共同压制妖火本体。", "level>=60", "item:+item_purifying_demon_flame"),
+        ("收服净世白莲火", "与盟友共同压制妖火本体。", "level>=60", "item:+item_purifying_demon_flame"),
     ]),
-    _story_phase("post_demon_wars", "魂殿殿主与北龙王终战", "净莲妖火之后，魂殿殿主与逃亡的北龙王先后发动反扑。", "击败两名强敌并完成古龙族统一。", "残余强敌会破坏大陆联盟。", 31, "level>=66,flag:north_dragon_escaped=1,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1,flag:dragon_clan_unified=1,reputation:+20", [
-        ("击败魂殿殿主", "终结魂殿在中州的公开统治。", "level>=66,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1"),
-        ("追击北龙王", "阻止北龙王利用化龙魔阵反扑。", "rel:npc_ziyan>=50,flag:north_dragon_escaped=1", "exp:+200"),
-        ("统一太虚古龙族", "彻底结束古龙族分裂。", "flag:north_dragon_escaped=1", "flag:dragon_clan_unified=1"),
+    _story_phase("post_demon_wars", "黑渊殿主与北龙王终战", "净世白莲火之后，黑渊殿主与逃亡的北龙王先后发动反扑。", "击败两名强敌并完成虚空龙族统一。", "残余强敌会破坏大陆联盟。", 31, "level>=66,flag:north_dragon_escaped=1,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1,flag:dragon_clan_unified=1,reputation:+20", [
+        ("击败黑渊殿主", "终结黑渊殿在中州的公开统治。", "level>=66,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1"),
+        ("追击北龙王", "阻止北龙王利用化龙魔阵反扑。", "rel:npc_zi_yan>=50,flag:north_dragon_escaped=1", "exp:+200"),
+        ("统一虚空龙族", "彻底结束虚空龙族分裂。", "flag:north_dragon_escaped=1", "flag:dragon_clan_unified=1"),
     ]),
-    _story_phase("medicine_ceremony", "药典与药族灭族战", "药族举办药典，魂族随后发动灭族袭击。", "通过药典、救援药族幸存者并确认魂族计划。", "药族覆灭会让魂族夺得更多血脉与帝玉。", 32, "alchemy>=50,soul>=55", "alchemy:+20,flag:medicine_clan_survivors_saved=1,reputation:+20", [
+    _story_phase("medicine_ceremony", "药典与药族灭族战", "药族举办药典，玄族随后发动灭族袭击。", "通过药典、救援药族幸存者并确认玄族计划。", "药族覆灭会让玄族夺得更多血脉与帝玉。", 32, "alchemy>=50,soul>=55", "alchemy:+20,flag:medicine_clan_survivors_saved=1,reputation:+20", [
         ("完成药典考验", "展现高阶炼药与灵魂控制。", "alchemy>=50,soul>=55", "alchemy:+10"),
-        ("应对药族灭族战", "在魂族袭击中保护药族幸存者。", "level>=65", "flag:hun_clan_hostile=1"),
+        ("应对药族灭族战", "在玄族袭击中保护药族幸存者。", "level>=65", "flag:hun_clan_hostile=1"),
         ("救出药族幸存者", "将幸存力量带回联盟并保存药族传承。", "reputation>=110", "flag:medicine_clan_survivors_saved=1"),
     ]),
-    _story_phase("ancient_clan_war", "远古种族联盟战", "魂族开始夺取各族帝玉，远古种族面临覆灭。", "协调古族、古龙族与盟友，并救回被囚的父亲。", "联盟破裂会让魂族打开古帝洞府。", 33, "flag:dragon_clan_unified=1,flag:hun_clan_hostile=1", "flag:ancient_alliance=1,rel:npc_xiao_zhan:+20,reputation:+25", [
-        ("确认魂族夺玉计划", "整合药族幸存者与古族情报。", "flag:medicine_clan_survivors_saved=1", "flag:emperor_jade_crisis=1"),
-        ("再入天墓", "借助萧玄残魂将灵魂境界提升至帝境。", "flag:xiao_bloodline_awakened=1,soul>=65", "flag:emperor_soul_awakened=1,soul:+20"),
-        ("营救萧战", "在魂族大战中救回被囚多年的父亲。", "flag:xiao_family_crisis=1,level>=68", "flag:xiao_zhan_rescued=1,rel:npc_xiao_zhan:+20"),
-        ("协调远古种族盟友", "争取古族与统一后的太虚古龙族共同作战。", "rel:npc_gu_yuan>=30,flag:dragon_clan_unified=1", "flag:ancient_alliance=1"),
+    _story_phase("ancient_clan_war", "远古种族联盟战", "玄族开始夺取各族帝玉，远古种族面临覆灭。", "协调云族、虚空龙族与盟友，并救回被囚的父亲。", "联盟破裂会让玄族打开古帝洞府。", 33, "flag:dragon_clan_unified=1,flag:hun_clan_hostile=1", "flag:ancient_alliance=1,rel:npc_lin_zhan:+20,reputation:+25", [
+        ("确认玄族夺玉计划", "整合药族幸存者与云族情报。", "flag:medicine_clan_survivors_saved=1", "flag:emperor_jade_crisis=1"),
+        ("再入天墓", "借助林玄残魂将灵魂境界提升至帝境。", "flag:xiao_bloodline_awakened=1,soul>=65", "flag:emperor_soul_awakened=1,soul:+20"),
+        ("营救林战", "在玄族大战中救回被囚多年的父亲。", "flag:xiao_family_crisis=1,level>=68", "flag:xiao_zhan_rescued=1,rel:npc_lin_zhan:+20"),
+        ("协调远古种族盟友", "争取云族与统一后的虚空龙族共同作战。", "rel:npc_yun_yuan>=30,flag:dragon_clan_unified=1", "flag:ancient_alliance=1"),
     ]),
-    _story_phase("ancient_emperor", "古帝洞府", "魂族集齐八块陀舍古帝玉并打开洞府，成帝传承成为最后争夺。", "追入洞府，争夺帝品雏丹并取得迎战魂天帝的传承。", "失败会让魂天帝独占成帝契机。", 34, "level>=70,flag:ancient_alliance=1", "flag:emperor_cave_contested=1", [
-        ("追入古帝洞府", "在魂族使用八玉打开洞府后，集结联盟追入洞府空间。", "flag:ancient_alliance=1", "flag:emperor_cave_opened=1"),
-        ("争夺帝品雏丹", "阻止魂族夺取成帝关键。", "level>=70,flag:emperor_cave_opened=1", "flag:embryonic_pill_contested=1,douqi:+50"),
-        ("魂天帝夺丹成帝", "争夺失败后，应对魂天帝完成突破的危机。", "level>=72,flag:embryonic_pill_contested=1", "flag:soul_emperor_ascended=1"),
-        ("接受古帝传承", "在魂天帝成帝后，获得迎战他的最后力量。", "flag:emperor_soul_awakened=1,flag:soul_emperor_ascended=1", "flag:emperor_legacy=1,douqi:+100"),
+    _story_phase("ancient_emperor", "古帝洞府", "玄族集齐八块源帝玉并打开洞府，成帝传承成为最后争夺。", "追入洞府，争夺帝品雏丹并取得迎战玄冥帝的传承。", "失败会让玄冥帝独占成帝契机。", 34, "level>=70,flag:ancient_alliance=1", "flag:emperor_cave_contested=1", [
+        ("追入古帝洞府", "在玄族使用八玉打开洞府后，集结联盟追入洞府空间。", "flag:ancient_alliance=1", "flag:emperor_cave_opened=1"),
+        ("争夺帝品雏丹", "阻止玄族夺取成帝关键。", "level>=70,flag:emperor_cave_opened=1", "flag:embryonic_pill_contested=1,douqi:+50"),
+        ("玄冥帝夺丹成帝", "争夺失败后，应对玄冥帝完成突破的危机。", "level>=72,flag:embryonic_pill_contested=1", "flag:soul_emperor_ascended=1"),
+        ("接受古帝传承", "在玄冥帝成帝后，获得迎战他的最后力量。", "flag:emperor_soul_awakened=1,flag:soul_emperor_ascended=1", "flag:emperor_legacy=1,douqi:+100"),
     ]),
-    _story_phase("final_war", "双帝之战", "魂天帝突破，大陆已无退路。", "集结联军并完成最终决战。", "失败意味着大陆秩序覆灭。", 35, "level>=80,flag:emperor_legacy=1", "flag:soul_emperor_defeated=1,reputation:+100", [
+    _story_phase("final_war", "双帝之战", "玄冥帝突破，大陆已无退路。", "集结联军并完成最终决战。", "失败意味着大陆秩序覆灭。", 35, "level>=80,flag:emperor_legacy=1", "flag:soul_emperor_defeated=1,reputation:+100", [
         ("集结大陆联军", "让所有盟友进入最终战场。", "reputation>=120,flag:ancient_alliance=1", "reputation:+20"),
-        ("突破斗帝", "以古帝传承与异火完成最终突破。", "level>=80,flag:emperor_legacy=1", "flag:xiao_emperor_awakened=1"),
-        ("迎战魂天帝", "封印魂天帝并终结魂族战争。", "flag:xiao_emperor_awakened=1", "flag:soul_emperor_defeated=1"),
+        ("突破灵帝", "以古帝传承与源火完成最终突破。", "level>=80,flag:emperor_legacy=1", "flag:xiao_emperor_awakened=1"),
+        ("迎战玄冥帝", "封印玄冥帝并终结玄族战争。", "flag:xiao_emperor_awakened=1", "flag:soul_emperor_defeated=1"),
     ]),
-    _story_phase("five_emperors", "五帝破空", "双帝之战数十年后，萧炎开启源气通道，斗气大陆再次出现五位斗帝。", "安排大陆后事，并与薰儿、彩鳞、古元和烛坤前往新的位面。", "未知位面远比斗气大陆危险，必须在出发前完成交接。", 36, "flag:soul_emperor_defeated=1", "flag:story_finished=1", [
-        ("开启源气通道", "引来源气，让斗气大陆重新拥有晋升斗帝的可能。", "flag:xiao_emperor_awakened=1", "flag:source_qi_channel_opened=1"),
-        ("见证五帝并立", "等待薰儿、彩鳞、古元与烛坤完成突破。", "flag:source_qi_channel_opened=1", "flag:five_emperors_gathered=1"),
-        ("安排大陆后事", "将萧族、古族、太虚古龙族与天府联盟交给可靠的后来者。", "reputation>=150,flag:five_emperors_gathered=1", "reputation:+20"),
-        ("五帝破空", "五位斗帝一同前往新的位面。", "flag:ancient_alliance=1,flag:five_emperors_gathered=1", "flag:story_finished=1"),
+    _story_phase("five_emperors", "五帝破空", "双帝之战数十年后，林烬开启源气通道，灵玄大陆再次出现五位灵帝。", "安排大陆后事，并与云曦、赤鳞、云元和苍坤前往新的位面。", "未知位面远比灵玄大陆危险，必须在出发前完成交接。", 36, "flag:soul_emperor_defeated=1", "flag:story_finished=1", [
+        ("开启源气通道", "引来源气，让灵玄大陆重新拥有晋升灵帝的可能。", "flag:xiao_emperor_awakened=1", "flag:source_qi_channel_opened=1"),
+        ("见证五帝并立", "等待云曦、赤鳞、云元与苍坤完成突破。", "flag:source_qi_channel_opened=1", "flag:five_emperors_gathered=1"),
+        ("安排大陆后事", "将林族、云族、虚空龙族与天元联盟交给可靠的后来者。", "reputation>=150,flag:five_emperors_gathered=1", "reputation:+20"),
+        ("五帝破空", "五位灵帝一同前往新的位面。", "flag:ancient_alliance=1,flag:five_emperors_gathered=1", "flag:story_finished=1"),
     ]),
 ]
 
 
 # 工作簿里程碑必须映射到真实节点，并按实际剧情先后排列。
 PLOT_MILESTONE_SEQUENCE = [
-    "退婚", "三年之约", "青莲地心火争夺", "炼药师大会", "内院选拔赛",
-    "强榜大赛", "黑角域大战", "陨落心炎与天焚炼气塔", "云岚宗大战",
-    "丹会", "三千焱炎火", "营救药老", "远古遗迹", "古族成人礼",
-    "天墓与萧玄", "菩提古树", "净莲妖火", "药典", "古帝洞府",
+    "退婚", "三年战约", "青莲源火争夺", "炼药师大会", "内院选拔赛",
+    "强榜大赛", "暗角域大战", "陨心源火与天焚炼气塔", "青岚宗大战",
+    "丹阁", "三千星空火", "营救玄炉老人", "远古遗迹", "云族成人礼",
+    "天墓与林玄", "菩提古树", "净世白莲火", "药典", "古帝洞府",
     "双帝之战", "五帝破空",
 ]
 
 PLOT_MILESTONE_COVERAGE = {
-    "退婚": ("退婚与三年之约", "应对退婚"),
-    "三年之约": ("退婚与三年之约", "立下三年之约"),
-    "青莲地心火争夺": ("塔戈尔沙漠与青莲地心火", "美杜莎神殿争夺"),
+    "退婚": ("退婚与三年战约", "应对退婚"),
+    "三年战约": ("退婚与三年战约", "立下三年战约"),
+    "青莲源火争夺": ("赤沙荒漠与青莲源火", "赤鳞神殿争夺"),
     "炼药师大会": ("炼药师大会", "赢得炼药师大会"),
     "内院选拔赛": ("迦南学院外院", "通过内院选拔赛"),
     "强榜大赛": ("内院磐门与强榜", "挑战强榜大赛"),
-    "黑角域大战": ("炼气塔暴动与黑盟入侵", "黑盟趁乱入侵"),
-    "陨落心炎与天焚炼气塔": ("收服陨落心炎与清算韩枫", "炼化陨落心炎"),
-    "云岚宗大战": ("重返加玛与云岚宗大战", "击败云山，药老被掳"),
-    "丹会": ("丹会与三千焱炎火", "赢得丹会"),
-    "三千焱炎火": ("丹会与三千焱炎火", "进入星域收服异火"),
-    "营救药老": ("营救药老", "突袭魂殿分殿"),
-    "远古遗迹": ("远古遗迹", "夺取斗圣骸骨"),
-    "古族成人礼": ("古族成人礼与天墓", "参加古族成人礼"),
-    "天墓与萧玄": ("古族成人礼与天墓", "接受萧玄传承"),
+    "暗角域大战": ("炼气塔暴动与暗盟入侵", "暗盟趁乱入侵"),
+    "陨心源火与天焚炼气塔": ("收服陨心源火与清算冷煜", "炼化陨心源火"),
+    "青岚宗大战": ("重返沧澜与青岚宗大战", "击败青山，玄炉老人被掳"),
+    "丹阁": ("丹阁与三千星空火", "赢得丹阁"),
+    "三千星空火": ("丹阁与三千星空火", "进入星域收服源火"),
+    "营救玄炉老人": ("营救玄炉老人", "突袭黑渊分殿"),
+    "远古遗迹": ("远古遗迹", "夺取灵圣骸骨"),
+    "云族成人礼": ("云族成人礼与天墓", "参加云族成人礼"),
+    "天墓与林玄": ("云族成人礼与天墓", "接受林玄传承"),
     "菩提古树": ("莽荒古域与菩提古树", "取得菩提心"),
-    "净莲妖火": ("净莲妖火", "收服净莲妖火"),
+    "净世白莲火": ("净世白莲火", "收服净世白莲火"),
     "药典": ("药典与药族灭族战", "完成药典考验"),
     "古帝洞府": ("古帝洞府", "追入古帝洞府"),
-    "双帝之战": ("双帝之战", "迎战魂天帝"),
+    "双帝之战": ("双帝之战", "迎战玄冥帝"),
     "五帝破空": ("五帝破空", "五帝破空"),
 }
 
 # 不属于工作簿 21 个里程碑名称，但对剧情因果闭环不可省略的桥梁。
 CRITICAL_BRIDGE_COVERAGE = {
-    "药老被魂殿掳走": ("重返加玛与云岚宗大战", "击败云山，药老被掳"),
-    "出云帝国战争": ("出云帝国与毒宗之战", "守卫加玛帝国"),
+    "玄炉老人被黑渊殿掳走": ("重返沧澜与青岚宗大战", "击败青山，玄炉老人被掳"),
+    "出云帝国战争": ("出云帝国与毒宗之战", "守卫沧澜帝国"),
     "厄难毒体稳定": ("叶城与冰河谷", "凝聚毒丹"),
-    "紫研觉醒龙皇血脉": ("龙岛与龙皇血脉", "见证龙皇觉醒"),
-    "太虚古龙统一": ("魂殿殿主与北龙王终战", "统一太虚古龙族"),
-    "魂殿决战": ("魂殿殿主与北龙王终战", "击败魂殿殿主"),
+    "紫妍觉醒龙皇血脉": ("虚空龙岛与龙皇血脉", "见证龙皇觉醒"),
+    "虚空龙族统一": ("黑渊殿主与北龙王终战", "统一虚空龙族"),
+    "黑渊决战": ("黑渊殿主与北龙王终战", "击败黑渊殿主"),
     "药族灭族战": ("药典与药族灭族战", "应对药族灭族战"),
-    "营救萧战": ("远古种族联盟战", "营救萧战"),
+    "营救林战": ("远古种族联盟战", "营救林战"),
     "获得菩提心": ("莽荒古域与菩提古树", "取得菩提心"),
-    "重返黑角域": ("重返黑角域", "擒获韩枫灵魂"),
+    "重返暗角域": ("重返暗角域", "擒获冷煜灵魂"),
     "叶城与冰河谷": ("叶城与冰河谷", "迎战冰河谷"),
-    "药老复活": ("复活药老", "药老复活"),
-    "花宗传承": ("花宗与云韵传承", "争取花宗支持"),
+    "玄炉老人复活": ("复活玄炉老人", "玄炉老人复活"),
+    "花宗传承": ("花宗与青韵传承", "争取花宗支持"),
     "九幽黄泉": ("九幽黄泉与妖暝", "救出妖暝"),
-    "首次穿越黑角域": ("迦南学院外院", "穿越黑角域"),
+    "首次穿越暗角域": ("迦南学院外院", "穿越暗角域"),
     "再探天焚炼气塔": ("再探塔底与天火尊者", "记录古帝玉异动"),
     "中州韩家与天北城": ("进入中州", "解决天北城冲突"),
     "天目山血潭": ("进入中州", "进入天目山血潭"),
-    "星陨阁强化": ("古族成人礼与天墓", "回归并强化星陨阁"),
+    "星落阁强化": ("云族成人礼与天墓", "回归并强化星落阁"),
     "源气通道": ("五帝破空", "开启源气通道"),
-    "玄黄要塞大战": ("玄黄要塞与西北大陆大战", "守卫萧家与炎盟"),
-    "灵族消失": ("建立天府联盟", "调查灵族消失"),
+    "玄黄要塞大战": ("玄黄要塞与西北大陆大战", "守卫林家与灵盟"),
+    "灵族消失": ("建立天元联盟", "调查灵族消失"),
     "再入天墓帝境灵魂": ("远古种族联盟战", "再入天墓"),
-    "魂天帝夺丹成帝": ("古帝洞府", "魂天帝夺丹成帝"),
+    "玄冥帝夺丹成帝": ("古帝洞府", "玄冥帝夺丹成帝"),
 }
 
 # 取自章节索引的实际发生位置，用于防止中段剧情再次错位。
@@ -657,22 +657,22 @@ STORY_CHAPTER_ANCHORS = {
 
 # 地图只随剧情开放。推荐等级仅用于提示危险，不参与解锁判断。
 # ── 区域通行方式（与原文一致）──
-# 加玛帝国 → 黑角域：远程陆行/飞行魔兽，穿越数个小国，耗时数月（无空间虫洞直达）
-# 黑角域 → 中州：必须经天涯城空间虫洞（方圆千里唯一虫洞，罗家世代守护）
+# 沧澜帝国 → 暗角域：远程陆行/飞行魔兽，穿越数个小国，耗时数月（无空间虫洞直达）
+# 暗角域 → 中州：必须经天涯城空间虫洞（方圆千里唯一虫洞，罗家世代守护）
 # 中州内部：各大城市间有空间虫洞连接，虫洞驿站维护
-# 中州 → 龙岛/虚空：空间船或斗圣强者撕裂空间
+# 中州 → 龙岛/虚空：空间船或灵圣强者撕裂空间
 # 中州 → 远古种族空间（古界/魂界/药界等）：特定空间通道/入口
 # 特殊空间（妖火空间/古帝洞府等）：需特定条件/道具方能开启
 # ── 区域归属（用于通行判断）──
 REGION_MAP_GROUPS = {
-    "加玛帝国": {"map_wutan", "map_jia_ma", "map_jia_ma_capital", "map_jia_ma_road",
+    "沧澜帝国": {"map_wutan", "map_jia_ma", "map_jia_ma_capital", "map_jia_ma_road",
                  "map_jia_ma_border", "map_jia_ma_garrison", "map_jia_ma_mountain_pass",
                  "map_jia_ma_post_station", "map_jia_ma_battle_front", "map_ghost_pass",
                  "map_black_rock_city", "map_salt_city", "map_magic_mountains",
                  "map_qingshan", "map_tager", "map_mo_city", "map_stone_mo_city",
                  "map_miteer_auction", "map_alchemist_guild", "map_yunlan",
                  "map_yan_alliance_hq"},
-    "黑角域": {"map_black_corner", "map_canaan", "map_canaan_inner", "map_peace_town",
+    "暗角域": {"map_black_corner", "map_canaan", "map_canaan_inner", "map_peace_town",
               "map_feng_city", "map_black_emperor_city", "map_black_seal_city",
               "map_demon_flame_valley", "map_skyfire_tower", "map_skyfire_magma_world",
               "map_emperor_cave"},
@@ -697,7 +697,7 @@ REGION_MAP_GROUPS = {
                 "map_mulan_valley", "map_scorpion_gate", "map_xuanhuang_fortress",
                 "map_northwest_battle_front"},
     "最终战场": {"map_double_emperor", "map_world_gate", "map_emperor_memorial_peak"},
-    "中转站": {"map_tianya_city"},  # 天涯城：连接黑角域与中州的虫洞枢纽
+    "中转站": {"map_tianya_city"},  # 天涯城：连接暗角域与中州的虫洞枢纽
 }
 REGION_BY_MAP = {}
 for _region, _map_ids in REGION_MAP_GROUPS.items():
@@ -706,8 +706,8 @@ for _region, _map_ids in REGION_MAP_GROUPS.items():
 
 # 跨区通行需要经过的中转站
 TRANSIT_HUBS = {
-    ("黑角域", "中州"): "map_tianya_city",  # 原文：天涯城是方圆千里唯一通往中州的虫洞
-    ("中州", "黑角域"): "map_tianya_city",  # 反向亦然
+    ("暗角域", "中州"): "map_tianya_city",  # 原文：天涯城是方圆千里唯一通往中州的虫洞
+    ("中州", "暗角域"): "map_tianya_city",  # 反向亦然
 }
 TRANSIT_HUB_NAMES = {
     "map_tianya_city": "天涯城（空间虫洞）",
@@ -766,17 +766,17 @@ MAP_STORY_UNLOCKS = {
     "map_hun_clan_space": "ancient_clan_war",
     "map_emperor_cave": "ancient_emperor",
     "map_double_emperor": "final_war",
-    # wutan_growth: 加玛帝国城市扩展
+    # wutan_growth: 沧澜帝国城市扩展
     "map_black_rock_city": "wutan_growth",
     "map_salt_city": "wutan_growth",
     "map_ghost_pass": "wutan_growth",
     # desert_flame: 沙漠剧情关键节点
     "map_mo_city": "desert_flame",
     "map_stone_mo_city": "desert_flame",
-    # canaan_outer: 黑角域扩展（黑印城拍卖、天涯城虫洞枢纽）
+    # canaan_outer: 暗角域扩展（黑印城拍卖、天涯城虫洞枢纽）
     "map_black_seal_city": "canaan_outer",
     "map_tianya_city": "canaan_outer",
-    # return_black_corner: 黑角域清算战
+    # return_black_corner: 暗角域清算战
     "map_demon_flame_valley": "return_black_corner",
     # poison_sect_war: 出云帝国万蝎门
     "map_scorpion_gate": "poison_sect_war",
@@ -786,21 +786,21 @@ MAP_STORY_UNLOCKS = {
     "map_tianmu_mountains": "save_mentor",
     "map_heaven_mountain_blood_pool": "save_mentor",
     "map_death_corpse_mountains": "save_mentor",
-    # soul_hall_war: 魂殿总部天罡殿
+    # soul_hall_war: 黑渊殿总部天罡殿
     "map_heavenly_gang_hall": "soul_hall_war",
     # demon_flame: 妖火平原
     "map_demon_flame_plain": "demon_flame",
-    # ancient_emperor: 古帝异火广场
+    # ancient_emperor: 古帝源火广场
     "map_strange_flame_square": "ancient_emperor",
     # wutan_growth: 边境城市
     "map_daling_city": "wutan_growth",
-    # canaan_outer: 黑角域入口与势力
+    # canaan_outer: 暗角域入口与势力
     "map_black_domain_plain": "canaan_outer",
     "map_blood_sect": "canaan_outer",
     "map_eight_gates": "canaan_outer",
     # canaan_inner: 内院组织
     "map_pan_gate": "canaan_inner",
-    # return_black_corner: 萧门与黑皇阁
+    # return_black_corner: 林门与黑皇阁
     "map_xiao_gate": "return_black_corner",
     "map_black_emperor_pavilion": "return_black_corner",
     # zhongzhou_arrival: 中州扩展
@@ -817,7 +817,7 @@ MAP_STORY_UNLOCKS = {
     "map_ancient_domain_platform": "bodhi_tree",
     # final_war: 葬天山脉
     "map_burial_sky_mountains": "final_war",
-    # yunlan_war: 重返加玛与云岚宗大战
+    # yunlan_war: 重返沧澜与青岚宗大战
     "map_cloud_mountain_peak": "yunlan_war",
     "map_yan_alliance_hq": "yunlan_war",
     "map_jia_ma_battle_front": "yunlan_war",
@@ -831,14 +831,14 @@ MAP_STORY_UNLOCKS = {
     # northwest_fortress_war: 玄黄要塞与西北大陆大战
     "map_xuanhuang_fortress": "northwest_fortress_war",
     "map_northwest_battle_front": "northwest_fortress_war",
-    # tianfu_alliance: 建立天府联盟
+    # tianfu_alliance: 建立天元联盟
     "map_tianfu_council_hall": "tianfu_alliance",
     "map_alliance_war_room": "tianfu_alliance",
     # nether_spring: 九幽黄泉与妖暝
     "map_nether_spring": "nether_spring",
     "map_nether_python_tribe": "nether_spring",
     "map_nether_underground_palace": "nether_spring",
-    # post_demon_wars: 魂殿殿主与北龙王终战
+    # post_demon_wars: 黑渊殿主与北龙王终战
     "map_soul_emperor_throne": "post_demon_wars",
     # five_emperors: 五帝破空
     "map_world_gate": "five_emperors",
@@ -982,13 +982,13 @@ SCHEDULE_NODES = [
         "id": "xiao_clan_trial",
         "day": 3,
         "period": 0,
-        "title": "萧家族内试炼",
+        "title": "林家族内试炼",
         "description": "族内长老将在演武场检验年轻一辈。你必须证明自己没有彻底失去锋芒。",
         "goals": {"level": 2, "training_wins": 1},
         "success_text": "你在试炼中稳住阵脚，赢得了父亲与族人的认可。",
-        "success_effect": "exp:+30,reputation:+5,rel:npc_xiao_zhan:+5,item:+item_elixir",
+        "success_effect": "exp:+30,reputation:+5,rel:npc_lin_zhan:+5,item:+item_elixir",
         "failure_text": "准备不足令你在众目睽睽之下落败，族内质疑声愈发刺耳。",
-        "failure_effect": "reputation:-5,rel:npc_xiao_zhan:-10,hp:-20",
+        "failure_effect": "reputation:-5,rel:npc_lin_zhan:-10,hp:-20",
     },
     {
         "id": "black_ring_deadline",
@@ -1060,7 +1060,7 @@ class GameEngine:
                     "price_sell": (eq["atk"] + eq["def"] + eq["hp"]) * 2,
                     "slot": eq["slot"],
                 }
-        # 合并23异火
+        # 合并23源火
         for flame in HEAVENLY_FLAMES_FULL:
             fid = flame["id"]
             if fid not in self.item_rules:
@@ -1162,7 +1162,29 @@ class GameEngine:
         self.combat = None
         if name:
             self.player["name"] = name
-        self.last_message = "斗气大陆的故事由此开始。"
+        self.last_message = "灵玄大陆的故事由此开始。"
+
+    def demo_status(self) -> dict:
+        """返回 Demo 边界状态。完成前几个主线阶段后提示内容结束。"""
+        stage = self.player.get("story_stage", 0)
+        demo_end_stage = 5
+        demo_seen = "demo_completed" in self.player.get("flags", [])
+        return {
+            "is_demo_ended": stage >= demo_end_stage and not demo_seen,
+            "demo_end_stage": demo_end_stage,
+            "current_stage": stage,
+            "message": (
+                "v0.1-demo 主线内容到此结束。\n"
+                "后续版本将开放青岚宗、黑渊殿与更多源火剧情。\n"
+                "你可以继续自由探索、修炼和战斗。"
+            ),
+        }
+
+    def mark_demo_seen(self) -> None:
+        """标记 Demo 结束提示已看过。"""
+        flags = self.player.get("flags", [])
+        if "demo_completed" not in flags:
+            flags.append("demo_completed")
 
     def save(self) -> None:
         self._sync_story_phase_id()
@@ -1187,7 +1209,7 @@ class GameEngine:
         }
         player.update(
             {
-                "name": self.npc_names.get("player", "萧炎"),
+                "name": self.npc_names.get("player", "林烬"),
                 "max_hp": self.attribute_rules["hp"]["initial"],
                 "flags": [
                     flag_id
@@ -1243,7 +1265,7 @@ class GameEngine:
 
         nested_player = player.get("player")
         if isinstance(nested_player, dict):
-            player.setdefault("name", nested_player.get("name", "萧炎"))
+            player.setdefault("name", nested_player.get("name", "林烬"))
             attributes = nested_player.get("attributes", {})
             if isinstance(attributes, dict):
                 for key, value in attributes.items():
@@ -1278,7 +1300,7 @@ class GameEngine:
             else:
                 player["items"] = []
 
-        player.setdefault("name", self.npc_names.get("player", "萧炎"))
+        player.setdefault("name", self.npc_names.get("player", "林烬"))
         player.setdefault(
             "max_hp", max(self.attribute_rules["hp"]["initial"], player["hp"])
         )
@@ -1735,7 +1757,7 @@ class GameEngine:
             before = self.player["douqi"]
             self.player["douqi"] = min(self.effective_max_douqi(), before + douqi_regen)
             if self.player["douqi"] > before:
-                logs.append(f"持续恢复斗气 {self.player['douqi'] - before}")
+                logs.append(f"持续恢复灵力 {self.player['douqi'] - before}")
         expired = []
         for status_id, status in statuses.items():
             status["turns"] = int(status.get("turns", 0)) - 1
@@ -1760,7 +1782,7 @@ class GameEngine:
         match = re.fullmatch(r"(hp_regen|douqi_regen):(\d+),(\d+)", effect)
         if match:
             status_id, value, turns = match.groups()
-            name = "生命持续恢复" if status_id == "hp_regen" else "斗气持续恢复"
+            name = "生命持续恢复" if status_id == "hp_regen" else "灵力持续恢复"
             self.add_timed_status(status_id, int(value), int(turns), name)
             return [f"获得{name}，持续{turns}回合"]
         match = re.fullmatch(r"element_boost:(\w+)", effect)
@@ -1848,7 +1870,7 @@ class GameEngine:
                 self.effective_max_douqi(), self.player["douqi"] + refund
             )
             combat["combo"] = combat.get("combo", 0) + 1
-            logs.append(f"Lv3【回风】返还{refund}斗气并增加连击")
+            logs.append(f"Lv3【回风】返还{refund}灵力并增加连击")
         elif element == "木":
             heal = max(1, self.effective_max_hp() * 5 // 100)
             self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + heal)
@@ -1883,7 +1905,7 @@ class GameEngine:
         return logs
 
     def _apply_utility_skill_effect(self, skill: Dict[str, Any], level: int) -> List[str]:
-        """执行辅助斗技效果；Lv3/Lv5分别提高25%/50%。"""
+        """执行辅助灵技效果；Lv3/Lv5分别提高25%/50%。"""
         if self.combat is None or "atk:+" in skill.get("effect", ""):
             return []
         combat = self.combat
@@ -1910,15 +1932,15 @@ class GameEngine:
             value = int(float(raw) * scale) if raw.isdigit() else 0
             if kind == "heal":
                 self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + value)
-                logs.append(f"斗技恢复{value}生命")
+                logs.append(f"灵技恢复{value}生命")
             elif kind == "douqi_restore":
                 self.player["douqi"] = min(
                     self.effective_max_douqi(), self.player["douqi"] + value
                 )
-                logs.append(f"斗技恢复{value}斗气")
+                logs.append(f"灵技恢复{value}灵力")
             elif kind == "shield":
                 combat["player_shield"] = combat.get("player_shield", 0) + value
-                logs.append(f"斗技生成{value}护盾")
+                logs.append(f"灵技生成{value}护盾")
             elif kind == "hp_drain":
                 dealt = min(value, combat["hp"])
                 combat["hp"] -= dealt
@@ -1926,7 +1948,7 @@ class GameEngine:
                 logs.append(f"吸取敌人{dealt}生命")
             elif kind == "douqi_drain":
                 combat["hp"] = max(0, combat["hp"] - value)
-                logs.append(f"扰乱斗气造成{value}伤害")
+                logs.append(f"扰乱灵力造成{value}伤害")
             elif kind == "extra_turn":
                 combat["player_gauge"] = combat.get("player_gauge", 0) + GAUGE_MAX
                 logs.append("获得额外行动")
@@ -2037,7 +2059,7 @@ class GameEngine:
         skill_id = LEVEL_SKILL_MILESTONES.get(level)
         if skill_id and skill_id not in player["known_skills"]:
             player["known_skills"].append(skill_id)
-            logs.append(f"领悟斗技：{self.skills[skill_id]['name']}")
+            logs.append(f"领悟灵技：{self.skills[skill_id]['name']}")
         return logs
 
     def allocate_attr_point(self, stat: str) -> bool:
@@ -2091,7 +2113,7 @@ class GameEngine:
 
         level = int(self.player["level"])
         if level >= 100:
-            self.last_message = "你已是斗帝之境，无需突破。"
+            self.last_message = "你已是灵帝之境，无需突破。"
             return False
 
         if not self._can_take_free_action():
@@ -2417,10 +2439,10 @@ class GameEngine:
         self.player["adventure_points"] += 1
         if "ring_awakened" not in self.player["flags"]:
             logs = self.apply_effects(f"soul:+{soul_gain}")
-            action_text = "药老尚未苏醒，你只能感知戒指异动、锤炼灵魂。"
+            action_text = "玄炉老人尚未苏醒，你只能感知戒指异动、锤炼灵魂。"
         else:
             logs = self.apply_effects(f"exp:+10,douqi:+2,soul:+{soul_gain}")
-            action_text = "你依照药老指导运转斗气，完成了一轮修炼。"
+            action_text = "你依照玄炉老人指导运转灵力，完成了一轮修炼。"
         self.advance_time()
         self.last_message = action_text + "；获得冒险阅历 +1"
         if logs:
@@ -2690,7 +2712,7 @@ class GameEngine:
         self.combat_is_training = True
         self.combat = {
             "enemy_id": "training_opponent",
-            "name": "萧家陪练弟子",
+            "name": "林家陪练弟子",
             "level": level,
             "hp": 25 + level * 10,
             "max_hp": 25 + level * 10,
@@ -2812,7 +2834,7 @@ class GameEngine:
         if self.combat is None:
             return ""
         c = self.combat
-        intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+        intent_names = {"attack": "攻击", "defend": "防御", "skill": "灵技", "charge": "蓄力"}
         intent_text = intent_names.get(c.get("intent", "attack"), "?")
         soul = int(self.player.get("soul", 0))
         intent_line = f"  意图预判：{intent_text}" if soul >= 20 else ""
@@ -2830,7 +2852,7 @@ class GameEngine:
         return (
             f"第{c['round']}回合｜{c['name']}{shield}（{c.get('element', '?')}属性）\n"
             f"生命 {c['hp']}/{c['max_hp']}  行动条 {e_gauge}/{GAUGE_MAX}({e_pct}%)（SPD:{e_spd}）\n"
-            f"{self.player['name']} 生命 {self.player['hp']}｜斗气 {self.player['douqi']}"
+            f"{self.player['name']} 生命 {self.player['hp']}｜灵力 {self.player['douqi']}"
             f"  行动条 {p_gauge}/{GAUGE_MAX}({p_pct}%)（SPD:{p_spd}）"
             f"{intent_line}{combo_line}{poison_line}"
         )
@@ -2840,14 +2862,14 @@ class GameEngine:
         if self.combat is None:
             return ""
         intent = self.combat.get("intent", "attack")
-        intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+        intent_names = {"attack": "攻击", "defend": "防御", "skill": "灵技", "charge": "蓄力"}
         text = intent_names.get(intent, "?")
         if intent == "skill":
             enemy_data = self.enemies.get(self.combat["enemy_id"], {})
             enemy_skills = enemy_data.get("skills", [])
             if enemy_skills:
                 skill_data = self.skills.get(enemy_skills[0], {})
-                text = f"斗技「{skill_data.get('name', enemy_skills[0])}」"
+                text = f"灵技「{skill_data.get('name', enemy_skills[0])}」"
         return text
 
     def enemy_skill_list(self) -> List[str]:
@@ -2967,7 +2989,7 @@ class GameEngine:
             if finisher_threshold is not None and enemy_ratio > finisher_threshold:
                 continue
             damage = self._estimated_attack_damage(bonus, 1.25)
-            # 保留最后一轮普通攻击所需的斗气余量，避免高消耗技能无意义溢伤。
+            # 保留最后一轮普通攻击所需的灵力余量，避免高消耗技能无意义溢伤。
             score = min(damage, self.combat["hp"]) / cost
             if damage >= self.combat["hp"]:
                 score += 100
@@ -3056,7 +3078,7 @@ class GameEngine:
             enemy_data = self.enemies.get(combat["enemy_id"], {})
             enemy_skills = enemy_data.get("skills", [])
             skill_bonus = 0
-            skill_name = "强力斗技"
+            skill_name = "强力灵技"
             if enemy_skills:
                 chosen = random.choice(enemy_skills)
                 skill_data = self.skills.get(chosen, {})
@@ -3165,7 +3187,7 @@ class GameEngine:
         if douqi_gain > 0:
             before = self.player["douqi"]
             self.player["douqi"] = min(self.effective_max_douqi(), before + douqi_gain)
-            logs.append(f"恢复 {self.player['douqi'] - before} 点斗气")
+            logs.append(f"恢复 {self.player['douqi'] - before} 点灵力")
             handled = True
 
         match = re.match(r"inflict_poison:(\d+),(\d+)", effect)
@@ -3269,7 +3291,7 @@ class GameEngine:
             combat["combo"] = 0
         elif action == "defend":
             combat["defending"] = True
-            logs.append("你凝聚斗气防守")
+            logs.append("你凝聚灵力防守")
             combat["combo"] = 0
         elif action == "charge":
             if combat.get("charge_used"):
@@ -3281,9 +3303,9 @@ class GameEngine:
                 self.effective_max_douqi(),
                 self.player["douqi"] + CHARGE_DOUQI_PER_TURN,
             )
-            logs.append(f"你凝神蓄力，斗气恢复 {CHARGE_DOUQI_PER_TURN} 点，下一击将威力倍增！")
+            logs.append(f"你凝神蓄力，灵力恢复 {CHARGE_DOUQI_PER_TURN} 点，下一击将威力倍增！")
         else:
-            # ── 攻击（普攻/斗技） ──
+            # ── 攻击（普攻/灵技） ──
             bonus = 0
             multiplier = 1.0
 
@@ -3330,11 +3352,11 @@ class GameEngine:
             if action == "skill":
                 skill = self.skills.get(skill_id or "")
                 if skill is None:
-                    self.last_message = "尚未掌握该斗技。"
+                    self.last_message = "尚未掌握该灵技。"
                     return "invalid"
                 cost = self._skill_cost(skill)
                 if self.player["douqi"] < cost:
-                    self.last_message = "斗气不足，无法施展该斗技。"
+                    self.last_message = "灵力不足，无法施展该灵技。"
                     return "invalid"
                 self.player["douqi"] -= cost
                 bonus = self._skill_attack_bonus(skill["effect"])
@@ -3351,7 +3373,7 @@ class GameEngine:
                 enemy_ratio = combat["hp"] / max(1, combat["max_hp"])
                 if finisher_threshold is not None and enemy_ratio <= finisher_threshold:
                     multiplier *= 2
-                    logs.append("斗技命中虚弱破绽，触发暴击！")
+                    logs.append("灵技命中虚弱破绽，触发暴击！")
 
                 # ── 属性克制判断 ──
                 skill_element = SKILL_ELEMENTS.get(skill["id"], "")
@@ -3453,7 +3475,7 @@ class GameEngine:
         # ── 灵魂感知：意图预判 ──
         enemy_intent = combat.get("intent", "attack")
         if soul >= 20:
-            intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
+            intent_names = {"attack": "攻击", "defend": "防御", "skill": "灵技", "charge": "蓄力"}
             logs.append(f"👁️ 灵魂感知：{combat['name']}意图[{intent_names.get(enemy_intent, '?')}]")
 
         # ── 行动条：推进直到玩家回合 ──
@@ -3483,7 +3505,7 @@ class GameEngine:
                     self.player["last_map"] = "map_wutan"
                     self.combat = None
                     self.advance_time(getattr(self, "combat_time_cost", 0))
-                    logs.append("你失去意识，被送回乌坦城休养")
+                    logs.append("你失去意识，被送回青石城休养")
                     self.last_message = "；".join(logs)
                     return "lost"
                 continue
@@ -3841,7 +3863,7 @@ class GameEngine:
             self.player["douqi"] = min(
                 self.effective_max_douqi(), self.player["douqi"] + douqi_regen
             )
-            logs.append(f"功法运转：恢复{douqi_regen}斗气")
+            logs.append(f"功法运转：恢复{douqi_regen}灵力")
         return logs
 
     def _apply_technique_skill_procs(self, element: str, was_crit: bool) -> List[str]:
@@ -3887,7 +3909,7 @@ class GameEngine:
         return logs
 
     def _flame_stat_bonus(self, stat: str) -> int:
-        """读取已装备异火的属性加成。"""
+        """读取已装备源火的属性加成。"""
         fid = self.player.get("equipped_flame")
         if not fid:
             return 0
@@ -3899,7 +3921,7 @@ class GameEngine:
         return bonus_table.get(stat, 0)
 
     def _flame_alchemy_bonus(self, stat: str) -> int:
-        """读取已装备异火的炼药加成。"""
+        """读取已装备源火的炼药加成。"""
         fid = self.player.get("equipped_flame")
         if not fid:
             return 0
@@ -3911,7 +3933,7 @@ class GameEngine:
         return bonus_table.get(stat, 0)
 
     def effective_spd(self) -> int:
-        """计算玩家有效速度（基础+装备+功法+异火）。"""
+        """计算玩家有效速度（基础+装备+功法+源火）。"""
         base = int(self.player.get("spd", 8))
         base += self.get_equipped_bonus("spd")
         base += self._technique_stat_bonus("spd")
@@ -3960,7 +3982,7 @@ class GameEngine:
         return max(1, int(base * mult * rarity_mult))
 
     def effective_max_douqi(self) -> int:
-        """计算玩家有效斗气上限（基础上限+功法固定/百分比加成）。"""
+        """计算玩家有效灵力上限（基础上限+功法固定/百分比加成）。"""
         base = int(self.attribute_rules["douqi"]["max"])
         base += self._technique_stat_bonus("douqi_max")
         return max(1, int(base * self._technique_stat_multiplier("douqi_max")))
@@ -4007,16 +4029,16 @@ class GameEngine:
     # Dual-slot equip/unequip defined above
 
 
-    # ── 异火系统 ─────────────────────────────────────────────
+    # ── 源火系统 ─────────────────────────────────────────────
 
     def equip_flame(self, flame_id: str) -> bool:
-        """装备异火（提供战斗和炼药被动加成）。"""
+        """装备源火（提供战斗和炼药被动加成）。"""
         flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == flame_id), None)
         if flame is None:
-            self.last_message = "找不到该异火。"
+            self.last_message = "找不到该源火。"
             return False
         if flame_id not in self.player.get("items", []):
-            self.last_message = "背包中没有该异火。"
+            self.last_message = "背包中没有该源火。"
             return False
         old = self.player.get("equipped_flame")
         if old and old not in self.player.get("items", []):
@@ -4028,20 +4050,20 @@ class GameEngine:
             self.player["collected_flames"].append(flame_id)
         tier_name = flame.get("tier", "iron")
         atk_bonus = FLAME_TIER_BONUS.get(tier_name, {}).get("atk", 0)
-        self.last_message = f"装备异火：{flame['name']}（{tier_name}，攻击+{atk_bonus}）"
+        self.last_message = f"装备源火：{flame['name']}（{tier_name}，攻击+{atk_bonus}）"
         return True
 
     def unequip_flame(self) -> bool:
-        """卸下异火。"""
+        """卸下源火。"""
         fid = self.player.get("equipped_flame")
         if not fid:
-            self.last_message = "当前未装备异火。"
+            self.last_message = "当前未装备源火。"
             return False
         flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == fid), {})
         self.player["equipped_flame"] = None
         if fid not in self.player.get("items", []):
             self.player.setdefault("items", []).append(fid)
-        self.last_message = f"收起异火：{flame.get('name', fid)}"
+        self.last_message = f"收起源火：{flame.get('name', fid)}"
         return True
 
     LEARN_EFFECT_PATTERN = re.compile(r"^learn:(.+)$")
@@ -4136,7 +4158,7 @@ class GameEngine:
             self.last_message = f"材料不足：{'、'.join(missing)}"
             return False
 
-        # 成功率：基础 + 品级差 + 药鼎加成 + 异火加成
+        # 成功率：基础 + 品级差 + 药鼎加成 + 源火加成
         grade_diff = player_grade - req_grade
         flame_success = self._flame_alchemy_bonus("success")
         success_rate = min(98, max(3, base_rate + grade_diff * 8 + fdata["bonus"] // 2 + flame_success))
@@ -4400,7 +4422,7 @@ class GameEngine:
         # 药鼎装备
         if etype == "furnace":
             return self.equip_furnace(item_id)
-        # 异火装备
+        # 源火装备
         if etype == "heavenly_flame":
             return self.equip_flame(item_id)
         if etype == "storage_ring":
@@ -4416,12 +4438,12 @@ class GameEngine:
         if learn_match:
             skill_id = learn_match.group(1)
             if skill_id in self.player.get("known_skills", []):
-                self.last_message = "已习得该斗技。"
+                self.last_message = "已习得该灵技。"
                 return False
             self.player["items"].remove(item_id)
             self.player.setdefault("known_skills", []).append(skill_id)
             skill_name = self.skills.get(skill_id, {}).get("name", skill_id)
-            self.last_message = f"研读{item['name']}，习得斗技：{skill_name}！"
+            self.last_message = f"研读{item['name']}，习得灵技：{skill_name}！"
             return True
         # 通用物品使用
         if not item.get("use_effect"):
@@ -4586,7 +4608,7 @@ class GameEngine:
             eti = all_tiers.index(et) if et in all_tiers else 0
             if eti >= tier_idx - 1 and eti <= tier_idx + 2:  # 当前tier±范围
                 pool.append((eid, eq["name"], "equipment", eq))
-        # 消耗品/材料/异火
+        # 消耗品/材料/源火
         for iid, item_def in self.item_rules.items():
             it = item_def.get("tier", "iron")
             eti = all_tiers.index(it) if it in all_tiers else 0
@@ -4603,7 +4625,7 @@ class GameEngine:
                 markup = random.uniform(AUCTION_MARKUP_MIN, AUCTION_MARKUP_MAX)
                 price = max(100, int(base_price * markup))
                 time_left = random.randint(2, 6)
-                # 顶级物品（tier>=saint）或异火：使用远古币
+                # 顶级物品（tier>=saint）或源火：使用远古币
                 itier = (pdata.get("tier","") if isinstance(pdata, dict) else "")
                 use_ancient = (itier in ("saint","emperor","divine") or ptype == "heavenly_flame") and random.random() < 0.3
                 currency = "ancient" if use_ancient else "copper"

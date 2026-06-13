@@ -1,4 +1,4 @@
-"""斗破苍穹 RPG — 道具数据（自动生成）"""
+"""源火纪 RPG — 道具数据（自动生成）"""
 from typing import Any, Dict, List, Tuple
 
 # 道具数量: 396
@@ -189,7 +189,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "mystic",
     "effect": "hp:+3500",
-    "desc": "七品丹药，药老成名之作，蕴含阴阳二气。",
+    "desc": "七品丹药，玄炉老人成名之作，蕴含阴阳二气。",
     "price_buy": 3000,
     "price_sell": 1500
   },
@@ -239,7 +239,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "iron",
     "effect": "douqi:+30",
-    "desc": "加快斗气凝聚的基础药散。",
+    "desc": "加快灵力凝聚的基础药散。",
     "price_buy": 15,
     "price_sell": 7
   },
@@ -285,7 +285,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_qi_pill_5": {
     "id": "item_qi_pill_5",
-    "name": "斗气凝丹",
+    "name": "灵力凝丹",
     "type": "consumable",
     "tier": "earth",
     "effect": "douqi:+600",
@@ -315,7 +315,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_qi_pill_8": {
     "id": "item_qi_pill_8",
-    "name": "星辰斗气丹",
+    "name": "星辰灵力丹",
     "type": "consumable",
     "tier": "saint",
     "effect": "douqi:+3000",
@@ -339,7 +339,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "refined",
     "effect": "hp:+100,douqi:+50",
-    "desc": "同时恢复气血与斗气的二品丹药。",
+    "desc": "同时恢复气血与灵力的二品丹药。",
     "price_buy": 80,
     "price_sell": 40
   },
@@ -1119,7 +1119,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "douqi_regen:10,5",
-    "desc": "每回合恢复10斗气，持续5回合。",
+    "desc": "每回合恢复10灵力，持续5回合。",
     "price_buy": 150,
     "price_sell": 75
   },
@@ -1129,7 +1129,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "treasure",
     "effect": "douqi_regen:25,5",
-    "desc": "每回合恢复25斗气，持续5回合。",
+    "desc": "每回合恢复25灵力，持续5回合。",
     "price_buy": 350,
     "price_sell": 175
   },
@@ -1139,7 +1139,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "element_boost:fire",
-    "desc": "临时强化火属性斗技威力。",
+    "desc": "临时强化火属性灵技威力。",
     "price_buy": 180,
     "price_sell": 90
   },
@@ -1149,7 +1149,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "element_boost:ice",
-    "desc": "临时强化冰属性斗技威力。",
+    "desc": "临时强化冰属性灵技威力。",
     "price_buy": 180,
     "price_sell": 90
   },
@@ -1159,7 +1159,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "element_boost:thunder",
-    "desc": "临时强化雷属性斗技威力。",
+    "desc": "临时强化雷属性灵技威力。",
     "price_buy": 180,
     "price_sell": 90
   },
@@ -1169,7 +1169,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "element_boost:wind",
-    "desc": "临时强化风属性斗技威力。",
+    "desc": "临时强化风属性灵技威力。",
     "price_buy": 180,
     "price_sell": 90
   },
@@ -1179,7 +1179,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "spirit",
     "effect": "element_boost:poison",
-    "desc": "临时强化毒属性斗技威力。",
+    "desc": "临时强化毒属性灵技威力。",
     "price_buy": 180,
     "price_sell": 90
   },
@@ -1389,7 +1389,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "consumable",
     "tier": "earth",
     "effect": "hp:+300",
-    "desc": "远古龙族后裔的血肉。",
+    "desc": "远虚空龙族后裔的血肉。",
     "price_buy": 300,
     "price_sell": 150
   },
@@ -2025,11 +2025,11 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_flame_seed": {
     "id": "item_flame_seed",
-    "name": "异火种子",
+    "name": "源火种子",
     "type": "material",
     "tier": "treasure",
     "effect": "material",
-    "desc": "异火的微弱火种。",
+    "desc": "源火的微弱火种。",
     "price_buy": 500,
     "price_sell": 250
   },
@@ -2059,7 +2059,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "material",
     "tier": "heaven",
     "effect": "material",
-    "desc": "魂殿高阶成员体内提炼的黑血。",
+    "desc": "黑渊高阶成员体内提炼的黑血。",
     "price_buy": 800,
     "price_sell": 400
   },
@@ -2299,7 +2299,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "material",
     "tier": "treasure",
     "effect": "material",
-    "desc": "可储存大量斗气的水晶。",
+    "desc": "可储存大量灵力的水晶。",
     "price_buy": 300,
     "price_sell": 150
   },
@@ -2729,7 +2729,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "divine",
     "effect": "special",
-    "desc": "异火榜排名第一，古帝的本命火焰。",
+    "desc": "源火榜第一，古帝的本命火焰。",
     "price_buy": 100000,
     "price_sell": 50000
   },
@@ -2739,27 +2739,27 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "divine",
     "effect": "special",
-    "desc": "异火榜排名第二，可吞噬万物化为虚无。",
+    "desc": "源火榜第二，可吞噬万物化为虚无。",
     "price_buy": 90000,
     "price_sell": 45000
   },
   "item_flame_3": {
     "id": "item_flame_3",
-    "name": "净莲妖火",
+    "name": "净世白莲火",
     "type": "heavenly_flame",
     "tier": "emperor",
     "effect": "special",
-    "desc": "异火榜排名第三，可净化一切杂质。",
+    "desc": "源火榜第三，可净化一切杂质。",
     "price_buy": 80000,
     "price_sell": 40000
   },
   "item_flame_4": {
     "id": "item_flame_4",
-    "name": "金帝焚天炎",
+    "name": "金乌焚天火",
     "type": "heavenly_flame",
     "tier": "emperor",
     "effect": "special",
-    "desc": "异火榜排名第四，古族传承之火。",
+    "desc": "源火榜第四，云族传承之火。",
     "price_buy": 70000,
     "price_sell": 35000
   },
@@ -2769,7 +2769,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "saint",
     "effect": "special",
-    "desc": "异火榜排名第五，蕴含磅礴生机。",
+    "desc": "源火榜第五，蕴含磅礴生机。",
     "price_buy": 60000,
     "price_sell": 30000
   },
@@ -2779,7 +2779,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "saint",
     "effect": "special",
-    "desc": "异火榜排名第六，可破灭一切。",
+    "desc": "源火榜第六，可破灭一切。",
     "price_buy": 50000,
     "price_sell": 25000
   },
@@ -2789,7 +2789,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "mystic",
     "effect": "special",
-    "desc": "异火榜排名第七，九幽之下孕育的金色火焰。",
+    "desc": "源火榜第七，九幽之下孕育的金色火焰。",
     "price_buy": 45000,
     "price_sell": 22500
   },
@@ -2799,17 +2799,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "mystic",
     "effect": "special",
-    "desc": "异火榜排名第八，业火焚罪、红莲净世。",
+    "desc": "源火榜第八，业火焚罪、红莲净世。",
     "price_buy": 40000,
     "price_sell": 20000
   },
   "item_flame_9": {
     "id": "item_flame_9",
-    "name": "三千焱炎火",
+    "name": "三千星空火",
     "type": "heavenly_flame",
     "tier": "heaven",
     "effect": "special",
-    "desc": "异火榜排名第九，又名三千星空焱炎火。",
+    "desc": "源火榜第九，又名三千星空火。",
     "price_buy": 35000,
     "price_sell": 17500
   },
@@ -2819,17 +2819,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "heaven",
     "effect": "special",
-    "desc": "异火榜排名第十，风炎交融的奇火。",
+    "desc": "源火榜第十，风炎交融的奇火。",
     "price_buy": 30000,
     "price_sell": 15000
   },
   "item_flame_11": {
     "id": "item_flame_11",
-    "name": "骨灵冷火",
+    "name": "玄冥冷火",
     "type": "heavenly_flame",
     "tier": "earth",
     "effect": "special",
-    "desc": "异火榜排名第十一，药老的本命火焰。",
+    "desc": "源火榜第十一，玄炉老人的本命火焰。",
     "price_buy": 25000,
     "price_sell": 12500
   },
@@ -2839,7 +2839,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "earth",
     "effect": "special",
-    "desc": "异火榜排名第十二，九龙环绕、雷火齐鸣。",
+    "desc": "源火榜第十二，九龙环绕、雷火齐鸣。",
     "price_buy": 22000,
     "price_sell": 11000
   },
@@ -2849,17 +2849,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "treasure",
     "effect": "special",
-    "desc": "异火榜排名第十三，地心孕育的龟形火焰。",
+    "desc": "源火榜第十三，地心孕育的龟形火焰。",
     "price_buy": 18000,
     "price_sell": 9000
   },
   "item_flame_14": {
     "id": "item_flame_14",
-    "name": "陨落心炎",
+    "name": "陨心源火",
     "type": "heavenly_flame",
     "tier": "treasure",
     "effect": "special",
-    "desc": "异火榜排名第十四，透明无色、直攻内心。",
+    "desc": "源火榜第十四，透明无色、直攻内心。",
     "price_buy": 16000,
     "price_sell": 8000
   },
@@ -2869,7 +2869,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "special",
-    "desc": "异火榜排名第十五，深海之心孕育的奇焰。",
+    "desc": "源火榜第十五，深海之心孕育的奇焰。",
     "price_buy": 12000,
     "price_sell": 6000
   },
@@ -2879,7 +2879,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "special",
-    "desc": "异火榜排名第十六，火山口万年不灭的火焰。",
+    "desc": "源火榜排名第十六，火山口万年不灭的火焰。",
     "price_buy": 10000,
     "price_sell": 5000
   },
@@ -2889,17 +2889,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "flame",
-    "desc": "异火榜排名第十七，风雷交加而成的紫青火焰。",
+    "desc": "源火榜第十七，风雷交加而成的紫青火焰。",
     "price_buy": 6250,
     "price_sell": 3125
   },
   "item_flame_18": {
     "id": "item_flame_18",
-    "name": "青莲地心火",
+    "name": "青莲源火",
     "type": "heavenly_flame",
     "tier": "refined",
     "effect": "flame",
-    "desc": "异火榜排名第十八，萧炎获得的第一种异火，生于青莲。",
+    "desc": "源火榜第十八，林烬获得的第一种源火，生于青莲。",
     "price_buy": 5555,
     "price_sell": 2777
   },
@@ -2909,7 +2909,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "refined",
     "effect": "flame",
-    "desc": "异火榜排名第十九，龙血凤骨诞生的双色火焰。",
+    "desc": "源火榜第十九，龙血凤骨诞生的双色火焰。",
     "price_buy": 5555,
     "price_sell": 2777
   },
@@ -2919,7 +2919,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "flame",
-    "desc": "异火榜排名第二十，传说来自六道轮回。",
+    "desc": "源火榜第二十，传说来自六道轮回。",
     "price_buy": 5000,
     "price_sell": 2500
   },
@@ -2929,7 +2929,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "flame",
-    "desc": "异火榜排名第二十一，万兽灵魂燃烧的火焰。",
+    "desc": "源火榜第二十一，万兽灵魂燃烧的火焰。",
     "price_buy": 5000,
     "price_sell": 2500
   },
@@ -2939,7 +2939,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "flame",
-    "desc": "异火榜排名第二十二，玄黄之气凝聚而成。",
+    "desc": "源火榜第二十二，玄黄之气凝聚而成。",
     "price_buy": 4545,
     "price_sell": 2272
   },
@@ -2949,27 +2949,27 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "flame",
-    "desc": "异火榜排名第二十三，蕴含剧毒的诡异绿焰。",
+    "desc": "源火榜第二十三，蕴含剧毒的诡异绿焰。",
     "price_buy": 4545,
     "price_sell": 2272
   },
   "item_skill_book_1": {
     "id": "item_skill_book_1",
-    "name": "焚决·残卷",
+    "name": "源火决·残卷",
     "type": "book",
     "tier": "refined",
     "effect": "learn_skill",
-    "desc": "药老传授的神秘功法残卷，可吞噬异火进化。",
+    "desc": "玄炉老人传授的神秘功法残卷，可吞噬源火进化。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_skill_book_2": {
     "id": "item_skill_book_2",
-    "name": "八极崩·手札",
+    "name": "八荒崩·手札",
     "type": "book",
     "tier": "refined",
     "effect": "learn_skill",
-    "desc": "记载地阶斗技八极崩的修炼手札。",
+    "desc": "记载地阶灵技八荒崩的修炼手札。",
     "price_buy": 800,
     "price_sell": 400
   },
@@ -2979,7 +2979,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "book",
     "tier": "spirit",
     "effect": "learn_skill",
-    "desc": "地阶斗技——焰分噬浪尺的修炼法门。",
+    "desc": "地阶灵技——焰分噬浪尺的修炼法门。",
     "price_buy": 2000,
     "price_sell": 1000
   },
@@ -2989,7 +2989,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "book",
     "tier": "treasure",
     "effect": "learn_skill",
-    "desc": "地阶身法斗技——三千雷动。",
+    "desc": "地阶身法灵技——三千雷动。",
     "price_buy": 5000,
     "price_sell": 2500
   },
@@ -2999,7 +2999,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "book",
     "tier": "earth",
     "effect": "learn_skill",
-    "desc": "天阶斗技——大天造化掌。",
+    "desc": "天阶灵技——大天造化掌。",
     "price_buy": 15000,
     "price_sell": 7500
   },
@@ -3009,7 +3009,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "book",
     "tier": "heaven",
     "effect": "learn_skill",
-    "desc": "天阶炼体斗技——金刚琉璃身。",
+    "desc": "天阶炼体灵技——金刚琉璃身。",
     "price_buy": 25000,
     "price_sell": 12500
   },
@@ -3019,7 +3019,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "book",
     "tier": "mystic",
     "effect": "learn_skill",
-    "desc": "天阶灵魂斗技——黄泉天怒。",
+    "desc": "天阶灵魂灵技——黄泉天怒。",
     "price_buy": 50000,
     "price_sell": 25000
   },
@@ -3029,7 +3029,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "special",
     "tier": "spirit",
     "effect": "cultivation_boost",
-    "desc": "放置于身旁可加速斗气修炼。",
+    "desc": "放置于身旁可加速灵力修炼。",
     "price_buy": 500,
     "price_sell": 250
   },
@@ -3175,11 +3175,11 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_return_scroll_1": {
     "id": "item_return_scroll_1",
-    "name": "传送卷轴·乌坦城",
+    "name": "传送卷轴·青石城",
     "type": "special",
     "tier": "iron",
     "effect": "teleport:map_wutan",
-    "desc": "撕碎后立即传送到乌坦城。",
+    "desc": "撕碎后立即传送到青石城。",
     "price_buy": 100,
     "price_sell": 50
   },
@@ -3329,7 +3329,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "special",
     "tier": "treasure",
     "effect": "reset_skills",
-    "desc": "以魔力书写的卷轴，可遗忘一项斗技。",
+    "desc": "以魔力书写的卷轴，可遗忘一项灵技。",
     "price_buy": 1000,
     "price_sell": 500
   },
@@ -3409,7 +3409,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "special",
     "tier": "spirit",
     "effect": "damage_shield",
-    "desc": "生成抵挡一次攻击的斗气护盾。",
+    "desc": "生成抵挡一次攻击的灵力护盾。",
     "price_buy": 250,
     "price_sell": 125
   },
@@ -3609,17 +3609,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "key",
     "tier": "emperor",
     "effect": "key",
-    "desc": "斗帝遗留的至高密钥。",
+    "desc": "灵帝遗留的至高密钥。",
     "price_buy": 50000,
     "price_sell": 25000
   },
   "item_quest_token_1": {
     "id": "item_quest_token_1",
-    "name": "萧家族徽",
+    "name": "林家族徽",
     "type": "quest",
     "tier": "iron",
     "effect": "quest",
-    "desc": "萧家的族徽，乌坦城萧家的身份证明。",
+    "desc": "林家的族徽，青石城林家的身份证明。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3645,21 +3645,21 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_quest_token_4": {
     "id": "item_quest_token_4",
-    "name": "黑角域通行证",
+    "name": "暗角域通行证",
     "type": "quest",
     "tier": "treasure",
     "effect": "quest",
-    "desc": "进入黑角域核心区域的通行证。",
+    "desc": "进入暗角域核心区域的通行证。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_token_5": {
     "id": "item_quest_token_5",
-    "name": "丹塔认证",
+    "name": "丹阁认证",
     "type": "quest",
     "tier": "earth",
     "effect": "quest",
-    "desc": "丹塔炼药师等级认证文书。",
+    "desc": "丹阁炼药师等级认证文书。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3669,17 +3669,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "heaven",
     "effect": "quest",
-    "desc": "古族发放的通行令牌。",
+    "desc": "云族发放的通行令牌。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_token_7": {
     "id": "item_quest_token_7",
-    "name": "魂殿令牌",
+    "name": "黑渊令牌",
     "type": "quest",
     "tier": "mystic",
     "effect": "quest",
-    "desc": "从魂殿使者身上缴获的令牌。",
+    "desc": "从黑渊使者身上缴获的令牌。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3699,27 +3699,27 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "emperor",
     "effect": "quest",
-    "desc": "陀舍古帝玉的碎片之一，蕴含帝之本源。",
+    "desc": "源帝玉的碎片之一，蕴含帝之本源。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_token_10": {
     "id": "item_quest_token_10",
-    "name": "净莲妖火·残图",
+    "name": "净世白莲火·残图",
     "type": "quest",
     "tier": "heaven",
     "effect": "quest",
-    "desc": "标注净莲妖火位置的地图残片。",
+    "desc": "标注净世白莲火位置的地图残片。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_token_11": {
     "id": "item_quest_token_11",
-    "name": "药老之戒",
+    "name": "玄炉老人之戒",
     "type": "quest",
     "tier": "iron",
     "effect": "quest",
-    "desc": "母亲留给萧炎的黑色戒指，药老灵魂栖身之所。",
+    "desc": "母亲留给林烬的黑色戒指，玄炉老人灵魂栖身之所。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3729,7 +3729,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "refined",
     "effect": "quest",
-    "desc": "药老赠予萧炎的修炼用重尺，重逾千斤。",
+    "desc": "玄炉老人赠予林烬的修炼用重尺，重逾千斤。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3749,17 +3749,17 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "earth",
     "effect": "quest",
-    "desc": "萧玄所创的秘法手札残篇。",
+    "desc": "林玄所创的秘法手札残篇。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_map_wutan": {
     "id": "item_map_wutan",
-    "name": "乌坦城地图",
+    "name": "青石城地图",
     "type": "quest",
     "tier": "iron",
     "effect": "reveal_map",
-    "desc": "标注乌坦城各区域的位置。",
+    "desc": "标注青石城各区域的位置。",
     "price_buy": 10,
     "price_sell": 5
   },
@@ -3775,7 +3775,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_map_desert": {
     "id": "item_map_desert",
-    "name": "塔戈尔沙漠地图",
+    "name": "赤沙荒漠地图",
     "type": "quest",
     "tier": "spirit",
     "effect": "reveal_map",
@@ -3795,11 +3795,11 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_map_black_corner": {
     "id": "item_map_black_corner",
-    "name": "黑角域地图",
+    "name": "暗角域地图",
     "type": "quest",
     "tier": "earth",
     "effect": "reveal_map",
-    "desc": "标注黑角域各大势力范围。",
+    "desc": "标注暗角域各大势力范围。",
     "price_buy": 500,
     "price_sell": 250
   },
@@ -3829,7 +3829,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "saint",
     "effect": "reveal_map",
-    "desc": "标注太虚古龙族所在的龙岛航线。",
+    "desc": "标注虚空龙族所在的龙岛航线。",
     "price_buy": 15000,
     "price_sell": 7500
   },
@@ -3839,7 +3839,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "divine",
     "effect": "reveal_map",
-    "desc": "陀舍古帝洞府的藏宝图残片。",
+    "desc": "源帝洞府的藏宝图残片。",
     "price_buy": 50000,
     "price_sell": 25000
   },
@@ -3859,7 +3859,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "key",
     "tier": "refined",
     "effect": "key",
-    "desc": "开启塔戈尔沙漠地宫的钥匙。",
+    "desc": "开启赤沙荒漠地宫的钥匙。",
     "price_buy": 80,
     "price_sell": 40
   },
@@ -3875,11 +3875,11 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_key_dungeon_4": {
     "id": "item_key_dungeon_4",
-    "name": "黑角域地下城钥匙",
+    "name": "暗角域地下城钥匙",
     "type": "key",
     "tier": "treasure",
     "effect": "key",
-    "desc": "黑角域地下暗市的通行钥匙。",
+    "desc": "暗角域地下暗市的通行钥匙。",
     "price_buy": 500,
     "price_sell": 250
   },
@@ -3895,21 +3895,21 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_key_dungeon_6": {
     "id": "item_key_dungeon_6",
-    "name": "丹塔顶层钥匙",
+    "name": "丹阁顶层钥匙",
     "type": "key",
     "tier": "heaven",
     "effect": "key",
-    "desc": "通往丹塔顶层的钥匙。",
+    "desc": "通往丹阁顶层的钥匙。",
     "price_buy": 5000,
     "price_sell": 2500
   },
   "item_key_dungeon_7": {
     "id": "item_key_dungeon_7",
-    "name": "魂殿分殿钥匙",
+    "name": "黑渊分殿钥匙",
     "type": "key",
     "tier": "mystic",
     "effect": "key",
-    "desc": "从魂殿护法身上缴获的分殿钥匙。",
+    "desc": "从黑渊护法身上缴获的分殿钥匙。",
     "price_buy": 10000,
     "price_sell": 5000
   },
@@ -3919,37 +3919,37 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "key",
     "tier": "divine",
     "effect": "key",
-    "desc": "开启陀舍古帝洞府的至高钥匙。",
+    "desc": "开启源帝洞府的至高钥匙。",
     "price_buy": 100000,
     "price_sell": 50000
   },
   "item_quest_letter_1": {
     "id": "item_quest_letter_1",
-    "name": "萧战家书",
+    "name": "林战家书",
     "type": "quest",
     "tier": "iron",
     "effect": "quest",
-    "desc": "父亲萧战写给萧炎的家书。",
+    "desc": "父亲林战写给林烬的家书。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_letter_2": {
     "id": "item_quest_letter_2",
-    "name": "药老的手札",
+    "name": "玄炉老人的手札",
     "type": "quest",
     "tier": "refined",
     "effect": "quest",
-    "desc": "药老亲笔所写的修炼笔记。",
+    "desc": "玄炉老人亲笔所写的修炼笔记。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_letter_3": {
     "id": "item_quest_letter_3",
-    "name": "云韵的信",
+    "name": "青韵的信",
     "type": "quest",
     "tier": "spirit",
     "effect": "quest",
-    "desc": "云岚宗宗主云韵的亲笔信。",
+    "desc": "青岚宗宗主青韵的亲笔信。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -3975,31 +3975,31 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_quest_medal_3": {
     "id": "item_quest_medal_3",
-    "name": "丹会冠军勋章",
+    "name": "丹阁冠军勋章",
     "type": "quest",
     "tier": "heaven",
     "effect": "quest",
-    "desc": "中州丹会炼药师大赛冠军勋章。",
+    "desc": "中州丹阁炼药师大赛冠军勋章。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_trophy_1": {
     "id": "item_quest_trophy_1",
-    "name": "韩枫的戒指",
+    "name": "冷煜的戒指",
     "type": "quest",
     "tier": "treasure",
     "effect": "quest",
-    "desc": "药老逆徒韩枫的纳戒，其中或许藏有秘密。",
+    "desc": "玄炉老人逆徒冷煜的纳戒，其中或许藏有秘密。",
     "price_buy": 0,
     "price_sell": 0
   },
   "item_quest_trophy_2": {
     "id": "item_quest_trophy_2",
-    "name": "魂殿护法的灵魂印记",
+    "name": "黑渊护法的灵魂印记",
     "type": "quest",
     "tier": "mystic",
     "effect": "quest",
-    "desc": "击败魂殿护法后获得的战利品。",
+    "desc": "击败黑渊护法后获得的战利品。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -4015,11 +4015,11 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
   },
   "item_quest_trophy_4": {
     "id": "item_quest_trophy_4",
-    "name": "太虚古龙逆鳞",
+    "name": "虚空龙族逆鳞",
     "type": "quest",
     "tier": "saint",
     "effect": "quest",
-    "desc": "太虚古龙王的逆鳞信物。",
+    "desc": "虚空龙族王的逆鳞信物。",
     "price_buy": 0,
     "price_sell": 0
   },
@@ -4029,7 +4029,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "type": "quest",
     "tier": "divine",
     "effect": "quest",
-    "desc": "获得陀舍古帝传承的信物。",
+    "desc": "获得源帝传承的信物。",
     "price_buy": 0,
     "price_sell": 0
   },

@@ -87,7 +87,7 @@ def assign_elite_skills(level, faction_pool, element_pools, unique_pool):
 
 # Helper: elite (eid, level, faction_pool, element_pools, unique_pool)
 ELITE_DATA = [
-    # ── 加玛帝国 Lv 10-28 ──
+    # ── 沧澜帝国 Lv 10-28 ──
     ("elite_wolf_head_leader", 10, [], [], ["skill_beast_charge"]),
     ("elite_xiao_guard_captain", 12, [], [], ["skill_beast_charge"]),
     ("elite_wutan_guard_chief", 12, [], [], ["skill_defensive_stance"]),
@@ -111,7 +111,7 @@ ELITE_DATA = [
     ("elite_jia_ma_spy_master", 28, [], [], ["skill_shadow_strike"]),
     ("elite_jia_ma_arena_champion", 28, [], [], ["skill_arena_rage"]),
 
-    # ── 云岚宗 Lv 18-28 ──
+    # ── 青岚宗 Lv 18-28 ──
     ("elite_yunlan_elder", 18, [], [WIND], ["skill_cloud_wind_sword", "skill_wind_wall"]),
     ("elite_yunlan_enforcer", 20, [], [WIND], ["skill_cloud_wind_sword"]),
     ("elite_yunlan_guard_captain", 25, [], [WIND], ["skill_cloud_wind_sword", "skill_wind_wall"]),
@@ -119,7 +119,7 @@ ELITE_DATA = [
     ("elite_yunlan_ritual_master", 22, [], [WIND], ["skill_cloud_wind_sword", "skill_wind_slash"]),
     ("elite_yunlan_sword_master", 26, [], [WIND], ["skill_cloud_wind_sword", "skill_sword_qi"]),
 
-    # ── 黑角域 Lv 22-36 ──
+    # ── 暗角域 Lv 22-36 ──
     ("elite_blood_sect_elder", 22, [], [], ["skill_blood_art", "skill_blood_transform"]),
     ("elite_black_alliance_captain", 24, [], [], ["skill_battle_cry"]),
     ("elite_eight_gates_enforcer", 26, [], [], ["skill_eight_gates_palm"]),
@@ -157,7 +157,7 @@ ELITE_DATA = [
     ("elite_mulan_valley_herbalist", 34, [], [], ["skill_mulan_herb_art", "skill_pill_boost"]),
     ("elite_chuyun_imperial_guard", 35, [], [], ["skill_defensive_stance"]),
 
-    # ── 魂殿 Lv 35-82 ──
+    # ── 黑渊殿 Lv 35-82 ──
     ("elite_soul_hall_protector", 35, [], [SOUL], ["skill_soul_handprint", "skill_soul_chain"]),
     ("elite_soul_hall_elder_protector", 42, [], [SOUL], ["skill_soul_handprint", "skill_soul_chain", "skill_soul_pain"]),
     ("elite_soul_hall_soul_reaper", 48, [], [SOUL], ["skill_soul_rend"]),

@@ -14,7 +14,7 @@ FURNACES = [
     {"id":"furnace_6","name":"玉药鼎","grade":6,"bonus":20,"max_uses":450,"special":"双倍产出10%","desc":"灵玉雕琢，有概率一炉出双丹。","price_buy":60000,"price_sell":12000},
     {"id":"furnace_7","name":"灵药鼎","grade":7,"bonus":25,"max_uses":-1,"special":"成功率+10%,无限","desc":"灵器级别的药鼎，永不磨损。","price_buy":150000,"price_sell":30000},
     {"id":"furnace_8","name":"圣药鼎","grade":8,"bonus":30,"max_uses":-1,"special":"成功率+15%,省材20%","desc":"圣器药鼎，有概率不消耗材料。","price_buy":300000,"price_sell":60000},
-    {"id":"furnace_9","name":"帝药鼎","grade":9,"bonus":35,"max_uses":-1,"special":"成功率+20%,双倍20%","desc":"帝器药鼎，远古斗帝所留。","price_buy":600000,"price_sell":120000},
+    {"id":"furnace_9","name":"帝药鼎","grade":9,"bonus":35,"max_uses":-1,"special":"成功率+20%,双倍20%","desc":"帝器药鼎，远古灵帝所留。","price_buy":600000,"price_sell":120000},
     {"id":"furnace_10","name":"神农药鼎","grade":10,"bonus":50,"max_uses":-1,"special":"成功率+30%,双倍30%,省材30%","desc":"传说中神农氏的药鼎。","price_buy":1000000,"price_sell":200000},
 ]
 

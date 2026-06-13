@@ -125,7 +125,7 @@ def _register(key: str):
 
 
 # ═══════════════════════════════════════════════════════════════
-# 通用：纯文本信息屏（人物、斗技、故事等）
+# 通用：纯文本信息屏（人物、灵技、故事等）
 # ═══════════════════════════════════════════════════════════════
 
 class InfoScreen(_SubScreen):
@@ -152,7 +152,7 @@ class CharacterScreen(InfoScreen):
             f"进度 {p['progress']:.1f}%  阅历 {p['adventure_points']}",
             "",
             f"生命 {p['hp']}/{p['max_hp']}  {_hp_bar(p['hp'], p['max_hp'])}",
-            f"斗气 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}",
+            f"灵力 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}",
             f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}",
             f"暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
             f"灵魂 {p['soul']}  炼药 {p['alchemy']}  声望 {p['reputation']}",
@@ -183,9 +183,9 @@ class SkillsScreen(InfoScreen):
         super().__init__(game)
         skills = game.combat_skills()
         if not skills:
-            self.content_lines = ["尚未掌握任何斗技。"]
+            self.content_lines = ["尚未掌握任何灵技。"]
             return
-        lines = [f"[bold]—— 已学斗技（{len(skills)} 种）——[/]", ""]
+        lines = [f"[bold]—— 已学灵技（{len(skills)} 种）——[/]", ""]
         for skill in skills:
             lines.append(f"  {skill['name']}  [{skill.get('rank','')}]")
             lines.append(f"  类型：{skill.get('type','—')}  效果：{skill.get('effect','—')}")
@@ -294,7 +294,7 @@ class CultivationScreen(_SubScreen):
 
         lines = [
             f"[bold]修炼进度 {pct:.1f}%[/]  经验 {self.game.player.get('exp',0)}",
-            f"斗气 {self.game.player['douqi']}",
+            f"灵力 {self.game.player['douqi']}",
             "",
         ]
         if pct >= 100.0 and level < 100:
@@ -303,7 +303,7 @@ class CultivationScreen(_SubScreen):
                 f"{boundary} 冲击 {self.game.realm_name()} Lv.{level+1}（成功率 {ct}）"
             )
         elif level >= 100:
-            lines.append("斗帝之境，已臻化境。")
+            lines.append("灵帝之境，已臻化境。")
         else:
             lines.append("进度未满，还无法尝试突破。")
 
@@ -538,7 +538,7 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
 
     BINDINGS = [
         Binding("1", "attack", "攻击"),
-        Binding("2", "skill", "斗技"),
+        Binding("2", "skill", "灵技"),
         Binding("3", "defend", "防御"),
         Binding("4", "item", "丹药"),
         Binding("5", "escape", "逃跑"),
@@ -554,7 +554,7 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
             yield RichLog(id="combat-log", highlight=True, markup=True)
             with Horizontal(id="combat-actions"):
                 yield Button("1.攻击", id="btn-atk", variant="primary")
-                yield Button("2.斗技", id="btn-skill")
+                yield Button("2.灵技", id="btn-skill")
                 yield Button("3.防御", id="btn-def")
                 yield Button("4.丹药", id="btn-item")
                 yield Button("5.逃跑", id="btn-esc")
@@ -596,7 +596,7 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
     def _skill(self) -> None:
         skills = self.game.combat_skills()
         if not skills:
-            self.game.last_message = "尚未掌握可用斗技。"
+            self.game.last_message = "尚未掌握可用灵技。"
             self._refresh_combat()
             return
         if len(skills) == 1:
@@ -636,7 +636,7 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
 
 
 class SkillSelectScreen(_KeyboardNavigation, ModalScreen[None]):
-    """战斗中选择斗技的弹出屏。"""
+    """战斗中选择灵技的弹出屏。"""
 
     BINDINGS = [
         Binding("escape,q", "cancel", "取消"),
@@ -649,7 +649,7 @@ class SkillSelectScreen(_KeyboardNavigation, ModalScreen[None]):
         self.callback = callback
 
     def compose(self) -> ComposeResult:
-        yield Static("[bold]选择斗技[/]", id="skill-title")
+        yield Static("[bold]选择灵技[/]", id="skill-title")
         for i, skill in enumerate(self.skills[:9], start=1):
             yield Button(
                 f"{i}. {skill['name']} [{skill.get('rank','')}]",
@@ -793,7 +793,7 @@ class HubScreen(_KeyboardNavigation, Screen[None]):
     BINDINGS = [
         Binding("1", "menu('1')", "人物", show=False),
         Binding("2", "menu('2')", "物品", show=False),
-        Binding("3", "menu('3')", "斗技", show=False),
+        Binding("3", "menu('3')", "灵技", show=False),
         Binding("4", "menu('4')", "修炼", show=False),
         Binding("5", "menu('5')", "探索", show=False),
         Binding("6", "menu('6')", "移动", show=False),
@@ -824,7 +824,7 @@ class HubScreen(_KeyboardNavigation, Screen[None]):
             with Horizontal(classes="menu-row"):
                 yield Button("1.人物", id="hub-btn-1", variant="primary")
                 yield Button("2.物品", id="hub-btn-2")
-                yield Button("3.斗技", id="hub-btn-3")
+                yield Button("3.灵技", id="hub-btn-3")
                 yield Button("4.修炼", id="hub-btn-4")
             with Horizontal(classes="menu-row"):
                 yield Button("5.探索", id="hub-btn-5")
@@ -834,7 +834,7 @@ class HubScreen(_KeyboardNavigation, Screen[None]):
 
         # 消息区
         with Container(id="msg-area"):
-            yield Static("欢迎来到斗气大陆。你的传奇，由此开始。", id="hub-msg")
+            yield Static("欢迎来到灵玄大陆。你的传奇，由此开始。", id="hub-msg")
 
         yield Footer()
 
@@ -882,7 +882,7 @@ class HubScreen(_KeyboardNavigation, Screen[None]):
         self.query_one("#tr2", Label).update(
             f"修炼 {prog:.1f}%｜"
             f"生命 {p['hp']}/{p['max_hp']}"
-            f"  斗气 {p['douqi']}"
+            f"  灵力 {p['douqi']}"
             f"  阅历 {p['adventure_points']}"
         )
         self.query_one("#tr3", Label).update(right_3)

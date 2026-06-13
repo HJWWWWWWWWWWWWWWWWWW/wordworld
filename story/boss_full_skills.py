@@ -37,12 +37,12 @@ def add_skill(sid, name, stype, rank, effect, desc):
 # ══════════════════════════════════════════════════════════
 NEW_GENERIC = [
     # 战斗基础 (Lv 1-20) - every cultivator learns these
-    ("skill_qi_shield", "斗气盾", "防御", "黄阶高级", "def:+30",
-     "以斗气凝聚护盾格挡伤害。修炼者的基础防御技能。"),
-    ("skill_qi_burst", "斗气爆发", "辅助", "玄阶低级", "atk:+25,spd:+15",
-     "瞬间爆发斗气提升战力。中阶修炼者通用的战斗技巧。"),
+    ("skill_qi_shield", "灵力盾", "防御", "黄阶高级", "def:+30",
+     "以灵力凝聚护盾格挡伤害。修炼者的基础防御技能。"),
+    ("skill_qi_burst", "灵力爆发", "辅助", "玄阶低级", "atk:+25,spd:+15",
+     "瞬间爆发灵力提升战力。中阶修炼者通用的战灵技巧。"),
     ("skill_iron_body", "铜体术", "防御", "玄阶低级", "def:+35,spd:-10",
-     "以斗气强化肉身防御。佣兵和体修偏好的防御技能。"),
+     "以灵力强化肉身防御。佣兵和体修偏好的防御技能。"),
     ("skill_spirit_sense", "灵觉", "辅助", "玄阶低级", "spd:+20,soul:+5",
      "释放灵魂感知预判对手行动。炼药师和魂修的基础能力。"),
 
@@ -50,27 +50,27 @@ NEW_GENERIC = [
     ("skill_shadow_step", "影步", "身法", "玄阶中级", "spd:+35",
      "高速移动留下残影。各大势力中层弟子的标配身法。"),
     ("skill_soaring_sky", "踏空步", "身法", "玄阶高级", "spd:+40",
-     "借助斗气在空中短暂行走。斗王以上强者的标志性能力。"),
+     "借助灵力在空中短暂行走。灵王以上强者的标志性能力。"),
     ("skill_lightning_flash", "电光一闪", "身法", "地阶低级", "spd:+55",
      "以雷电之力驱动极致速度。风雷阁及雷系强者的高级身法。"),
 
     # 攻击进阶 (Lv 20-50)
-    ("skill_qi_explosion", "斗气炸裂", "物理", "玄阶高级", "atk:+40",
-     "将斗气压缩后引爆造成范围伤害。斗灵以上修炼者的强力攻击。"),
+    ("skill_qi_explosion", "灵力炸裂", "物理", "玄阶高级", "atk:+40",
+     "将灵力压缩后引爆造成范围伤害。灵师以上修炼者的强力攻击。"),
     ("skill_mountain_splitter", "开山裂石", "物理", "玄阶高级", "atk:+45,spd:-5",
      "蓄力发出开山裂石般的重击。力量型修炼者的偏爱。"),
     ("skill_hundred_fists", "百拳连打", "物理", "玄阶中级", "atk:+30,spd:+10",
      "高速连打百拳压制对手。近战型修炼者的常见连招。"),
     ("skill_air_slash", "空斩", "物理", "地阶低级", "atk:+50",
-     "凝聚斗气于兵刃发出隔空斩击。斗王以上强者可轻易施展。"),
+     "凝聚灵力于兵刃发出隔空斩击。灵王以上强者可轻易施展。"),
 
     # 元素进阶 (Lv 25-60)
     ("skill_fire_storm", "火焰风暴", "火系", "地阶低级", "atk:+55",
-     "召唤大范围火焰风暴。斗皇以上火系强者的战场杀招。"),
+     "召唤大范围火焰风暴。灵皇以上火系强者的战场杀招。"),
     ("skill_ice_prison", "冰封牢笼", "冰系", "地阶低级", "atk:+45,spd:-20",
-     "以极寒斗气冻结目标。冰系强者的控制技能。"),
+     "以极寒灵力冻结目标。冰系强者的控制技能。"),
     ("skill_wind_explosion", "风爆", "风系", "地阶低级", "atk:+50,spd:+15",
-     "压缩风属性斗气产生剧烈爆炸。风系强者的进阶攻击。"),
+     "压缩风属性灵力产生剧烈爆炸。风系强者的进阶攻击。"),
     ("skill_earth_wall", "大地之壁", "土系", "地阶低级", "def:+50",
      "从大地升起岩壁防御。土系修炼者的强大防御技。"),
     ("skill_thunder_rain", "雷霆暴雨", "雷系", "地阶中级", "atk:+65,spd:+10",
@@ -80,17 +80,17 @@ NEW_GENERIC = [
 
     # 暗/灵魂进阶 (Lv 30-70)
     ("skill_dark_erosion", "暗蚀", "暗系", "地阶低级", "atk:+50,soul:+15",
-     "以黑暗斗气侵蚀目标防御。魂殿及暗系修炼者的进阶技能。"),
+     "以黑暗灵力侵蚀目标防御。黑渊殿及暗系修炼者的进阶技能。"),
     ("skill_soul_blast", "灵魂爆破", "灵魂", "地阶中级", "atk:+60,soul:+25",
-     "引爆灵魂能量造成毁灭性伤害。魂殿高阶护法的杀招。"),
+     "引爆灵魂能量造成毁灭性伤害。黑渊殿高阶护法的杀招。"),
     ("skill_mind_break", "精神碎裂", "灵魂", "地阶中级", "atk:+55,soul:+20",
-     "以灵魂之力粉碎目标精神。魂殿尊者的强力攻击。"),
+     "以灵魂之力粉碎目标精神。黑渊殿尊者的强力攻击。"),
     ("skill_shadow_dance", "暗影之舞", "暗系", "地阶中级", "spd:+60,atk:+20",
      "融入暗影中高速穿梭攻击。暗杀系强者的高级身法。"),
 
     # 龙系进阶 (Lv 50-90)
     ("skill_dragon_scale_armor", "龙鳞甲", "龙系", "地阶高级", "def:+60,hp:+100",
-     "以太虚古龙鳞片凝聚防御甲。龙族强者的防御技能。"),
+     "以虚空龙族鳞片凝聚防御甲。龙族强者的防御技能。"),
     ("skill_dragon_wing_slash", "龙翼斩", "龙系", "天阶低级", "atk:+75,spd:+20",
      "化为龙翼发动高速斩击。高阶龙族的强力技能。"),
     ("skill_void_tear", "虚空撕裂", "龙系", "天阶中级", "atk:+100",
@@ -100,15 +100,15 @@ NEW_GENERIC = [
     ("skill_ancient_roar", "远古咆哮", "远古", "天阶低级", "atk:+70,soul:+20",
      "发出远古咆哮震慑灵魂。远古种族和远古魔兽的能力。"),
     ("skill_emperor_pressure", "帝威", "远古", "天阶高级", "atk:+90,spd:-20",
-     "释放斗帝级别的威压。陀舍古帝和魂天帝级别的终极能力。"),
+     "释放灵帝级别的威压。源帝和玄冥帝级别的终极能力。"),
     ("skill_time_space_lock", "时空封锁", "远古", "天阶高级", "atk:+85,soul:+40",
-     "封锁时空使目标无法行动。远古斗帝的逆天能力。"),
+     "封锁时空使目标无法行动。远古灵帝的逆天能力。"),
 
     # 治疗/辅助进阶 (Lv 30-80)
     ("skill_self_regen", "自愈术", "辅助", "地阶低级", "hp:+150",
-     "以斗气催动肉身高速自愈。高阶修炼者的续航技能。"),
+     "以灵力催动肉身高速自愈。高阶修炼者的续航技能。"),
     ("skill_battle_meditation", "战意冥想", "辅助", "地阶中级", "atk:+30,soul:+20,hp:+50",
-     "战斗中进入冥想状态全面提升。药族和丹塔高层的独有技能。"),
+     "战斗中进入冥想状态全面提升。药族和丹阁高层的独有技能。"),
 
     # 体力管理
     ("skill_stamina_save", "省力战法", "辅助", "玄阶中级", "atk:+10,def:+10",
@@ -219,7 +219,7 @@ def assign_boss_skills(eid, name, level, faction, element, unique_skills):
 # BOSS SKILL ASSIGNMENTS (10+ each)
 # ══════════════════════════════════════════════════════════
 BOSS_SKILLS = {
-    # ── 加玛帝国 (Lv 12-24) ──
+    # ── 沧澜帝国 (Lv 12-24) ──
     "boss_mu_she": (12, [], [EARTH_SKILLS], ["skill_lion_mountain_split"]),
     "enemy_nalan": (15, [YUNLAN_SKILLS], [WIND_SKILLS], ["skill_wind_sword", "skill_cloud_wind_sword", "skill_wind_push"]),
     "boss_twin_head_fire_snake": (15, [], [FIRE_SKILLS, POISON_SKILLS], ["skill_fire_serpent"]),
@@ -233,7 +233,7 @@ BOSS_SKILLS = {
     "boss_fire_ape_king": (22, [], [FIRE_SKILLS], ["skill_beast_roar", "skill_earth_shake"]),
     "enemy_fan_ling": (24, [BLOOD_SKILLS], [], ["skill_blood_art", "skill_blood_transform"]),
 
-    # ── 黑角域 (Lv 25-35) ──
+    # ── 暗角域 (Lv 25-35) ──
     "enemy_medusa": (25, [], [POISON_SKILLS], ["skill_snake_seal", "skill_snake_eye", "skill_colorful_snake_scale"]),
     "boss_eight_gates_master": (26, [], [], ["skill_eight_gates_palm", "skill_underground_authority"]),
     "boss_inner_academy_guardian": (26, [], [FIRE_SKILLS], ["skill_skyfire_guard"]),
@@ -255,7 +255,7 @@ BOSS_SKILLS = {
     "boss_mulan_valley_leader": (36, [], [], ["skill_mulan_herb_art", "skill_pill_boost"]),
     "enemy_di_mo_laogui": (38, [], [SOUL_SKILLS], ["skill_demon_puppet", "skill_life_drain"]),
 
-    # ── 魂殿中层 (Lv 42-65) ──
+    # ── 黑渊殿中层 (Lv 42-65) ──
     "enemy_hun_yao": (65, [SOUL_HALL_SKILLS], [SOUL_SKILLS], ["skill_soul_handprint"]),
     "enemy_hun_xuzi": (75, [SOUL_HALL_SKILLS], [SOUL_SKILLS], ["skill_soul_art"]),
     "enemy_hun_yu": (70, [SOUL_HALL_SKILLS], [SOUL_SKILLS], ["skill_soul_art", "skill_soul_handprint"]),

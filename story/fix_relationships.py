@@ -49,7 +49,7 @@ vis_col = headers.index("Visible_To_Player")
 # 2. Set all other friendly relationships to initial=0
 # 3. Add new relationships for xiao_ding and xiao_li
 IMMUNE_IDS = {
-    "rel_player_xiao_zhan", "rel_player_xun_er", "rel_player_yao_lao",
+    "rel_player_xiao_zhan", "rel_player_xun_er", "rel_player_xuanlu_elder",
     "rel_player_xiao_ding", "rel_player_xiao_li",
 }
 FRIENDLY_TO_ZERO = {

@@ -113,20 +113,20 @@ NEW_SKILLS = [
     ("ms_dragon_breath", "龙息", "龙系", "地阶中级", "atk:+55", "喷吐毁灭性的龙息。"),
     ("ms_dragon_tail_sweep", "神龙摆尾", "龙系", "地阶中级", "atk:+50,spd:+10", "龙尾横扫千军。"),
     ("ms_dragon_might", "龙威", "龙系", "地阶高级", "atk:+60,spd:-15", "龙威压制使目标战力下降。"),
-    ("ms_ancient_dragon_roar", "远古龙吟", "龙系", "天阶低级", "atk:+80,soul:+30", "远古龙吟震荡灵魂。"),
+    ("ms_ancient_dragon_roar", "远虚空龙吟", "龙系", "天阶低级", "atk:+80,soul:+30", "远虚空龙吟震荡灵魂。"),
 
     # ── 远古系 (Lv 55-95) ──
     ("ms_ancient_seal", "远古封印", "远古", "地阶高级", "atk:+55,spd:-20", "远古封印禁锢目标。"),
     ("ms_bloodline_suppress", "血脉压制", "远古", "地阶高级", "atk:+50,spd:-10", "以远古血脉压制对手。"),
     ("ms_emperor_will", "帝之意志", "远古", "天阶低级", "atk:+70,soul:+25", "帝之意志不可违抗。"),
 
-    # ── 异火系技能 ──
-    ("ms_green_lotus_burn", "青莲焚天", "异火", "地阶高级", "atk:+70", "青莲地心火焚尽万物。"),
-    ("ms_fallen_heart_pulse", "陨落心炎脉冲", "异火", "地阶高级", "atk:+65,soul:+15", "陨落心炎脉冲灼烧灵魂。"),
-    ("ms_three_thousand_starfire", "三千焱炎", "异火", "天阶低级", "atk:+80", "三千焱炎火星火燎原。"),
-    ("ms_bone_chilling_ice", "骨灵冷火", "异火", "天阶低级", "atk:+75,soul:+20", "极寒异火冻结灵魂。"),
-    ("ms_purifying_lotus", "净莲净化", "异火", "天阶中级", "atk:+90,soul:+30", "净莲妖火净化一切。"),
-    ("ms_nihility_devour", "虚无吞噬", "异火", "天阶高级", "atk:+120,soul:+50", "虚无吞炎吞噬万物。"),
+    # ── 源火系技能 ──
+    ("ms_green_lotus_burn", "青莲焚天", "源火", "地阶高级", "atk:+70", "青莲源火焚尽万物。"),
+    ("ms_fallen_heart_pulse", "陨心源火脉冲", "源火", "地阶高级", "atk:+65,soul:+15", "陨心源火脉冲灼烧灵魂。"),
+    ("ms_three_thousand_starfire", "三千焱炎", "源火", "天阶低级", "atk:+80", "三千星空火星火燎原。"),
+    ("ms_bone_chilling_ice", "玄冥冷火", "源火", "天阶低级", "atk:+75,soul:+20", "极寒源火冻结灵魂。"),
+    ("ms_purifying_lotus", "净莲净化", "源火", "天阶中级", "atk:+90,soul:+30", "净世白莲火净化一切。"),
+    ("ms_nihility_devour", "虚无吞噬", "源火", "天阶高级", "atk:+120,soul:+50", "虚无吞炎吞噬万物。"),
 
     # ── 人类/NPC通用技能 ──
     ("ms_sword_slash", "剑气斩", "剑技", "黄阶中级", "atk:+14", "凝聚剑气远程斩击。"),
@@ -139,9 +139,9 @@ NEW_SKILLS = [
     ("ms_potion_master", "丹药增幅", "辅助", "玄阶低级", "atk:+15,hp:+30", "服用丹药临时增幅战力。"),
 
     # ── 宗门专属技能 ──
-    ("ms_cloud_wind_sword", "云岚剑诀", "剑技", "玄阶高级", "atk:+35,spd:+10", "云岚宗剑法精髓。"),
+    ("ms_cloud_wind_sword", "云岚剑诀", "剑技", "玄阶高级", "atk:+35,spd:+10", "青岚宗剑法精髓。"),
     ("ms_blood_refine", "血炼术", "秘法", "玄阶高级", "atk:+40,hp:-20", "血宗以血换力的秘术。"),
-    ("ms_soul_lock", "锁魂链", "灵魂", "地阶低级", "atk:+45,soul:+15", "魂殿锁魂链攻击。"),
+    ("ms_soul_lock", "锁魂链", "灵魂", "地阶低级", "atk:+45,soul:+15", "黑渊殿锁魂链攻击。"),
     ("ms_thunder_pavilion_art", "风雷诀", "风系", "地阶低级", "atk:+45,spd:+20", "风雷阁镇阁功法。"),
     ("ms_huangquan_art", "黄泉诀", "水/暗", "地阶低级", "atk:+45,soul:+12", "黄泉阁镇阁功法。"),
     ("ms_wanjian_art", "万剑归宗", "剑技", "地阶中级", "atk:+55", "万剑阁绝学。"),
@@ -269,23 +269,23 @@ def get_enemy_skills(eid, name, etype, level):
 # PART 3: BOSS UNIQUE SKILLS (from original novel)
 # ══════════════════════════════════════════════════════════
 BOSS_UNIQUE = {
-    # ── 加玛帝国 ──
-    "enemy_nalan": ["skill_wind_sword", "skill_wind_push"],  # 纳兰嫣然 - 风之极
-    "enemy_medusa": ["skill_snake_seal", "skill_snake_eye", "ms_bloodline_suppress"],  # 美杜莎
+    # ── 沧澜帝国 ──
+    "enemy_nalan": ["skill_wind_sword", "skill_wind_push"],  # 苏婉清 - 风之极
+    "enemy_medusa": ["skill_snake_seal", "skill_snake_eye", "ms_bloodline_suppress"],  # 赤鳞
     "enemy_hai": ["skill_ice", "ms_absolute_zero"],  # 海波东 - 冰皇
-    "enemy_yun_leng": ["skill_wind_bind", "ms_cloud_wind_sword"],  # 云棱
-    "enemy_yun_shan": ["skill_wind_sword", "skill_wind_bind", "ms_cloud_wind_sword"],  # 云山
+    "enemy_yun_leng": ["skill_wind_bind", "ms_cloud_wind_sword"],  # 青棱
+    "enemy_yun_shan": ["skill_wind_sword", "skill_wind_bind", "ms_cloud_wind_sword"],  # 青山
 
-    # ── 黑角域 ──
+    # ── 暗角域 ──
     "enemy_fan_lao": ["skill_blood_art", "ms_blood_refine", "ms_life_drain"],  # 范痨
     "enemy_fan_ling": ["skill_blood_art", "ms_blood_refine"],
-    "enemy_han_feng": ["skill_sea_flame", "skill_flame_splitting_ruler", "ms_potion_master"],  # 韩枫 - 海心焰
+    "enemy_han_feng": ["skill_sea_flame", "skill_flame_splitting_ruler", "ms_potion_master"],  # 冷煜 - 海心焰
     "enemy_mo_tianxing": ["ms_dark_bind", "ms_soul_shock", "skill_soul_chain"],
 
     # ── 出云帝国 ──
     "enemy_xie_biyan": ["ms_paralyze_venom", "ms_corrosive_acid", "ms_death_miasma"],  # 蝎毕岩
 
-    # ── 魂殿 ──
+    # ── 黑渊殿 ──
     "enemy_wu_hufa": ["skill_soul_handprint", "skill_soul_chain", "ms_soul_drain"],  # 鹜护法
     "enemy_zhai_xing": ["skill_soul_chain", "ms_soul_rend", "ms_dark_bind"],  # 摘星老鬼
     "enemy_hun_yu": ["skill_soul_art", "ms_soul_rend", "ms_life_drain"],
@@ -296,15 +296,15 @@ BOSS_UNIQUE = {
     "enemy_hun_yao": ["skill_soul_handprint", "ms_soul_drain", "ms_soul_shock"],
     "enemy_hunmo": ["skill_soul_art", "ms_demon_valley_art", "ms_corrosive_acid"],
     "enemy_hun_xuzi": ["skill_soul_art", "ms_soul_drain", "ms_soul_rend"],
-    "boss_hun_tiandi": ["skill_hun_di", "ms_nihility_devour", "ms_emperor_will", "ms_soul_rend"],  # 魂天帝
+    "boss_hun_tiandi": ["skill_hun_di", "ms_nihility_devour", "ms_emperor_will", "ms_soul_rend"],  # 玄冥帝
     "enemy_xuwu": ["skill_nihility_flame", "ms_void_consumption", "ms_nihility_devour", "ms_emperor_will"],  # 虚无吞炎
 
     # ── 迦南学院 ──
     "boss_skyfire_beast_king": ["skill_fallen_heart_flame", "ms_inferno", "skill_five_wheel_fire"],
 
     # ── 中州 ──
-    "enemy_mugu": ["skill_bone_chilling_flame", "ms_bone_chilling_ice", "ms_potion_master"],  # 慕骨老人 - 骨灵冷火
-    "enemy_fang_yan": ["ms_fire_valley_art", "ms_inferno", "ms_blood_refine"],  # 方言-魔炎谷
+    "enemy_mugu": ["skill_bone_chilling_flame", "ms_bone_chilling_ice", "ms_potion_master"],  # 慕骨老人 - 玄冥冷火
+    "enemy_fang_yan": ["ms_fire_valley_art", "ms_inferno", "ms_blood_refine"],  # 方言-魔焰谷
     "boss_thunder_emperor": ["skill_wind_thunder", "ms_thunder_wrath", "ms_heavenly_wind"],  # 雷尊者
     "boss_sword_emperor": ["skill_sword", "ms_wanjian_art", "ms_sword_slash"],  # 剑尊者
     "boss_demon_flame_saint_spirit": ["ms_purifying_lotus", "ms_emperor_will"],  # 净莲妖圣
@@ -336,8 +336,8 @@ BOSS_UNIQUE = {
 # Note: skill_nihility_flame and skill_emperor_flame are referenced but may need to be created
 # Let me add them if missing
 MISSING_BOSS_SKILLS = [
-    ("skill_nihility_flame", "虚无吞炎", "异火能力", "天阶高级", "atk:+150,soul:+80", "异火榜第二，吞噬万物。"),
-    ("skill_emperor_flame", "帝炎", "异火能力", "帝阶", "atk:+300,soul:+100", "万火归一，炎帝之焰。"),
+    ("skill_nihility_flame", "虚无吞炎", "源火能力", "天阶高级", "atk:+150,soul:+80", "源火榜第二，吞噬万物。"),
+    ("skill_emperor_flame", "帝炎", "源火能力", "帝阶", "atk:+300,soul:+100", "万火归一，炎帝之焰。"),
 ]
 for data in MISSING_BOSS_SKILLS:
     if data[0] not in existing_skills:

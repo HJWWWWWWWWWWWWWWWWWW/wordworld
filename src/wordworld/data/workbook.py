@@ -345,7 +345,7 @@ def _load_game_data_cached(path_text: str) -> Dict[str, Any]:
             "Map_Encounters_奇遇池",
             "Enemies_敌人配置",
             "Items_道具库",
-            "Skills_斗技功法",
+            "Skills_灵技功法",
             "Realms_境界成长",
         }
     )
@@ -379,7 +379,7 @@ def _load_game_data_cached(path_text: str) -> Dict[str, Any]:
         "encounters": _parse_encounters(sheets["Map_Encounters_奇遇池"]),
         "enemies": _parse_enemies(sheets["Enemies_敌人配置"]),
         "items": _parse_items(sheets["Items_道具库"]),
-        "skills": _parse_skills(sheets["Skills_斗技功法"]),
+        "skills": _parse_skills(sheets["Skills_灵技功法"]),
         "realms": _parse_realms(sheets["Realms_境界成长"]),
         "start_event": events[0]["id"],
         "source_path": str(path),

@@ -36,7 +36,7 @@ class LatestStoryTests(unittest.TestCase):
             self.assertTrue(game.advance_story())
 
         self.assertEqual(game.player["story_stage"], 1)
-        self.assertEqual(game.current_story_phase()["title"], "退婚与三年之约")
+        self.assertEqual(game.current_story_phase()["title"], "退婚与三年战约")
         self.assertGreater(game.player["reputation"], 0)
 
     def test_level_progression_uses_latest_attribute_rules(self) -> None:
@@ -59,19 +59,19 @@ class LatestStoryTests(unittest.TestCase):
         phases = engine_module.STORY_PHASES
         titles = {phase["title"] for phase in phases}
         expected = {
-            "退婚与三年之约",
+            "退婚与三年战约",
             "炼药师大会",
-            "塔戈尔沙漠与青莲地心火",
-            "三年之约决战",
+            "赤沙荒漠与青莲源火",
+            "三年战约决战",
             "迦南学院外院",
-            "炼气塔暴动与黑盟入侵",
-            "收服陨落心炎与清算韩枫",
-            "营救药老",
-            "丹会与三千焱炎火",
+            "炼气塔暴动与暗盟入侵",
+            "收服陨心源火与清算冷煜",
+            "营救玄炉老人",
+            "丹阁与三千星空火",
             "远古遗迹",
-            "古族成人礼与天墓",
+            "云族成人礼与天墓",
             "莽荒古域与菩提古树",
-            "净莲妖火",
+            "净世白莲火",
             "药典与药族灭族战",
             "古帝洞府",
             "双帝之战",
@@ -126,28 +126,28 @@ class LatestStoryTests(unittest.TestCase):
         def before(first: str, second: str) -> None:
             self.assertLess(titles.index(first), titles.index(second))
 
-        before("退婚与三年之约", "戒中导师")
-        before("塔戈尔沙漠与青莲地心火", "炼药师大会")
-        before("炼气塔暴动与黑盟入侵", "收服陨落心炎与清算韩枫")
-        before("收服陨落心炎与清算韩枫", "重返加玛与云岚宗大战")
-        before("重返加玛与云岚宗大战", "重返黑角域")
-        before("重返黑角域", "再探塔底与天火尊者")
+        before("退婚与三年战约", "戒中导师")
+        before("赤沙荒漠与青莲源火", "炼药师大会")
+        before("炼气塔暴动与暗盟入侵", "收服陨心源火与清算冷煜")
+        before("收服陨心源火与清算冷煜", "重返沧澜与青岚宗大战")
+        before("重返沧澜与青岚宗大战", "重返暗角域")
+        before("重返暗角域", "再探塔底与天火尊者")
         before("再探塔底与天火尊者", "进入中州")
-        before("丹会与三千焱炎火", "营救药老")
-        before("进入中州", "建立天府联盟")
+        before("丹阁与三千星空火", "营救玄炉老人")
+        before("进入中州", "建立天元联盟")
         before("药典与药族灭族战", "古帝洞府")
-        before("重返加玛与云岚宗大战", "出云帝国与毒宗之战")
-        before("龙岛与龙皇血脉", "古族成人礼与天墓")
-        before("古族成人礼与天墓", "玄黄要塞与西北大陆大战")
+        before("重返沧澜与青岚宗大战", "出云帝国与毒宗之战")
+        before("虚空龙岛与龙皇血脉", "云族成人礼与天墓")
+        before("云族成人礼与天墓", "玄黄要塞与西北大陆大战")
         before("玄黄要塞与西北大陆大战", "莽荒古域与菩提古树")
-        before("营救药老", "远古遗迹")
-        before("远古遗迹", "复活药老")
-        before("复活药老", "花宗与云韵传承")
-        before("花宗与云韵传承", "古族成人礼与天墓")
-        before("建立天府联盟", "古龙岛三岛大战")
-        before("古龙岛三岛大战", "血洗魂殿人殿")
-        before("血洗魂殿人殿", "净莲妖火")
-        before("净莲妖火", "魂殿殿主与北龙王终战")
+        before("营救玄炉老人", "远古遗迹")
+        before("远古遗迹", "复活玄炉老人")
+        before("复活玄炉老人", "花宗与青韵传承")
+        before("花宗与青韵传承", "云族成人礼与天墓")
+        before("建立天元联盟", "虚空龙岛三岛大战")
+        before("虚空龙岛三岛大战", "血洗黑渊人殿")
+        before("血洗黑渊人殿", "净世白莲火")
+        before("净世白莲火", "黑渊殿主与北龙王终战")
 
     def test_story_order_matches_actual_chapter_anchors(self) -> None:
         phase_indexes = {
@@ -303,25 +303,25 @@ class RelationshipTests(unittest.TestCase):
     def test_new_game_uses_latest_relationship_initial_values(self) -> None:
         game = GameEngine()
 
-        self.assertEqual(game.relation_value("npc_xun_er"), 100)
+        self.assertEqual(game.relation_value("npc_yun_xi"), 100)
         self.assertEqual(game.relation_value("faction_hun>faction_xiao"), -100)
 
     def test_relation_change_is_clamped_and_supports_v4_syntax(self) -> None:
         game = GameEngine()
 
-        game.apply_effects("rel:npc_xun_er:+100")
+        game.apply_effects("rel:npc_yun_xi:+100")
 
-        self.assertEqual(game.relation_value("npc_xun_er"), 100)
-        self.assertTrue(game.check_conditions("rel:npc_xun_er>=90"))
-        self.assertEqual(game.relation_stage("npc_xun_er"), "相守")
+        self.assertEqual(game.relation_value("npc_yun_xi"), 100)
+        self.assertTrue(game.check_conditions("rel:npc_yun_xi>=90"))
+        self.assertEqual(game.relation_stage("npc_yun_xi"), "相守")
 
     def test_on_reach_effect_only_triggers_once(self) -> None:
         game = GameEngine()
 
-        # npc_nalan_yanran 起始 -40，on_reach 在 >=60 触发，非免疫关系
-        game.apply_effects("rel:npc_nalan_yanran:+100")
-        game.apply_effects("rel:npc_nalan_yanran:-1")
-        game.apply_effects("rel:npc_nalan_yanran:+1")
+        # npc_su_wanqing 起始 -40，on_reach 在 >=60 触发，非免疫关系
+        game.apply_effects("rel:npc_su_wanqing:+100")
+        game.apply_effects("rel:npc_su_wanqing:-1")
+        game.apply_effects("rel:npc_su_wanqing:+1")
 
         self.assertIn("rival_resolved", game.player["flags"])
         self.assertEqual(len(game.player["relationship_triggers"]), 1)
@@ -417,21 +417,21 @@ class RpgLoopTests(unittest.TestCase):
         wutan_names = {
             map_rule["name"]
             for map_rule in game.maps.values()
-            if map_rule["region"] == "乌坦城"
+            if map_rule["region"] == "青石城"
         }
         expected = {
-            "萧家府邸",
-            "萧家演武场",
+            "林家府邸",
+            "林家演武场",
             "乌坦商业街",
             "乌坦后山",
-            "萧家坊市",
+            "林家坊市",
             "乌坦客栈",
             "乌坦药铺",
             "乌坦铁匠铺",
             "乌坦茶楼",
-            "乌坦城门",
+            "青石城门",
             "米特尔鉴宝室",
-            "萧家议事厅",
+            "林家议事厅",
             "乌坦东市",
             "乌坦仓栈区",
         }
@@ -524,7 +524,7 @@ class RpgLoopTests(unittest.TestCase):
         self.assertTrue(game.advance_story())
 
         self.assertIn("three_year_pact", game.player["flags"])
-        self.assertNotIn("云岚宗", [map_rule["name"] for map_rule in game.available_maps()])
+        self.assertNotIn("青岚宗", [map_rule["name"] for map_rule in game.available_maps()])
 
     def test_maps_unlock_by_story_stage_not_level(self) -> None:
         game = GameEngine()
@@ -574,7 +574,7 @@ class RpgLoopTests(unittest.TestCase):
 
         self.assertTrue(game.cultivate())
 
-        # exp 被消耗填充进度，检查进度增长和斗气增长
+        # exp 被消耗填充进度，检查进度增长和灵力增长
         self.assertGreater(float(game.player["progress"]), initial_progress)
         self.assertGreater(game.player["douqi"], initial_douqi)
 
@@ -738,7 +738,7 @@ class ProgressBreakthroughTests(unittest.TestCase):
         chance_9 = game._breakthrough_chance_bp(9)
         chance_8 = game._breakthrough_chance_bp(8)
         self.assertLess(chance_9, chance_8)
-        self.assertEqual(chance_9, 5000)  # 斗之气→斗者: 50% = 5000bp
+        self.assertEqual(chance_9, 5000)  # 斗之气→灵者: 50% = 5000bp
 
     def test_exp_lost_on_failed_breakthrough(self) -> None:
         game = GameEngine()
@@ -854,7 +854,7 @@ class NewCombatMechanicsTests(unittest.TestCase):
         game.combat["intent"] = "defend"
         self.assertEqual(game.combat_intent_text(), "防御")
         game.combat["intent"] = "skill"
-        self.assertEqual(game.combat_intent_text(), "斗技")
+        self.assertEqual(game.combat_intent_text(), "灵技")
 
     def test_soul_below_20_hides_intent(self) -> None:
         game = GameEngine()

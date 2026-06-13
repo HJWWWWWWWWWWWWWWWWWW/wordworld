@@ -1,4 +1,4 @@
-"""综合测试：异火/功法/纳戒/拍卖行 新系统"""
+"""综合测试：源火/功法/纳戒/拍卖行 新系统"""
 import sys
 import unittest
 from pathlib import Path

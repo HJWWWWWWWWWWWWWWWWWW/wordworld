@@ -1,4 +1,4 @@
-"""斗破苍穹 RPG — 装备数据（自动生成）"""
+"""源火纪 RPG — 装备数据（自动生成）"""
 from typing import Any, Dict
 
 # 装备数量: 2142

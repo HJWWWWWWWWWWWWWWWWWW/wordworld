@@ -14,7 +14,7 @@ _CHINESE_NUMBER_MAP = {
 _MAIN_COMMAND_ALIASES = {
     "人物": "1", "状态": "1", "属性": "1",
     "物品": "2", "行囊": "2", "背包": "2", "道具": "2",
-    "斗技": "3", "技能": "3", "功法": "3",
+    "灵技": "3", "技能": "3", "功法": "3",
     "修炼": "4",
     "探索": "5", "探索区域": "5",
     "移动": "6", "移动区域": "6", "区域移动": "6",
@@ -92,7 +92,7 @@ def combat_loop(game: GameEngine) -> None:
         bar()
         print(game.combat_text())
         thin()
-        print("  1.普通攻击  2.施展斗技  3.防御  4.使用丹药  5.逃跑  6.自动战斗")
+        print("  1.普通攻击  2.施展灵技  3.防御  4.使用丹药  5.逃跑  6.自动战斗")
         choice = ask_number()
         if choice is None:
             choice = 5
@@ -101,11 +101,11 @@ def combat_loop(game: GameEngine) -> None:
         elif choice == 2:
             skills = game.combat_skills()
             if not skills:
-                game.last_message = "尚未掌握可用斗技。"
+                game.last_message = "尚未掌握可用灵技。"
                 show_result(game)
                 continue
             thin()
-            print("  选择斗技：")
+            print("  选择灵技：")
             for index, skill in enumerate(skills, start=1):
                 print(f"  {index}. {skill['name']} [{skill.get('rank','')}]  "
                       f"{skill.get('description','')}")
@@ -262,7 +262,7 @@ def render_hub(game: GameEngine) -> None:
     right_1 = f"{game.player['name']}｜{game.realm_name()} Lv.{game.player['level']}"
     right_2 = (f"修炼 {prog:.1f}%｜"
                f"生命 {game.player['hp']}/{game.player['max_hp']}"
-               f"  斗气 {game.player['douqi']}"
+               f"  灵力 {game.player['douqi']}"
                f"  阅历 {game.player['adventure_points']}")
     if phase:
         subnode = game.current_story_subnode()
@@ -279,8 +279,8 @@ def render_hub(game: GameEngine) -> None:
 
     # ── 中层：菜单 ──
     thin()
-    print("  1.人物        2.物品        3.斗技        4.修炼")
-    print("  5.炼药        6.拍卖        7.功法        8.异火")
+    print("  1.人物        2.物品        3.灵技        4.修炼")
+    print("  5.炼药        6.拍卖        7.功法        8.源火")
     print("  9.探索       10.移动       11.主线       12.系统")
     print("  q.退出")
 
@@ -299,7 +299,7 @@ def menu_character(game: GameEngine) -> None:
         f"[{p['name']}]  {game.realm_name()}  Lv.{p['level']}  "
         f"修炼进度 {p['progress']:.1f}%  冒险阅历 {p['adventure_points']}",
         "",
-        f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}/{game.attribute_rules['douqi']['max']}"
+        f"生命 {p['hp']}/{p['max_hp']}  灵力 {p['douqi']}/{game.attribute_rules['douqi']['max']}"
         f"  资金 {wallet_display(p.get('wallet', {}))}",
         f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}"
         f"  暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
@@ -370,15 +370,15 @@ def menu_items(game: GameEngine) -> None:
 
 
 def menu_skills(game: GameEngine) -> None:
-    """斗技 -> 消息框"""
+    """灵技 -> 消息框"""
     skills = game.combat_skills()
     if not skills:
-        msg("尚未掌握任何斗技。", "", "按回车返回…")
+        msg("尚未掌握任何灵技。", "", "按回车返回…")
         render_hub(game)
         press_enter()
         return
 
-    lines = [f"—— 已学斗技（{len(skills)} 种）——", ""]
+    lines = [f"—— 已学灵技（{len(skills)} 种）——", ""]
     for skill in skills:
         lines.append(f"  {skill['name']}  [{skill.get('rank','')}]")
         lines.append(f"  类型：{skill.get('type','—')}  效果：{skill.get('effect','—')}")
@@ -399,9 +399,9 @@ def menu_cultivation(game: GameEngine) -> None:
         lines = [
             f"修炼进度 {pct:.1f}%  "
             f"经验 {game.player.get('exp', 0)}  "
-            f"斗气 {game.player['douqi']}/{game.attribute_rules['douqi']['max']}",
+            f"灵力 {game.player['douqi']}/{game.attribute_rules['douqi']['max']}",
             "",
-            "  1. 修炼 —— 消耗体力，运转斗气获得经验",
+            "  1. 修炼 —— 消耗体力，运转灵力获得经验",
         ]
 
         if pct >= 100.0 and level < 100:
@@ -411,7 +411,7 @@ def menu_cultivation(game: GameEngine) -> None:
             lines.append(f"  2. {boundary} 突破 —— 冲击 {game.realm_name()} Lv.{level+1}"
                          f"（成功率 {ct}）")
         elif level >= 100:
-            lines.append("  2. 突破 —— 斗帝之境，已臻化境")
+            lines.append("  2. 突破 —— 灵帝之境，已臻化境")
         else:
             lines.append("  2. 突破 —— 进度未满，暂不可用")
 
@@ -446,7 +446,7 @@ def menu_cultivation(game: GameEngine) -> None:
                     show_result(game)
                     press_enter()
             elif level >= 100:
-                game.last_message = "你已是斗帝之境，无需突破。"
+                game.last_message = "你已是灵帝之境，无需突破。"
                 show_result(game)
                 press_enter()
             else:
@@ -584,19 +584,27 @@ def menu_system(game: GameEngine) -> None:
 
 def main() -> None:
     game = GameEngine()
-    print("斗破苍穹：沉浸式回合制 RPG")
+    print("源火纪：沉浸式回合制 RPG")
     if SAVE_PATH.exists() and input("检测到存档，是否读取？ y/n：").strip().lower() == "y":
         game.load()
     else:
-        name = input("请输入主角姓名，直接回车则为萧炎：").strip()
+        name = input("请输入主角姓名，直接回车则为林烬：").strip()
         game.new_game(name or None)
 
-    msg("欢迎来到斗气大陆。你的传奇，由此开始。")
+    msg("欢迎来到灵玄大陆。你的传奇，由此开始。")
 
     while True:
         if game.pending_schedule_node() is not None:
             resolve_required_schedule(game)
             continue
+
+        # Demo 结束提示
+        ds = game.demo_status()
+        if ds["is_demo_ended"]:
+            bar()
+            msg(ds["message"])
+            thin()
+            game.mark_demo_seen()
 
         render_hub(game)
         command = parse_main_command(input("> "))

@@ -45,7 +45,7 @@ class GameWindow(tk.Tk):
 
     def __init__(self) -> None:
         super().__init__()
-        self.title("斗破苍穹 · 文字回合制 RPG")
+        self.title("源火纪 · 文字回合制 RPG")
         self.geometry("900x650")
         self.configure(bg=BG)
         self.resizable(True, True)
@@ -218,7 +218,7 @@ class GameWindow(tk.Tk):
         self.lbl_char.config(text=f"{p['name']}｜{g.realm_name()} Lv.{p['level']}")
         self.lbl_stats.config(
             text=f"修炼 {prog:.1f}%｜生命 {p['hp']}/{p['max_hp']}"
-            f"  斗气 {p['douqi']}  阅历 {p['adventure_points']}"
+            f"  灵力 {p['douqi']}  阅历 {p['adventure_points']}"
         )
         if phase:
             subnode = g.current_story_subnode()
@@ -350,7 +350,7 @@ class GameWindow(tk.Tk):
             self._show_message("存档已读取。")
         else:
             self.game.new_game()
-            self._show_message("欢迎来到斗气大陆。你的传奇，由此开始。")
+            self._show_message("欢迎来到灵玄大陆。你的传奇，由此开始。")
 
     def _save_game(self) -> None:
         self.game.save()
@@ -370,7 +370,7 @@ class GameWindow(tk.Tk):
         menu_items = [
             "1. 人物",
             "2. 物品",
-            "3. 斗技",
+            "3. 灵技",
             "4. 修炼",
             "5. 探索",
             "6. 移动",
@@ -426,7 +426,7 @@ class GameWindow(tk.Tk):
         parts: list[tuple[str, str]] = [
             (f"{p['name']}  {g.realm_name()}  Lv.{p['level']}\n", "title"),
             (f"修炼进度 {p['progress']:.1f}%  冒险阅历 {p['adventure_points']}\n\n", "dim"),
-            (f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}\n", ""),
+            (f"生命 {p['hp']}/{p['max_hp']}  灵力 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}\n", ""),
             (f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}", ""),
             (f"  暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%\n", "dim"),
             (f"灵魂力量 {p['soul']}  炼药术 {p['alchemy']}  声望 {p['reputation']}\n", ""),
@@ -503,17 +503,17 @@ class GameWindow(tk.Tk):
         self._show_hub()
 
     # ═══════════════════════════════════════════════════════════
-    # 3. 斗技
+    # 3. 灵技
     # ═══════════════════════════════════════════════════════════
 
     def _show_skills(self) -> None:
         skills = self.game.combat_skills()
         if not skills:
-            self._set_detail("尚未掌握任何斗技。")
+            self._set_detail("尚未掌握任何灵技。")
             self._set_menu(["返回"], lambda _: self._show_hub())
             return
 
-        lines = [f"—— 已学斗技（{len(skills)} 种）——", ""]
+        lines = [f"—— 已学灵技（{len(skills)} 种）——", ""]
         for skill in skills:
             lines.append(f"  {skill['name']}  [{skill.get('rank','')}]")
             lines.append(f"  类型：{skill.get('type','—')}  效果：{skill.get('effect','—')}")
@@ -533,7 +533,7 @@ class GameWindow(tk.Tk):
 
         lines = [
             f"修炼进度 {pct:.1f}%",
-            f"经验 {g.player.get('exp',0)}  斗气 {g.player['douqi']}",
+            f"经验 {g.player.get('exp',0)}  灵力 {g.player['douqi']}",
             "",
         ]
         menu = ["修炼", "返回"]
@@ -546,7 +546,7 @@ class GameWindow(tk.Tk):
             lines.append(f"成功率：{ct}")
             menu = ["修炼", "突破", "切磋", "返回"]
         elif level >= 100:
-            lines.append("斗帝之境，已臻化境。")
+            lines.append("灵帝之境，已臻化境。")
             menu = ["修炼", "切磋", "返回"]
         else:
             lines.append("进度未满，还无法尝试突破。")
@@ -715,7 +715,7 @@ class GameWindow(tk.Tk):
         self._screen_id = "combat"
         self._refresh_combat_view()
 
-        actions = ["普通攻击", "施展斗技", "防御", "使用丹药", "逃跑", "自动战斗"]
+        actions = ["普通攻击", "施展灵技", "防御", "使用丹药", "逃跑", "自动战斗"]
         self._set_menu(actions, self._combat_select)
         self.lbl_hint.config(text="↑↓ 选择  ↵ 确认  数字键 1-6 快捷")
         for i in range(1, 7):
@@ -740,7 +740,7 @@ class GameWindow(tk.Tk):
             f"[bold]{combat['name']}[/bold]",
             f"HP: {combat['hp']}/{combat['max_hp']}",
             f"",
-            f"你的 HP: {p['hp']}/{p['max_hp']}  斗气: {p['douqi']}",
+            f"你的 HP: {p['hp']}/{p['max_hp']}  灵力: {p['douqi']}",
         )
 
     def _combat_select(self, index: int) -> None:
@@ -759,7 +759,7 @@ class GameWindow(tk.Tk):
         if action == "skill":
             skills = self.game.combat_skills()
             if not skills:
-                self._show_message("尚未掌握可用斗技。")
+                self._show_message("尚未掌握可用灵技。")
                 return
             self._show_skill_select(skills)
             return
@@ -793,9 +793,9 @@ class GameWindow(tk.Tk):
             self._refresh_combat_view()
 
     def _show_skill_select(self, skills: list[dict]) -> None:
-        """战斗中选斗技。"""
+        """战斗中选灵技。"""
         self._screen_id = "skill_select"
-        self._set_detail("选择斗技：", "")
+        self._set_detail("选择灵技：", "")
         for skill in skills:
             self._set_detail(
                 *self._get_detail_lines(),

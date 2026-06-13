@@ -9,7 +9,7 @@ ENEMY_SKILL_FALLBACKS = {
     "skill_soul_rend": ("灵魂撕裂", "atk:+48,soul:+15", "撕裂目标灵魂。"),
     "skill_dragon_roar": ("龙吟", "atk:+40,soul:+10", "龙吟震慑目标灵魂。"),
     "skill_inferno": ("烈焰风暴", "atk:+30,spd:-5", "召唤烈焰风暴席卷战场。"),
-    "skill_ancient_dragon_roar": ("远古龙吟", "atk:+80,soul:+30", "远古龙吟震荡灵魂。"),
+    "skill_ancient_dragon_roar": ("远虚空龙吟", "atk:+80,soul:+30", "远虚空龙吟震荡灵魂。"),
     "skill_lightning_bolt": ("雷电术", "atk:+22,spd:+10", "召唤雷电劈击。"),
     "skill_thunder_clap": ("雷霆一击", "atk:+32,spd:+5", "雷属性强力一击。"),
     "skill_thunder_wrath": ("天雷怒降", "atk:+55,spd:+10", "召唤天雷之怒。"),

@@ -8,7 +8,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "divine",
     "effect": "special",
-    "desc": "异火榜第1。古帝的本命火焰，异火榜第一，可焚尽万物。",
+    "desc": "源火榜第1。古帝的本命火焰，源火榜第一，可焚尽万物。",
     "price_buy": 50000,
     "price_sell": 25000,
     "rank": 1
@@ -19,29 +19,29 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "divine",
     "effect": "special",
-    "desc": "异火榜第2。异火榜第二，可吞噬一切化为虚无，诞生灵智。",
+    "desc": "源火榜第2。源火榜第二，可吞噬一切化为虚无，诞生灵智。",
     "price_buy": 50000,
     "price_sell": 25000,
     "rank": 2
   },
   {
     "id": "item_flame_3",
-    "name": "净莲妖火",
+    "name": "净世白莲火",
     "type": "heavenly_flame",
     "tier": "emperor",
     "effect": "special",
-    "desc": "异火榜第3。异火榜第三，可净化万物杂质，妖莲形态。",
+    "desc": "源火榜第3。源火榜第三，可净化万物杂质，妖莲形态。",
     "price_buy": 50000,
     "price_sell": 25000,
     "rank": 3
   },
   {
     "id": "item_flame_4",
-    "name": "金帝焚天炎",
+    "name": "金乌焚天火",
     "type": "heavenly_flame",
     "tier": "emperor",
     "effect": "special",
-    "desc": "异火榜第4。异火榜第四，古族传承之火，金光焚天。",
+    "desc": "源火榜第4。源火榜第四，云族传承之火，金光焚天。",
     "price_buy": 25000,
     "price_sell": 12500,
     "rank": 4
@@ -52,7 +52,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "saint",
     "effect": "special",
-    "desc": "异火榜第5。异火榜第五，蕴含磅礴生机，火焰如生命之树。",
+    "desc": "源火榜第5。源火榜第五，蕴含磅礴生机，火焰如生命之树。",
     "price_buy": 25000,
     "price_sell": 12500,
     "rank": 5
@@ -63,7 +63,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "saint",
     "effect": "special",
-    "desc": "异火榜第6。异火榜第六，可破灭八方，毁灭之力。",
+    "desc": "源火榜第6。源火榜第六，可破灭八方，毁灭之力。",
     "price_buy": 16666,
     "price_sell": 8333,
     "rank": 6
@@ -74,7 +74,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "mystic",
     "effect": "special",
-    "desc": "异火榜第7。异火榜第七，九幽之下孕育的金色火焰。",
+    "desc": "源火榜第7。源火榜第七，九幽之下孕育的金色火焰。",
     "price_buy": 16666,
     "price_sell": 8333,
     "rank": 7
@@ -85,18 +85,18 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "mystic",
     "effect": "special",
-    "desc": "异火榜第8。异火榜第八，业火焚罪、红莲净世。",
+    "desc": "源火榜第8。源火榜第八，业火焚罪、红莲净世。",
     "price_buy": 12500,
     "price_sell": 6250,
     "rank": 8
   },
   {
     "id": "item_flame_9",
-    "name": "三千焱炎火",
+    "name": "三千星空火",
     "type": "heavenly_flame",
     "tier": "heaven",
     "effect": "special",
-    "desc": "异火榜第9。异火榜第九，又名三千星空焱炎火。",
+    "desc": "源火榜第9。源火榜第九，又名三千星空焱炎火。",
     "price_buy": 12500,
     "price_sell": 6250,
     "rank": 9
@@ -107,18 +107,18 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "heaven",
     "effect": "special",
-    "desc": "异火榜第10。异火榜第十，风炎交融的奇火。",
+    "desc": "源火榜第10。源火榜第十，风炎交融的奇火。",
     "price_buy": 10000,
     "price_sell": 5000,
     "rank": 10
   },
   {
     "id": "item_flame_11",
-    "name": "骨灵冷火",
+    "name": "玄冥冷火",
     "type": "heavenly_flame",
     "tier": "earth",
     "effect": "special",
-    "desc": "异火榜第11。异火榜第十一，药老的本命火焰，极寒之焰。",
+    "desc": "源火榜第11。源火榜第十一，玄炉老人的本命火焰，极寒之焰。",
     "price_buy": 10000,
     "price_sell": 5000,
     "rank": 11
@@ -129,7 +129,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "earth",
     "effect": "special",
-    "desc": "异火榜第12。异火榜第十二，九龙环绕、雷火齐鸣。",
+    "desc": "源火榜第12。源火榜第十二，九龙环绕、雷火齐鸣。",
     "price_buy": 8333,
     "price_sell": 4166,
     "rank": 12
@@ -140,18 +140,18 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "treasure",
     "effect": "special",
-    "desc": "异火榜第13。异火榜第十三，地心孕育的龟形火焰。",
+    "desc": "源火榜第13。源火榜第十三，地心孕育的龟形火焰。",
     "price_buy": 8333,
     "price_sell": 4166,
     "rank": 13
   },
   {
     "id": "item_flame_14",
-    "name": "陨落心炎",
+    "name": "陨心源火",
     "type": "heavenly_flame",
     "tier": "treasure",
     "effect": "special",
-    "desc": "异火榜第14。异火榜第十四，透明无色、直攻内心。",
+    "desc": "源火榜第14。源火榜第十四，透明无色、直攻内心。",
     "price_buy": 7142,
     "price_sell": 3571,
     "rank": 14
@@ -162,7 +162,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "special",
-    "desc": "异火榜第15。异火榜第十五，深海之心孕育的奇焰。",
+    "desc": "源火榜第15。源火榜第十五，深海之心孕育的奇焰。",
     "price_buy": 7142,
     "price_sell": 3571,
     "rank": 15
@@ -173,7 +173,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "special",
-    "desc": "异火榜第16。异火榜第十六，火山口万年不灭的暗红火焰。",
+    "desc": "源火榜第16。源火榜第十六，火山口万年不灭的暗红火焰。",
     "price_buy": 6250,
     "price_sell": 3125,
     "rank": 16
@@ -184,18 +184,18 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "spirit",
     "effect": "special",
-    "desc": "异火榜第17。异火榜第十七，风雷交加而成的紫青火焰。",
+    "desc": "源火榜第17。源火榜第十七，风雷交加而成的紫青火焰。",
     "price_buy": 6250,
     "price_sell": 3125,
     "rank": 17
   },
   {
     "id": "item_flame_18",
-    "name": "青莲地心火",
+    "name": "青莲源火",
     "type": "heavenly_flame",
     "tier": "refined",
     "effect": "special",
-    "desc": "异火榜第18。异火榜第十八，萧炎获得的第一种异火。",
+    "desc": "源火榜第18。源火榜第十八，林烬获得的第一种源火。",
     "price_buy": 5555,
     "price_sell": 2777,
     "rank": 18
@@ -206,7 +206,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "refined",
     "effect": "special",
-    "desc": "异火榜第19。异火榜第十九，龙血凤骨诞生的双色火焰。",
+    "desc": "源火榜第19。源火榜第十九，龙血凤骨诞生的双色火焰。",
     "price_buy": 5555,
     "price_sell": 2777,
     "rank": 19
@@ -217,7 +217,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "special",
-    "desc": "异火榜第20。异火榜第二十，传说来自六道轮回。",
+    "desc": "源火榜第20。源火榜第二十，传说来自六道轮回。",
     "price_buy": 5000,
     "price_sell": 2500,
     "rank": 20
@@ -228,7 +228,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "special",
-    "desc": "异火榜第21。异火榜第二十一，万兽灵魂燃烧的火焰。",
+    "desc": "源火榜第21。源火榜第二十一，万兽灵魂燃烧的火焰。",
     "price_buy": 5000,
     "price_sell": 2500,
     "rank": 21
@@ -239,7 +239,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "special",
-    "desc": "异火榜第22。异火榜第二十二，玄黄之气凝聚而成。",
+    "desc": "源火榜第22。源火榜第二十二，玄黄之气凝聚而成。",
     "price_buy": 4545,
     "price_sell": 2272,
     "rank": 22
@@ -250,7 +250,7 @@ HEAVENLY_FLAMES_FULL = [
     "type": "heavenly_flame",
     "tier": "iron",
     "effect": "special",
-    "desc": "异火榜第23。异火榜第二十三，蕴含剧毒的诡异绿焰。",
+    "desc": "源火榜第23。源火榜第二十三，蕴含剧毒的诡异绿焰。",
     "price_buy": 4545,
     "price_sell": 2272,
     "rank": 23

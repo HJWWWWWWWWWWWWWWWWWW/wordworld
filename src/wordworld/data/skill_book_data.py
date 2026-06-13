@@ -362,7 +362,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "焚诀·吞噬",
     "atk_bonus": 48,
     "cost": 35,
-    "desc": "[火系] 以焚决催动吞噬异火之力。",
+    "desc": "[火系] 以源火决催动吞噬源火之力。",
     "price_buy": 1440,
     "price_sell": 720
   },
@@ -1818,7 +1818,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "森林之息",
     "atk_bonus": 8,
     "cost": 12,
-    "desc": "[木系] 森林吐息恢复HP和斗气。",
+    "desc": "[木系] 森林吐息恢复HP和灵力。",
     "price_buy": 240,
     "price_sell": 120
   },
@@ -3448,7 +3448,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "恢复术",
     "atk_bonus": 0,
     "cost": 8,
-    "desc": "[辅助] 消耗斗气恢复生命。",
+    "desc": "[辅助] 消耗灵力恢复生命。",
     "effect": "heal:60",
     "price_buy": 240,
     "price_sell": 120
@@ -3508,7 +3508,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "回气术",
     "atk_bonus": 0,
     "cost": 10,
-    "desc": "[辅助] 恢复斗气的法门。",
+    "desc": "[辅助] 恢复灵力的法门。",
     "effect": "douqi_restore:80",
     "price_buy": 300,
     "price_sell": 150
@@ -3523,22 +3523,22 @@ SKILL_BOOK_DATA = [
     "skill_name": "聚气归元",
     "atk_bonus": 0,
     "cost": 20,
-    "desc": "[辅助] 大量恢复斗气。",
+    "desc": "[辅助] 大量恢复灵力。",
     "effect": "douqi_restore:200",
     "price_buy": 600,
     "price_sell": 300
   },
   {
     "id": "book_skill_util_7",
-    "name": "《斗气泉涌》",
+    "name": "《灵力泉涌》",
     "type": "book",
     "tier": "spirit",
     "element": "无",
     "skill_id": "skill_util_7",
-    "skill_name": "斗气泉涌",
+    "skill_name": "灵力泉涌",
     "atk_bonus": 0,
     "cost": 35,
-    "desc": "[辅助] 斗气如泉涌般恢复。",
+    "desc": "[辅助] 灵力如泉涌般恢复。",
     "effect": "douqi_restore:500",
     "price_buy": 1050,
     "price_sell": 525
@@ -3568,7 +3568,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "护盾术",
     "atk_bonus": 0,
     "cost": 12,
-    "desc": "[辅助] 生成斗气护盾吸收伤害。",
+    "desc": "[辅助] 生成灵力护盾吸收伤害。",
     "effect": "shield:150",
     "price_buy": 360,
     "price_sell": 180
@@ -3733,7 +3733,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "冥想",
     "atk_bonus": 0,
     "cost": 5,
-    "desc": "[辅助] 进入冥想恢复HP和斗气。",
+    "desc": "[辅助] 进入冥想恢复HP和灵力。",
     "effect": "heal:30,douqi_restore:30",
     "price_buy": 150,
     "price_sell": 75
@@ -3763,7 +3763,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "气疗术",
     "atk_bonus": 0,
     "cost": 8,
-    "desc": "[辅助] 斗气温养经脉。",
+    "desc": "[辅助] 灵力温养经脉。",
     "effect": "heal:80,douqi_restore:20",
     "price_buy": 240,
     "price_sell": 120
@@ -3860,15 +3860,15 @@ SKILL_BOOK_DATA = [
   },
   {
     "id": "book_skill_util_29",
-    "name": "《斗气燃烧》",
+    "name": "《灵力燃烧》",
     "type": "book",
     "tier": "refined",
     "element": "无",
     "skill_id": "skill_util_29",
-    "skill_name": "斗气燃烧",
+    "skill_name": "灵力燃烧",
     "atk_bonus": 0,
     "cost": 10,
-    "desc": "[辅助] 燃烧斗气换取攻击提升。",
+    "desc": "[辅助] 燃烧灵力换取攻击提升。",
     "effect": "douqi_to_atk:50",
     "price_buy": 300,
     "price_sell": 150
@@ -3883,7 +3883,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "牺牲",
     "atk_bonus": 0,
     "cost": 5,
-    "desc": "[辅助] 消耗生命换取大量斗气。",
+    "desc": "[辅助] 消耗生命换取大量灵力。",
     "effect": "hp_to_douqi:100",
     "price_buy": 150,
     "price_sell": 75
@@ -3898,7 +3898,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "灵魂链接",
     "atk_bonus": 0,
     "cost": 20,
-    "desc": "[辅助] 链接灵魂恢复生命和斗气。",
+    "desc": "[辅助] 链接灵魂恢复生命和灵力。",
     "effect": "heal:200,douqi_restore:100",
     "price_buy": 600,
     "price_sell": 300
@@ -3943,7 +3943,7 @@ SKILL_BOOK_DATA = [
     "skill_name": "吸星大法",
     "atk_bonus": 0,
     "cost": 22,
-    "desc": "[辅助] 吸取敌人斗气为己用。",
+    "desc": "[辅助] 吸取敌人灵力为己用。",
     "effect": "douqi_drain:100",
     "price_buy": 660,
     "price_sell": 330

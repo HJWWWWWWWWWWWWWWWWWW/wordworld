@@ -63,7 +63,7 @@ COMMON_MOBS = [
     enemy("mob_scarlet_boar", "赤鬃野猪", "mob", 11, 450, 38, 28, 18, 110, "item:core_earth:20|exp:110:100"),
     enemy("mob_iron_scale_python", "铁鳞蟒", "mob", 12, 500, 42, 35, 20, 120, "item:item_beast_hide_bundle:25|exp:120:100"),
 
-    # ── 塔戈尔沙漠 (Lv 8-18) ──
+    # ── 赤沙荒漠 (Lv 8-18) ──
     enemy("mob_sand_scorpion", "沙蝎", "mob", 8, 300, 32, 20, 22, 80, "item:herb_desert_mandala:15|exp:80:100"),
     enemy("mob_desert_viper", "沙漠蝰蛇", "mob", 10, 350, 40, 16, 30, 100, "item:item_snake_venom_vial:10|exp:100:100"),
     enemy("mob_sand_worm", "沙虫", "mob", 11, 420, 28, 30, 10, 110, "item:core_earth:20|exp:110:100"),
@@ -75,14 +75,14 @@ COMMON_MOBS = [
     enemy("mob_camel_spider", "骆驼蛛", "mob", 16, 520, 48, 25, 32, 170, "item:herb_desert_mandala:20|exp:170:100"),
     enemy("mob_desert_marauder", "沙漠掠食者", "mob", 17, 600, 52, 28, 30, 180, "item:silver:40|exp:180:100"),
 
-    # ── 黑角域 (Lv 16-30) ──
-    enemy("mob_black_domain_thug", "黑角域暴徒", "mob", 16, 550, 55, 25, 30, 160, "item:silver:30|exp:160:100"),
+    # ── 暗角域 (Lv 16-30) ──
+    enemy("mob_black_domain_thug", "暗角域暴徒", "mob", 16, 550, 55, 25, 30, 160, "item:silver:30|exp:160:100"),
     enemy("mob_blood_sect_disciple", "血宗弟子", "mob", 18, 620, 58, 28, 32, 190, "item:herb_blood_essence_fruit:10|exp:190:100"),
-    enemy("mob_black_alliance_soldier", "黑盟杂兵", "mob", 20, 700, 62, 32, 34, 220, "item:silver:35|exp:220:100"),
+    enemy("mob_black_alliance_soldier", "暗盟杂兵", "mob", 20, 700, 62, 32, 34, 220, "item:silver:35|exp:220:100"),
     enemy("mob_wandering_killer", "亡命徒", "mob", 19, 650, 65, 22, 38, 200, "item:core_magic:15|exp:200:100"),
     enemy("mob_black_market_guard", "黑市护卫", "mob", 21, 750, 60, 35, 30, 230, "item:silver:30|exp:230:100"),
     enemy("mob_plain_raider", "平原劫匪", "mob", 22, 780, 65, 30, 36, 250, "item:item_beast_hide_bundle:15|exp:250:100"),
-    enemy("mob_demon_flame_valley_guard", "魔炎谷守卫", "mob", 25, 900, 70, 40, 32, 300, "item:core_fire:20|exp:300:100"),
+    enemy("mob_demon_flame_valley_guard", "魔焰谷守卫", "mob", 25, 900, 70, 40, 32, 300, "item:core_fire:20|exp:300:100"),
     enemy("mob_black_seal_enforcer", "黑印城打手", "mob", 24, 850, 68, 38, 35, 280, "item:silver:40|exp:280:100"),
 
     # ── 迦南学院 (Lv 16-25) ──
@@ -113,11 +113,11 @@ COMMON_MOBS = [
     enemy("mob_dan_region_guard", "丹域守卫", "mob", 45, 2300, 135, 80, 65, 750, "item:item_elixir:12|exp:750:100"),
     enemy("mob_alchemy_fraud", "炼药骗子", "mob", 46, 2100, 125, 60, 72, 770, "item:silver:60|exp:770:100"),
 
-    # ── 魂殿 (Lv 30-65) ──
-    enemy("mob_soul_hall_scout", "魂殿探子", "mob", 30, 1100, 85, 45, 55, 400, "exp:400:100"),
+    # ── 黑渊殿 (Lv 30-65) ──
+    enemy("mob_soul_hall_scout", "黑渊殿探子", "mob", 30, 1100, 85, 45, 55, 400, "exp:400:100"),
     enemy("mob_soul_chain_guard", "锁魂守卫", "mob", 38, 1600, 105, 60, 60, 600, "item:item_soul_baby_fruit:5|exp:600:100"),
     enemy("mob_soul_collector", "魂使", "mob", 42, 1900, 120, 65, 68, 700, "item:item_soul_baby_fruit:8|exp:700:100"),
-    enemy("mob_soul_hall_enforcer", "魂殿执法", "mob", 48, 2400, 140, 78, 72, 850, "item:item_soul_baby_fruit:10|exp:850:100"),
+    enemy("mob_soul_hall_enforcer", "黑渊殿执法", "mob", 48, 2400, 140, 78, 72, 850, "item:item_soul_baby_fruit:10|exp:850:100"),
     enemy("mob_death_corpse_ghoul", "葬尸食尸鬼", "mob", 50, 2600, 145, 80, 60, 900, "item:core_earth:25|exp:900:100"),
 
     # ── 兽域 (Lv 50-65) ──
@@ -146,7 +146,7 @@ COMMON_MOBS = [
     # ── 远古战场 (Lv 70-85) ──
     enemy("mob_ancient_soldier_spirit", "远古战魂", "mob", 70, 5200, 230, 110, 95, 2000, "item:item_soul_baby_fruit:12|exp:2000:100"),
     enemy("mob_battlefield_wraith", "战场冤魂", "mob", 72, 5500, 240, 105, 100, 2100, "item:item_soul_baby_fruit:15|exp:2100:100"),
-    enemy("mob_hun_clan_scout", "魂族斥候", "mob", 75, 6000, 260, 130, 115, 2300, "item:item_soul_baby_fruit:18|exp:2300:100"),
+    enemy("mob_hun_clan_scout", "玄族斥候", "mob", 75, 6000, 260, 130, 115, 2300, "item:item_soul_baby_fruit:18|exp:2300:100"),
     enemy("mob_alliance_vanguard", "联盟先锋", "mob", 75, 6200, 255, 135, 110, 2300, "item:item_elixir:20|exp:2300:100"),
     enemy("mob_broken_space_beast", "破碎空间兽", "mob", 80, 7000, 280, 140, 105, 2600, "item:item_ancient_relic:5|exp:2600:100"),
 
@@ -168,32 +168,32 @@ COMMON_MOBS = [
 # PART 2: ELITE ENEMIES (100+) - by region
 # ══════════════════════════════════════════════════════════
 ELITE_ENEMIES = [
-    # ── 加玛帝国精英 (Lv 10-30) ──
+    # ── 沧澜帝国精英 (Lv 10-30) ──
     enemy("elite_wolf_head_leader", "狼头佣兵团长", "elite", 10, 800, 55, 35, 40, 200, "item:core_magic:25|exp:200:100"),
-    enemy("elite_xiao_guard_captain", "萧家护卫队长", "elite", 12, 900, 60, 40, 38, 250, "item:item_elixir:15|exp:250:100"),
-    enemy("elite_wutan_arena_champ", "乌坦城擂主", "elite", 14, 1000, 65, 42, 42, 300, "item:silver:80|exp:300:100"),
+    enemy("elite_xiao_guard_captain", "林家护卫队长", "elite", 12, 900, 60, 40, 38, 250, "item:item_elixir:15|exp:250:100"),
+    enemy("elite_wutan_arena_champ", "青石城擂主", "elite", 14, 1000, 65, 42, 42, 300, "item:silver:80|exp:300:100"),
     enemy("elite_alchemist_guard", "公会护卫长", "elite", 15, 1100, 62, 45, 40, 320, "item:item_elixir:20|exp:320:100"),
     enemy("elite_desert_merc_captain", "沙漠佣兵队长", "elite", 16, 1200, 70, 48, 45, 350, "item:item_desert_compass:10|exp:350:100"),
     enemy("elite_snake_temple_guard", "蛇人神殿守卫", "elite", 18, 1400, 78, 55, 50, 420, "item:item_snake_venom_vial:25|exp:420:100"),
     enemy("elite_miteer_chief_guard", "米特尔首席护卫", "elite", 20, 1600, 82, 60, 52, 480, "item:silver:100|exp:480:100"),
     enemy("elite_imperial_guard", "皇室禁卫", "elite", 22, 1800, 88, 65, 55, 550, "item:item_elixir:25|exp:550:100"),
     enemy("elite_nalan_elder", "纳兰家长老", "elite", 24, 2000, 92, 68, 58, 620, "item:herb_spirit_gathering:20|exp:620:100"),
-    enemy("elite_jia_ma_general", "加玛边军将领", "elite", 26, 2200, 95, 72, 60, 680, "item:item_jia_ma_passport:15|exp:680:100"),
+    enemy("elite_jia_ma_general", "沧澜边军将领", "elite", 26, 2200, 95, 72, 60, 680, "item:item_jia_ma_passport:15|exp:680:100"),
 
-    # ── 云岚宗精英 (Lv 18-32) ──
-    enemy("elite_yunlan_elder", "云岚宗执事", "elite", 18, 1500, 80, 58, 55, 420, "item:core_wind:25|exp:420:100"),
-    enemy("elite_yunlan_enforcer", "云岚宗执法", "elite", 20, 1700, 85, 62, 58, 480, "item:item_elixir:20|exp:480:100"),
-    enemy("elite_yunlan_guard_captain", "云岚宗护卫长", "elite", 25, 2100, 95, 70, 62, 650, "item:core_wind:28|exp:650:100"),
-    enemy("elite_yunlan_deacon", "云岚宗长老会成员", "elite", 28, 2500, 105, 78, 65, 750, "item:item_elixir:30|exp:750:100"),
+    # ── 青岚宗精英 (Lv 18-32) ──
+    enemy("elite_yunlan_elder", "青岚宗执事", "elite", 18, 1500, 80, 58, 55, 420, "item:core_wind:25|exp:420:100"),
+    enemy("elite_yunlan_enforcer", "青岚宗执法", "elite", 20, 1700, 85, 62, 58, 480, "item:item_elixir:20|exp:480:100"),
+    enemy("elite_yunlan_guard_captain", "青岚宗护卫长", "elite", 25, 2100, 95, 70, 62, 650, "item:core_wind:28|exp:650:100"),
+    enemy("elite_yunlan_deacon", "青岚宗长老会成员", "elite", 28, 2500, 105, 78, 65, 750, "item:item_elixir:30|exp:750:100"),
 
-    # ── 黑角域精英 (Lv 20-38) ──
+    # ── 暗角域精英 (Lv 20-38) ──
     enemy("elite_blood_sect_elder", "血宗长老", "elite", 22, 2200, 95, 68, 60, 550, "item:herb_blood_essence_fruit:25|exp:550:100"),
-    enemy("elite_black_alliance_captain", "黑盟队长", "elite", 24, 2400, 100, 72, 62, 620, "item:silver:120|exp:620:100"),
+    enemy("elite_black_alliance_captain", "暗盟队长", "elite", 24, 2400, 100, 72, 62, 620, "item:silver:120|exp:620:100"),
     enemy("elite_eight_gates_enforcer", "八扇门执事", "elite", 26, 2600, 105, 75, 65, 680, "item:item_black_market_pass:10|exp:680:100"),
     enemy("elite_feng_city_guard", "枫城守卫长", "elite", 28, 2800, 110, 78, 68, 750, "item:item_elixir:30|exp:750:100"),
     enemy("elite_black_emperor_guard", "黑皇宗护卫", "elite", 30, 3000, 115, 82, 70, 820, "item:item_forbidden_pill_fragment:8|exp:820:100"),
-    enemy("elite_demon_valley_elder", "魔炎谷长老", "elite", 34, 3400, 125, 88, 75, 980, "item:core_fire:30|exp:980:100"),
-    enemy("elite_black_domain_hunter", "黑角域赏金猎人", "elite", 32, 3200, 120, 85, 78, 900, "item:silver:150|exp:900:100"),
+    enemy("elite_demon_valley_elder", "魔焰谷长老", "elite", 34, 3400, 125, 88, 75, 980, "item:core_fire:30|exp:980:100"),
+    enemy("elite_black_domain_hunter", "暗角域赏金猎人", "elite", 32, 3200, 120, 85, 78, 900, "item:silver:150|exp:900:100"),
     enemy("elite_black_blood_merc", "血原佣兵头目", "elite", 36, 3600, 130, 90, 80, 1050, "item:item_beast_blood_essence:12|exp:1050:100"),
 
     # ── 迦南学院精英 (Lv 22-32) ──
@@ -218,20 +218,20 @@ ELITE_ENEMIES = [
     enemy("elite_ice_river_deacon", "冰河谷执事", "elite", 45, 4700, 158, 105, 90, 1520, "item:core_ice:35|exp:1520:100"),
     enemy("elite_sky_demon_deacon", "天冥宗执事", "elite", 46, 4800, 165, 98, 92, 1580, "item:item_soul_baby_fruit:15|exp:1580:100"),
     enemy("elite_flower_sect_elder", "花宗长老", "elite", 48, 5000, 162, 102, 100, 1680, "item:herb_sky_jade_fruit:20|exp:1680:100"),
-    enemy("elite_dan_tower_deacon", "丹塔执事", "elite", 50, 4800, 155, 95, 98, 1750, "item:item_dan_herb_box:15|exp:1750:100"),
+    enemy("elite_dan_tower_deacon", "丹阁执事", "elite", 50, 4800, 155, 95, 98, 1750, "item:item_dan_herb_box:15|exp:1750:100"),
     enemy("elite_dan_region_guard_captain", "丹域护卫长", "elite", 52, 5200, 170, 108, 100, 1820, "item:item_elixir:40|exp:1820:100"),
     enemy("elite_central_domain_merc", "中域佣兵团长", "elite", 50, 5000, 168, 105, 105, 1750, "item:item_zhongzhou_map:20|exp:1750:100"),
     enemy("elite_tianhuang_guard", "天黄城卫队长", "elite", 54, 5400, 175, 110, 102, 1900, "item:item_wormhole_pass:15|exp:1900:100"),
     enemy("elite_black_fire_sect_leader", "黑火宗宗主", "elite", 48, 4900, 160, 100, 96, 1680, "item:core_fire:35|exp:1680:100"),
 
-    # ── 魂殿精英 (Lv 35-75) ──
-    enemy("elite_soul_hall_protector", "魂殿护法", "elite", 35, 3800, 140, 90, 85, 1100, "item:item_soul_baby_fruit:20|exp:1100:100"),
-    enemy("elite_soul_hall_elder_protector", "魂殿大护法", "elite", 42, 4500, 160, 100, 95, 1400, "item:item_soul_baby_fruit:25|exp:1400:100"),
-    enemy("elite_soul_hall_soul_reaper", "魂殿勾魂使", "elite", 48, 5000, 175, 108, 105, 1650, "item:item_soul_baby_fruit:30|exp:1650:100"),
+    # ── 黑渊殿精英 (Lv 35-75) ──
+    enemy("elite_soul_hall_protector", "黑渊护法", "elite", 35, 3800, 140, 90, 85, 1100, "item:item_soul_baby_fruit:20|exp:1100:100"),
+    enemy("elite_soul_hall_elder_protector", "黑渊殿大护法", "elite", 42, 4500, 160, 100, 95, 1400, "item:item_soul_baby_fruit:25|exp:1400:100"),
+    enemy("elite_soul_hall_soul_reaper", "黑渊殿勾魂使", "elite", 48, 5000, 175, 108, 105, 1650, "item:item_soul_baby_fruit:30|exp:1650:100"),
     enemy("elite_soul_hall_person_hall_guard", "人殿守卫长", "elite", 55, 5800, 195, 120, 112, 2000, "item:item_soul_baby_fruit:35|exp:2000:100"),
     enemy("elite_soul_hall_earth_hall_guard", "地殿守卫长", "elite", 60, 6500, 215, 135, 118, 2300, "item:item_soul_baby_fruit:40|exp:2300:100"),
     enemy("elite_soul_hall_heaven_hall_guard", "天殿守卫长", "elite", 65, 7200, 235, 150, 125, 2600, "item:item_soul_baby_fruit:50|exp:2600:100"),
-    enemy("elite_soul_hall_messenger", "魂殿使者", "elite", 50, 5400, 185, 112, 108, 1800, "item:item_soul_baby_fruit:28|exp:1800:100"),
+    enemy("elite_soul_hall_messenger", "黑渊使者", "elite", 50, 5400, 185, 112, 108, 1800, "item:item_soul_baby_fruit:28|exp:1800:100"),
     enemy("elite_death_corpse_guardian", "葬尸山脉守墓者", "elite", 52, 5600, 190, 118, 100, 1880, "item:item_soul_baby_fruit:30|exp:1880:100"),
 
     # ── 兽域精英 (Lv 52-68) ──
@@ -248,17 +248,17 @@ ELITE_ENEMIES = [
     enemy("elite_south_dragon_commander", "南龙岛将领", "elite", 65, 7600, 252, 172, 130, 2650, "item:item_dragon_scale:15|exp:2650:100"),
     enemy("elite_north_dragon_commander", "北龙岛将领", "elite", 68, 8000, 270, 178, 135, 2850, "item:item_dragon_scale:18|exp:2850:100"),
     enemy("elite_east_dragon_commander", "东龙岛将领", "elite", 62, 6800, 240, 158, 128, 2400, "item:item_dragon_scale:12|exp:2400:100"),
-    enemy("elite_ancient_dragon_spirit", "古龙残魂", "elite", 72, 8200, 280, 170, 140, 3100, "item:item_dragon_scale:20|exp:3100:100"),
+    enemy("elite_ancient_dragon_spirit", "虚空龙残魂", "elite", 72, 8200, 280, 170, 140, 3100, "item:item_dragon_scale:20|exp:3100:100"),
 
     # ── 远古种族精英 (Lv 60-85) ──
-    enemy("elite_gu_clan_warrior", "古族战士", "elite", 62, 7000, 250, 165, 140, 2500, "item:item_elixir:45|exp:2500:100"),
-    enemy("elite_gu_clan_elder", "古族长老", "elite", 72, 8500, 290, 190, 155, 3200, "item:item_ancient_relic:15|exp:3200:100"),
+    enemy("elite_gu_clan_warrior", "云族战士", "elite", 62, 7000, 250, 165, 140, 2500, "item:item_elixir:45|exp:2500:100"),
+    enemy("elite_gu_clan_elder", "云族长老", "elite", 72, 8500, 290, 190, 155, 3200, "item:item_ancient_relic:15|exp:3200:100"),
     enemy("elite_yan_clan_warrior", "炎族战士", "elite", 64, 7200, 260, 160, 135, 2650, "item:core_fire:40|exp:2650:100"),
     enemy("elite_lei_clan_warrior", "雷族战士", "elite", 64, 7300, 255, 162, 145, 2650, "item:core_wind:40|exp:2650:100"),
     enemy("elite_yao_clan_guard", "药族守卫", "elite", 60, 6800, 235, 155, 130, 2400, "item:herb_ancient_green_vine:20|exp:2400:100"),
     enemy("elite_yao_clan_elder", "药族长老", "elite", 70, 8000, 275, 180, 148, 3100, "item:item_dan_herb_box:25|exp:3100:100"),
-    enemy("elite_hun_clan_warrior", "魂族战士", "elite", 68, 7800, 275, 170, 150, 2900, "item:item_soul_baby_fruit:35|exp:2900:100"),
-    enemy("elite_hun_clan_elder", "魂族长老", "elite", 78, 9000, 310, 200, 168, 3600, "item:item_soul_baby_fruit:50|exp:3600:100"),
+    enemy("elite_hun_clan_warrior", "玄族战士", "elite", 68, 7800, 275, 170, 150, 2900, "item:item_soul_baby_fruit:35|exp:2900:100"),
+    enemy("elite_hun_clan_elder", "玄族长老", "elite", 78, 9000, 310, 200, 168, 3600, "item:item_soul_baby_fruit:50|exp:3600:100"),
     enemy("elite_ancient_alliance_officer", "远古联盟军官", "elite", 75, 8500, 300, 185, 160, 3400, "item:item_elixir:50|exp:3400:100"),
 
     # ── 莽荒古域精英 (Lv 64-72) ──
@@ -277,7 +277,7 @@ ELITE_ENEMIES = [
 
     # ── 最终战场精英 (Lv 88-95) ──
     enemy("elite_allied_forces_general", "联军将领", "elite", 88, 11000, 380, 250, 180, 4800, "item:item_elixir:60|exp:4800:100"),
-    enemy("elite_hun_army_commander", "魂族军团指挥官", "elite", 90, 12000, 400, 260, 190, 5200, "item:item_soul_baby_fruit:60|exp:5200:100"),
+    enemy("elite_hun_army_commander", "玄族军团指挥官", "elite", 90, 12000, 400, 260, 190, 5200, "item:item_soul_baby_fruit:60|exp:5200:100"),
 ]
 
 # ══════════════════════════════════════════════════════════
@@ -286,16 +286,16 @@ ELITE_ENEMIES = [
 # NON_LETHAL = these characters can develop relationships later; cannot be killed
 NON_LETHAL = "non_lethal"  # marker in Notes field
 ADDITIONAL_BOSSES = [
-    # ── 加玛帝国/魔兽山脉 Boss ──
+    # ── 沧澜帝国/魔兽山脉 Boss ──
     enemy("boss_mu_she", "穆蛇", "boss", 12, 1500, 85, 55, 60, 500, "item:core_magic:30|exp:500:100", "", "", NON_LETHAL),
     enemy("boss_amethyst_wing_lion", "紫晶翼狮王", "boss", 18, 3000, 120, 100, 80, 1200, "item:item_beast_hide_bundle:40|item:core_magic:40|exp:1200:100"),
     enemy("boss_desert_ancient_scorpion", "沙漠古蝎王", "boss", 20, 3500, 130, 120, 70, 1400, "item:item_snake_venom_vial:40|exp:1400:100"),
     enemy("boss_snake_high_priest", "蛇人族大祭司", "boss", 22, 3800, 140, 110, 90, 1600, "item:item_snake_venom_vial:50|exp:1600:100", "", "", NON_LETHAL),
 
-    # ── 黑角域 Boss ──
+    # ── 暗角域 Boss ──
     enemy("boss_blood_sect_leader", "血宗宗主", "boss", 28, 5000, 190, 140, 150, 2500, "item:herb_blood_essence_fruit:50|exp:2500:100"),
     enemy("boss_eight_gates_master", "八扇门主", "boss", 26, 4500, 175, 130, 145, 2200, "item:item_black_market_pass:30|exp:2200:100", "", "", NON_LETHAL),
-    enemy("boss_black_alliance_commander", "黑盟副统领", "boss", 32, 6000, 220, 160, 170, 3500, "item:item_forbidden_pill_fragment:25|exp:3500:100"),
+    enemy("boss_black_alliance_commander", "暗盟副统领", "boss", 32, 6000, 220, 160, 170, 3500, "item:item_forbidden_pill_fragment:25|exp:3500:100"),
 
     # ── 迦南学院 Boss ──
     enemy("boss_inner_academy_guardian", "内院守护者", "boss", 26, 4500, 170, 135, 140, 2200, "item:item_canaan_token:60|exp:2200:100", "", "", NON_LETHAL),
@@ -310,7 +310,7 @@ ADDITIONAL_BOSSES = [
     enemy("boss_sword_emperor", "剑尊者", "boss", 48, 12500, 355, 245, 275, 8000, "item:core_ice:50|exp:8000:100", "", "", NON_LETHAL),
     enemy("boss_sky_demon_sect_leader", "天冥宗宗主", "boss", 52, 15000, 400, 280, 270, 10000, "item:item_soul_baby_fruit:45|exp:10000:100"),
     enemy("boss_black_fire_ancestor", "黑火老祖", "boss", 50, 14000, 380, 270, 265, 9500, "item:core_fire:50|exp:9500:100"),
-    enemy("boss_dan_tower_guardian", "丹塔守护者", "boss", 55, 16000, 380, 300, 290, 12000, "item:item_dan_herb_box:30|exp:12000:100", "", "", NON_LETHAL),
+    enemy("boss_dan_tower_guardian", "丹阁守护者", "boss", 55, 16000, 380, 300, 290, 12000, "item:item_dan_herb_box:30|exp:12000:100", "", "", NON_LETHAL),
 
     # ── 兽域 Boss ──
     enemy("boss_nether_python_usurper", "冥蟒篡位者", "boss", 58, 18000, 420, 320, 300, 14000, "item:item_huangquan_blood_crystal:30|exp:14000:100"),
@@ -319,15 +319,15 @@ ADDITIONAL_BOSSES = [
     # ── 龙岛 Boss ──
     enemy("boss_south_dragon_king", "南龙王", "boss", 65, 25000, 500, 400, 380, 22000, "item:item_dragon_scale:25|exp:22000:100", "", "", NON_LETHAL),
     enemy("boss_north_dragon_king", "北龙王", "boss", 68, 28000, 530, 420, 400, 25000, "item:item_dragon_scale:30|exp:25000:100"),
-    enemy("boss_ancient_dragon_spirit_king", "古龙王残魂", "boss", 72, 32000, 580, 450, 420, 30000, "item:item_dragon_saliva_herb:20|exp:30000:100"),
-    enemy("boss_dragon_emperor_zhu_kun", "烛坤", "boss", 95, 85000, 4500, 3200, 3800, 85000, "item:item_dragon_scale:50|exp:85000:100", "", "", NON_LETHAL),
+    enemy("boss_ancient_dragon_spirit_king", "虚空龙王残魂", "boss", 72, 32000, 580, 450, 420, 30000, "item:item_dragon_saliva_herb:20|exp:30000:100"),
+    enemy("boss_dragon_emperor_zhu_kun", "苍坤", "boss", 95, 85000, 4500, 3200, 3800, 85000, "item:item_dragon_scale:50|exp:85000:100", "", "", NON_LETHAL),
 
     # ── 远古种族 Boss ──
-    enemy("boss_gu_clan_general", "古族大将", "boss", 72, 30000, 550, 480, 420, 28000, "item:item_ancient_relic:25|exp:28000:100", "", "", NON_LETHAL),
+    enemy("boss_gu_clan_general", "云族大将", "boss", 72, 30000, 550, 480, 420, 28000, "item:item_ancient_relic:25|exp:28000:100", "", "", NON_LETHAL),
     enemy("boss_yan_clan_elder_chief", "炎族大长老", "boss", 74, 32000, 580, 460, 440, 31000, "item:core_fire:60|exp:31000:100", "", "", NON_LETHAL),
     enemy("boss_lei_clan_elder_chief", "雷族大长老", "boss", 74, 33000, 575, 465, 460, 31000, "item:core_wind:60|exp:31000:100", "", "", NON_LETHAL),
     enemy("boss_yao_clan_guardian", "药族守护长老", "boss", 70, 28000, 520, 430, 400, 26000, "item:item_dan_herb_box:35|exp:26000:100", "", "", NON_LETHAL),
-    enemy("boss_hun_clan_ritual_master", "魂族祭坛主", "boss", 82, 42000, 650, 500, 480, 38000, "item:item_soul_baby_fruit:70|exp:38000:100"),
+    enemy("boss_hun_clan_ritual_master", "玄族祭坛主", "boss", 82, 42000, 650, 500, 480, 38000, "item:item_soul_baby_fruit:70|exp:38000:100"),
 
     # ── 莽荒古域 Boss ──
     enemy("boss_demon_python_king", "天魔蟒王", "boss", 68, 26000, 480, 360, 350, 24000, "item:item_huangquan_blood_crystal:35|exp:24000:100"),
@@ -342,7 +342,7 @@ ADDITIONAL_BOSSES = [
     enemy("boss_emperor_pill_guardian", "帝品雏丹守护者", "boss", 88, 55000, 720, 580, 520, 48000, "item:item_embryonic_emperor_pill:10|exp:48000:100"),
 
     # ── 最终战场 Boss ──
-    enemy("boss_hun_army_general", "魂族大军统帅", "boss", 90, 60000, 750, 600, 550, 50000, "item:item_soul_baby_fruit:80|exp:50000:100"),
+    enemy("boss_hun_army_general", "玄族大军统帅", "boss", 90, 60000, 750, 600, 550, 50000, "item:item_soul_baby_fruit:80|exp:50000:100"),
     enemy("boss_alliance_commander", "联盟总指挥", "boss", 90, 62000, 740, 620, 540, 50000, "item:item_elixir:80|exp:50000:100", "", "", NON_LETHAL),
 ]
 

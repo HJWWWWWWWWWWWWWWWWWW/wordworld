@@ -72,10 +72,10 @@ print(f"Existing gathering: {len(existing_gathering)}")
 # ══════════════════════════════════════════════════════════════
 
 NEW_MAIN_MAPS = [
-    # ── yunlan_war: 重返加玛与云岚宗大战 ──
-    ("map_cloud_mountain_peak", "云山巅峰", "云岚宗", "", 35, 10, "no", "", "云岚宗最高峰，云山修炼与决战之地。"),
-    ("map_yan_alliance_hq", "炎盟总部", "加玛帝国", "", 35, 5, "yes", "", "萧炎在加玛帝国建立联盟的总部。"),
-    ("map_jia_ma_battle_front", "加玛战线", "加玛帝国", "", 33, 8, "no", "", "炎盟与云岚宗残党交战的边境战场。"),
+    # ── yunlan_war: 重返沧澜与青岚宗大战 ──
+    ("map_cloud_mountain_peak", "青山巅峰", "青岚宗", "", 35, 10, "no", "", "青岚宗最高峰，青山修炼与决战之地。"),
+    ("map_yan_alliance_hq", "灵盟总部", "沧澜帝国", "", 35, 5, "yes", "", "林烬在沧澜帝国建立联盟的总部。"),
+    ("map_jia_ma_battle_front", "沧澜战线", "沧澜帝国", "", 33, 8, "no", "", "灵盟与青岚宗残党交战的边境战场。"),
 
     # ── poison_sect_war: 出云帝国与毒宗之战 ──
     ("map_chuyun_empire", "出云帝国", "西北大陆", "", 35, 8, "no", "", "毒宗统治的出云帝国疆域。"),
@@ -88,81 +88,81 @@ NEW_MAIN_MAPS = [
 
     # ── northwest_fortress_war: 玄黄要塞与西北大陆大战 ──
     ("map_xuanhuang_fortress", "玄黄要塞", "西北大陆", "", 56, 10, "no", "", "拱卫西北大陆的庞大军事要塞。"),
-    ("map_northwest_battle_front", "西北战线", "西北大陆", "", 55, 10, "no", "", "魂殿联军与炎盟对峙的前线战场。"),
+    ("map_northwest_battle_front", "西北战线", "西北大陆", "", 55, 10, "no", "", "黑渊联军与灵盟对峙的前线战场。"),
 
-    # ── tianfu_alliance: 建立天府联盟 ──
-    ("map_tianfu_council_hall", "天府议事厅", "星陨阁", "", 60, 5, "yes", "", "天府联盟高层议事的中枢场所。"),
-    ("map_alliance_war_room", "联盟战备室", "星陨阁", "", 60, 5, "yes", "", "联盟情报汇总与战略推演的密室。"),
+    # ── tianfu_alliance: 建立天元联盟 ──
+    ("map_tianfu_council_hall", "天府议事厅", "星落阁", "", 60, 5, "yes", "", "天元联盟高层议事的中枢场所。"),
+    ("map_alliance_war_room", "联盟战备室", "星落阁", "", 60, 5, "yes", "", "联盟情报汇总与战略推演的密室。"),
 
     # ── nether_spring: 九幽黄泉与妖暝 ──
     ("map_nether_spring", "九幽黄泉", "兽域", "", 62, 10, "no", "", "九幽地冥蟒族禁地，蕴含黄泉精血与远古传承。"),
     ("map_nether_python_tribe", "九幽地冥蟒族地", "兽域", "", 60, 8, "no", "", "九幽地冥蟒族的聚居领地。"),
     ("map_nether_underground_palace", "九幽地宫", "兽域", "", 63, 10, "no", "", "地冥蟒族地下宫殿，妖暝被囚之处。"),
 
-    # ── post_demon_wars: 魂殿殿主与北龙王终战 ──
-    ("map_soul_emperor_throne", "魂殿主殿", "魂殿", "", 72, 10, "no", "", "魂殿殿主所在的核心殿堂。"),
+    # ── post_demon_wars: 黑渊殿主与北龙王终战 ──
+    ("map_soul_emperor_throne", "黑渊殿主殿", "黑渊殿", "", 72, 10, "no", "", "黑渊殿主所在的核心殿堂。"),
 
     # ── five_emperors: 五帝破空 ──
-    ("map_world_gate", "世界通道", "斗气大陆", "", 85, 5, "yes", "", "斗帝强者合力打开的新世界入口。"),
-    ("map_emperor_memorial_peak", "帝陨峰", "斗气大陆", "", 85, 5, "yes", "", "双帝之战遗迹与后世修炼者朝圣之地。"),
+    ("map_world_gate", "世界通道", "灵玄大陆", "", 85, 5, "yes", "", "灵帝强者合力打开的新世界入口。"),
+    ("map_emperor_memorial_peak", "帝陨峰", "灵玄大陆", "", 85, 5, "yes", "", "双帝之战遗迹与后世修炼者朝圣之地。"),
 ]
 
 NEW_SUB_MAPS = [
-    # ── black_corner_war: 收服陨落心炎与清算韩枫 ──
+    # ── black_corner_war: 收服陨心源火与清算冷煜 ──
     ("map_feng_merchant_hall", "枫城商会", "枫城", "", 30, 5, "yes", "", "枫城商业交易与消息汇聚的中心。"),
-    ("map_feng_alchemy_room", "枫城炼药密室", "枫城", "", 30, 5, "yes", "", "韩枫留下的炼药设施，残留异火痕迹。"),
-    ("map_feng_defense_wall", "枫城城墙", "枫城", "", 30, 6, "no", "", "枫城外墙防线，黑盟入侵时的前沿阵地。"),
+    ("map_feng_alchemy_room", "枫城炼药密室", "枫城", "", 30, 5, "yes", "", "冷煜留下的炼药设施，残留源火痕迹。"),
+    ("map_feng_defense_wall", "枫城城墙", "枫城", "", 30, 6, "no", "", "枫城外墙防线，暗盟入侵时的前沿阵地。"),
 
-    # ── revive_mentor: 复活药老 ──
-    ("map_star_realm_core", "星界核心", "星界", "", 48, 6, "yes", "", "星界空间枢纽，药老复活仪式的举行地。"),
+    # ── revive_mentor: 复活玄炉老人 ──
+    ("map_star_realm_core", "星界核心", "星界", "", 48, 6, "yes", "", "星界空间枢纽，玄炉老人复活仪式的举行地。"),
     ("map_star_realm_training_ground", "星界修炼场", "星界", "", 48, 6, "yes", "", "星界内的灵气修炼场所。"),
-    ("map_star_pavilion_council", "星陨阁议事大殿", "星陨阁", "", 48, 5, "yes", "", "重建后的星陨阁核心议事场所。"),
+    ("map_star_pavilion_council", "星落阁议事大殿", "星落阁", "", 48, 5, "yes", "", "重建后的星落阁核心议事场所。"),
 
-    # ── flower_sect: 花宗与云韵传承 ──
+    # ── flower_sect: 花宗与青韵传承 ──
     ("map_flower_sect_gate", "花宗山门", "花宗", "", 52, 5, "yes", "", "花宗入口，灵气环绕的花海山道。"),
     ("map_flower_sect_garden", "花宗灵花园", "花宗", "", 52, 5, "yes", "", "培育珍稀灵花的宗内禁园。"),
     ("map_flower_sect_heritage_hall", "花宗传承殿", "花宗", "", 53, 6, "yes", "", "花宗历代宗主传承功法与信物的殿堂。"),
 
-    # ── dragon_island_war: 古龙岛三岛大战 ──
+    # ── dragon_island_war: 虚空龙岛三岛大战 ──
     ("map_west_dragon_palace", "西龙岛王殿", "西龙岛", "", 62, 8, "no", "", "西龙王统治的宫殿区域。"),
     ("map_south_dragon_battlefield", "南龙岛战场", "南龙岛", "", 62, 10, "no", "", "三岛大战中立势力与南岛的交战区域。"),
     ("map_north_dragon_throne", "北龙王座", "北龙岛", "", 64, 10, "no", "", "北龙王的龙座大殿，龙族统一最后战场。"),
 
-    # ── demon_flame: 净莲妖火 ──
-    ("map_demon_flame_illusion_realm", "妖火幻境", "妖火空间", "", 66, 8, "no", "", "净莲妖火创造的幻境领域，考验闯入者心智。"),
-    ("map_demon_flame_core", "妖火核心", "妖火空间", "", 68, 10, "no", "", "净莲妖火本体所在的核心区域。"),
+    # ── demon_flame: 净世白莲火 ──
+    ("map_demon_flame_illusion_realm", "妖火幻境", "妖火空间", "", 66, 8, "no", "", "净世白莲火创造的幻境领域，考验闯入者心智。"),
+    ("map_demon_flame_core", "妖火核心", "妖火空间", "", 68, 10, "no", "", "净世白莲火本体所在的核心区域。"),
     ("map_demon_flame_saint_remains", "净莲妖圣残像", "妖火空间", "", 68, 8, "no", "", "净莲妖圣残存意志守护的禁地。"),
 
     # ── medicine_ceremony: 药典与药族灭族战 ──
     ("map_yao_realm_ceremony_square", "药典广场", "药界", "", 68, 5, "yes", "", "药族举办药典大会的广场。"),
     ("map_yao_realm_herb_garden", "药族药园", "药界", "", 68, 5, "yes", "", "药族培育万年灵药的圣地。"),
-    ("map_yao_realm_survivor_camp", "药族幸存者营地", "药界", "", 70, 6, "yes", "", "魂族灭族战后药族幸存者的藏身营地。"),
+    ("map_yao_realm_survivor_camp", "药族幸存者营地", "药界", "", 70, 6, "yes", "", "玄族灭族战后药族幸存者的藏身营地。"),
 
     # ── ancient_clan_war: 远古种族联盟战 ──
-    ("map_soul_realm_battlefield", "魂界战场", "魂界", "", 85, 12, "no", "", "远古种族联盟与魂族决战的虚空战场。"),
-    ("map_hun_clan_ritual_site", "魂族祭坛", "魂族空间", "", 85, 10, "no", "", "魂族用于夺取帝玉与血脉的仪式祭坛。"),
-    ("map_ancient_alliance_camp", "远古联盟营地", "古界", "", 82, 5, "yes", "", "古族、炎族、雷族等远古种族的联军营地。"),
+    ("map_soul_realm_battlefield", "魂界战场", "魂界", "", 85, 12, "no", "", "远古种族联盟与玄族决战的虚空战场。"),
+    ("map_hun_clan_ritual_site", "玄族祭坛", "玄族空间", "", 85, 10, "no", "", "玄族用于夺取帝玉与血脉的仪式祭坛。"),
+    ("map_ancient_alliance_camp", "远古联盟营地", "古界", "", 82, 5, "yes", "", "云族、炎族、雷族等远古种族的联军营地。"),
 
     # ── ancient_emperor: 古帝洞府 ──
-    ("map_emperor_cave_gate", "古帝石门", "古帝洞府", "", 75, 8, "no", "", "陀舍古帝洞府入口的巨大石门。"),
+    ("map_emperor_cave_gate", "古帝石门", "古帝洞府", "", 75, 8, "no", "", "源帝洞府入口的巨大石门。"),
     ("map_emperor_cave_inner", "洞府内殿", "古帝洞府", "", 78, 10, "no", "", "古帝核心传承所在的内殿空间。"),
-    ("map_emperor_cave_treasure_room", "古帝丹室", "古帝洞府", "", 80, 10, "no", "", "帝品雏丹与斗帝功法存放之处。"),
+    ("map_emperor_cave_treasure_room", "古帝丹室", "古帝洞府", "", 80, 10, "no", "", "帝品雏丹与灵帝功法存放之处。"),
 
     # ── final_war: 双帝之战 ──
-    ("map_double_emperor_peak", "双帝峰顶", "双帝山脉", "", 90, 12, "no", "", "萧炎与魂天帝最终决战的双帝峰顶端。"),
+    ("map_double_emperor_peak", "双帝峰顶", "双帝山脉", "", 90, 12, "no", "", "林烬与玄冥帝最终决战的双帝峰顶端。"),
     ("map_allied_forces_camp", "联军大营", "双帝山脉", "", 88, 5, "yes", "", "大陆联军在最终战场前的集结营地。"),
 
     # ── dan_meeting_flame: 星域 ──
-    ("map_star_domain", "星域", "丹塔", "", 45, 10, "no", "", "三千焱炎火所在的星空领域，是丹会冠军的试炼终点。"),
+    ("map_star_domain", "星域", "丹阁", "", 45, 10, "no", "", "三千星空火所在的星空领域，是丹阁冠军的试炼终点。"),
 
     # ── chuyun_empire sub-areas ──
-    ("map_chuyun_border", "出云边塞", "出云帝国", "", 34, 6, "no", "", "出云帝国与加玛帝国交界的边境防线。"),
+    ("map_chuyun_border", "出云边塞", "出云帝国", "", 34, 6, "no", "", "出云帝国与沧澜帝国交界的边境防线。"),
     ("map_poison_sect_hall", "毒宗大殿", "毒宗", "", 37, 8, "no", "", "毒宗宗主议事与炼毒的阴暗大殿。"),
     ("map_poison_sect_herb_cave", "毒宗药窟", "毒宗", "", 36, 6, "no", "", "毒宗培育毒草与炼制毒丹的地下洞窟。"),
 
     # ── xuanhuang_fortress sub-areas ──
     ("map_xuanhuang_war_hall", "玄黄战备厅", "玄黄要塞", "", 56, 5, "yes", "", "玄黄要塞指挥作战与调度的核心厅堂。"),
-    ("map_xuanhuang_defense_wall", "玄黄要塞城墙", "玄黄要塞", "", 57, 8, "no", "", "玄黄要塞面向魂殿联军的防御城墙。"),
+    ("map_xuanhuang_defense_wall", "玄黄要塞城墙", "玄黄要塞", "", 57, 8, "no", "", "玄黄要塞面向黑渊联军的防御城墙。"),
 
     # ── nether_spring sub-areas ──
     ("map_nether_spring_pool", "黄泉血池", "九幽黄泉", "", 63, 8, "no", "", "蕴含九幽黄泉精血的血色深池。"),
@@ -172,14 +172,14 @@ NEW_SUB_MAPS = [
     ("map_emperor_ascension_platform", "飞升台", "世界通道", "", 90, 5, "yes", "", "五帝准备破空而去的升天平台。"),
 
     # ── soul_hall sub-area expansions ──
-    ("map_soul_hall_person_hall", "魂殿人殿", "魂殿", "", 65, 10, "no", "", "魂殿收集与囚禁灵魂体的核心分殿。"),
-    ("map_soul_hall_soul_well", "魂殿灵魂井", "魂殿", "", 66, 8, "no", "", "魂殿囤积灵魂本源的深井，阴冷刺骨。"),
+    ("map_soul_hall_person_hall", "黑渊人殿", "黑渊殿", "", 65, 10, "no", "", "黑渊殿收集与囚禁灵魂体的核心分殿。"),
+    ("map_soul_hall_soul_well", "黑渊殿灵魂井", "黑渊殿", "", 66, 8, "no", "", "黑渊殿囤积灵魂本源的深井，阴冷刺骨。"),
 
     # ── tianfu_alliance sub-area ──
-    ("map_star_pavilion_alliance_hub", "星陨阁联盟枢纽", "星陨阁", "", 60, 5, "yes", "", "各大势力在星陨阁设立的联络与情报交换枢纽。"),
+    ("map_star_pavilion_alliance_hub", "星落阁联盟枢纽", "星落阁", "", 60, 5, "yes", "", "各大势力在星落阁设立的联络与情报交换枢纽。"),
 
     # ── ancient_ruins more sub-areas ──
-    ("map_ancient_ruins_core", "遗迹核心殿", "远古遗迹", "", 55, 10, "no", "", "远古遗迹最深处的核心殿堂，斗圣骸骨存放之处。"),
+    ("map_ancient_ruins_core", "遗迹核心殿", "远古遗迹", "", 55, 10, "no", "", "远古遗迹最深处的核心殿堂，灵圣骸骨存放之处。"),
     ("map_beast_region_trade_hub", "兽域交易区", "兽域", "", 52, 5, "yes", "", "魔兽家族与人类势力交换物资的中立交易区。"),
 ]
 
@@ -213,9 +213,9 @@ def enc(evt_id, map_id, text, opt1_text="", opt1_effect="", opt2_text="", opt2_e
 # Encounters for each new map
 NEW_ENCOUNTERS = [
     # yunlan_war
-    enc("enc_cloud_peak_1", "map_cloud_mountain_peak", "云山巅上，云雾翻涌。云山负手立于崖边，斗气威压如实质般铺开。", "正面迎战", "exp:+100,reputation:+10", "暂避锋芒", "exp:+30", "观察地形", "soul:+3"),
-    enc("enc_yan_hq_1", "map_yan_alliance_hq", "炎盟大厅中人声鼎沸，各方将领正为战线部署争论不休。", "参与议事", "reputation:+5,rel:npc_xiao_zhan:+3", "暗中查探情报", "soul:+2", "整顿军备", "item:+item_elixir"),
-    enc("enc_jia_ma_front_1", "map_jia_ma_battle_front", "前线告急，云岚宗残党与魂殿护法联手发动突袭。", "率队迎击", "exp:+80,reputation:+8", "设伏反击", "exp:+60,soul:+3"),
+    enc("enc_cloud_peak_1", "map_cloud_mountain_peak", "青山巅上，云雾翻涌。青山负手立于崖边，灵力威压如实质般铺开。", "正面迎战", "exp:+100,reputation:+10", "暂避锋芒", "exp:+30", "观察地形", "soul:+3"),
+    enc("enc_yan_hq_1", "map_yan_alliance_hq", "灵盟大厅中人声鼎沸，各方将领正为战线部署争论不休。", "参与议事", "reputation:+5,rel:npc_lin_zhan:+3", "暗中查探情报", "soul:+2", "整顿军备", "item:+item_elixir"),
+    enc("enc_jia_ma_front_1", "map_jia_ma_battle_front", "前线告急，青岚宗残党与黑渊护法联手发动突袭。", "率队迎击", "exp:+80,reputation:+8", "设伏反击", "exp:+60,soul:+3"),
 
     # poison_sect_war
     enc("enc_chuyun_1", "map_chuyun_empire", "出云帝国的街市飘散着淡淡药味，毒师装扮的行人步履匆匆。", "打听毒宗情报", "soul:+2", "购买解毒药材", "item:+herb_coagulation", "低调通行", ""),
@@ -227,12 +227,12 @@ NEW_ENCOUNTERS = [
     enc("enc_magma_world_1", "map_skyfire_magma_world", "岩浆翻涌，热浪扭曲了视线。岩浆深处似有巨物游动，古帝的气息若隐若现。", "深入岩浆", "exp:+120,soul:+5", "在边缘搜寻", "exp:+50,item:+core_fire", "感知古帝残念", "soul:+8"),
 
     # northwest_fortress_war
-    enc("enc_xuanhuang_1", "map_xuanhuang_fortress", "玄黄要塞烽火连天，守军面色凝重。魂殿联军的黑旗在地平线上蔓延。", "督战鼓舞士气", "reputation:+10", "加固防御", "exp:+50", "出击迎敌", "exp:+100"),
-    enc("enc_northwest_front_1", "map_northwest_battle_front", "西北战线尸横遍野，空气中弥漫着血腥与燃烧的斗气。", "冲锋陷阵", "exp:+120,reputation:+8", "救治伤员", "reputation:+5,rel:npc_xiao_yixian:+3"),
+    enc("enc_xuanhuang_1", "map_xuanhuang_fortress", "玄黄要塞烽火连天，守军面色凝重。黑渊联军的黑旗在地平线上蔓延。", "督战鼓舞士气", "reputation:+10", "加固防御", "exp:+50", "出击迎敌", "exp:+100"),
+    enc("enc_northwest_front_1", "map_northwest_battle_front", "西北战线尸横遍野，空气中弥漫着血腥与燃烧的灵力。", "冲锋陷阵", "exp:+120,reputation:+8", "救治伤员", "reputation:+5,rel:npc_xiao_yixian:+3"),
 
     # tianfu_alliance
     enc("enc_tianfu_hall_1", "map_tianfu_council_hall", "天府议事厅内悬挂着大陆地图，各势力首领围坐长桌，面色凝重。", "主持会议", "reputation:+8", "私下斡旋", "soul:+3,reputation:+3"),
-    enc("enc_alliance_war_1", "map_alliance_war_room", "战备室的沙盘上标注着魂殿各个据点的位置，情报官员低声汇报。", "分析情报", "soul:+5", "部署兵力", "reputation:+5"),
+    enc("enc_alliance_war_1", "map_alliance_war_room", "战备室的沙盘上标注着黑渊殿各个据点的位置，情报官员低声汇报。", "分析情报", "soul:+5", "部署兵力", "reputation:+5"),
 
     # nether_spring
     enc("enc_nether_spring_1", "map_nether_spring", "九幽黄泉深处传来低沉的龙吟，血池中的液体翻涌不止。", "跳入血池", "douqi:+15", "在岸边观察", "soul:+5"),
@@ -240,58 +240,58 @@ NEW_ENCOUNTERS = [
     enc("enc_nether_palace_1", "map_nether_underground_palace", "地下宫殿的石壁上刻满蛇形符文，妖暝的封印在深处闪耀。", "破除封印", "flag:yaoming_restored=1,exp:+150", "先清除守卫", "exp:+100"),
 
     # post_demon_wars
-    enc("enc_soul_throne_1", "map_soul_emperor_throne", "魂殿主殿深处，殿主端坐于王座之上，阴冷的魂力充斥整个空间。", "正面挑战", "exp:+200,reputation:+15", "联手围攻", "exp:+180"),
+    enc("enc_soul_throne_1", "map_soul_emperor_throne", "黑渊殿主殿深处，殿主端坐于王座之上，阴冷的魂力充斥整个空间。", "正面挑战", "exp:+200,reputation:+15", "联手围攻", "exp:+180"),
 
     # five_emperors
     enc("enc_world_gate_1", "map_world_gate", "世界通道缓缓打开，通道那头传来全新的气息。无数强者仰望天空。", "踏入通道", "flag:story_finished=1,exp:+500", "留下传承", "reputation:+50"),
-    enc("enc_emperor_peak_1", "map_emperor_memorial_peak", "帝陨峰上铭刻着双帝之战的痕迹，后世修炼者在此感悟斗帝境界。", "感悟帝境", "soul:+20,douqi:+30", "祭拜先烈", "reputation:+10"),
+    enc("enc_emperor_peak_1", "map_emperor_memorial_peak", "帝陨峰上铭刻着双帝之战的痕迹，后世修炼者在此感悟灵帝境界。", "感悟帝境", "soul:+20,douqi:+30", "祭拜先烈", "reputation:+10"),
 
     # black_corner_war sub-areas
-    enc("enc_feng_hall_1", "map_feng_merchant_hall", "枫城商会中商人神色紧张，黑盟的消息让他们坐立不安。", "询问情报", "soul:+2", "购买物资", "item:+item_elixir"),
-    enc("enc_feng_alchemy_1", "map_feng_alchemy_room", "韩枫的炼药室残留着海心焰的焦痕，未完成的丹方散落一地。", "研究丹方", "alchemy:+3", "收集残料", "item:+herb_green_flame_grass"),
-    enc("enc_feng_wall_1", "map_feng_defense_wall", "城墙上的守军严阵以待，远处黑盟的旗帜正在逼近。", "协助防守", "exp:+80,reputation:+5", "出击突袭", "exp:+100"),
+    enc("enc_feng_hall_1", "map_feng_merchant_hall", "枫城商会中商人神色紧张，暗盟的消息让他们坐立不安。", "询问情报", "soul:+2", "购买物资", "item:+item_elixir"),
+    enc("enc_feng_alchemy_1", "map_feng_alchemy_room", "冷煜的炼药室残留着海心焰的焦痕，未完成的丹方散落一地。", "研究丹方", "alchemy:+3", "收集残料", "item:+herb_green_flame_grass"),
+    enc("enc_feng_wall_1", "map_feng_defense_wall", "城墙上的守军严阵以待，远处暗盟的旗帜正在逼近。", "协助防守", "exp:+80,reputation:+5", "出击突袭", "exp:+100"),
 
     # revive_mentor sub-areas
     enc("enc_star_core_1", "map_star_realm_core", "星界核心处，生骨融血丹的炼制已进入最关键阶段。", "主持炼制", "alchemy:+5,soul:+5", "护法守卫", "exp:+80"),
     enc("enc_star_train_1", "map_star_realm_training_ground", "星界修炼场灵气充沛，适合突破瓶颈。", "闭关修炼", "exp:+150,douqi:+5"),
-    enc("enc_star_council_1", "map_star_pavilion_council", "议事大殿中，药老与风尊者正在讨论星陨阁的未来规划。", "参与议事", "reputation:+5,rel:npc_yao_lao:+3"),
+    enc("enc_star_council_1", "map_star_pavilion_council", "议事大殿中，玄炉老人与风尊者正在讨论星落阁的未来规划。", "参与议事", "reputation:+5,rel:npc_xuanlu_elder:+3"),
 
     # flower_sect sub-areas
     enc("enc_flower_gate_1", "map_flower_sect_gate", "花宗山门两侧种满灵花，空气中弥漫着醉人芬芳。", "通报来意", "reputation:+3", "强行闯入", "exp:+60"),
     enc("enc_flower_garden_1", "map_flower_sect_garden", "灵花园中百花争艳，每一朵都蕴含着独特药性。", "采集灵花", "item:+herb_sky_jade_fruit", "静坐感悟", "soul:+5"),
-    enc("enc_flower_heritage_1", "map_flower_sect_heritage_hall", "传承殿中悬浮着花宗历代宗主的影像，云韵正承受传承考验。", "守护传承", "rel:npc_yun_yun:+10,exp:+100"),
+    enc("enc_flower_heritage_1", "map_flower_sect_heritage_hall", "传承殿中悬浮着花宗历代宗主的影像，青韵正承受传承考验。", "守护传承", "rel:npc_qing_yun:+10,exp:+100"),
 
     # dragon_island_war sub-areas
     enc("enc_west_palace_1", "map_west_dragon_palace", "西龙王端坐于龙骨王座，龙目俯视着闯入者。", "挑战西龙王", "exp:+200,reputation:+10", "外交劝降", "reputation:+8,soul:+3"),
-    enc("enc_south_battle_1", "map_south_dragon_battlefield", "南龙岛上龙息交错，三方混战的局面难以分清敌友。", "协助东龙岛", "exp:+180,rel:npc_ziyan:+5", "独立作战", "exp:+160"),
+    enc("enc_south_battle_1", "map_south_dragon_battlefield", "南龙岛上龙息交错，三方混战的局面难以分清敌友。", "协助东龙岛", "exp:+180,rel:npc_zi_yan:+5", "独立作战", "exp:+160"),
     enc("enc_north_throne_1", "map_north_dragon_throne", "北龙王坐在龙座之上，眼中闪烁着疯狂的光芒。", "发动总攻", "exp:+250,reputation:+15", "设阵困敌", "exp:+200,soul:+5"),
 
     # demon_flame sub-areas
     enc("enc_demon_illusion_1", "map_demon_flame_illusion_realm", "妖火幻境中浮现出最深的恐惧与欲望，每一幕都栩栩如生。", "硬抗幻境", "soul:+10", "寻找破绽", "soul:+8,exp:+50"),
-    enc("enc_demon_core_1", "map_demon_flame_core", "净莲妖火本体熊熊燃烧，炽热的温度足以熔化灵魂。", "强行收服", "item:+item_purifying_demon_flame,douqi:+50", "联合压制", "exp:+200"),
+    enc("enc_demon_core_1", "map_demon_flame_core", "净世白莲火本体熊熊燃烧，炽热的温度足以熔化灵魂。", "强行收服", "item:+item_purifying_demon_flame,douqi:+50", "联合压制", "exp:+200"),
     enc("enc_demon_saint_1", "map_demon_flame_saint_remains", "净莲妖圣的残像浮现于火焰之中，目光中带着悲悯。", "倾听教诲", "soul:+15", "请求帮助", "soul:+10,exp:+100"),
 
     # medicine_ceremony sub-areas
     enc("enc_yao_square_1", "map_yao_realm_ceremony_square", "药典广场上万药汇聚，各方炼药师展示着自己的巅峰之作。", "参加药典", "alchemy:+5,reputation:+10", "观摩学习", "alchemy:+3"),
     enc("enc_yao_garden_1", "map_yao_realm_herb_garden", "药族药园中生长着外界早已绝迹的万年灵药。", "采集灵药", "item:+herb_ancient_green_vine", "守护药园", "reputation:+5"),
-    enc("enc_yao_survivor_1", "map_yao_realm_survivor_camp", "药族幸存者藏身于废墟之中，眼中仍残留着灭族之夜的恐惧。", "安抚救治", "reputation:+8,rel:npc_yao_lao:+5", "组织撤离", "exp:+100"),
+    enc("enc_yao_survivor_1", "map_yao_realm_survivor_camp", "药族幸存者藏身于废墟之中，眼中仍残留着灭族之夜的恐惧。", "安抚救治", "reputation:+8,rel:npc_xuanlu_elder:+5", "组织撤离", "exp:+100"),
 
     # ancient_clan_war sub-areas
-    enc("enc_soul_battle_1", "map_soul_realm_battlefield", "魂界战场空间撕裂，远古种族联军与魂族的决战已至白热。", "冲锋陷阵", "exp:+250,reputation:+15", "侧翼包抄", "exp:+200,soul:+5"),
-    enc("enc_hun_ritual_1", "map_hun_clan_ritual_site", "魂族祭坛上，帝玉碎片在血光中汇聚，魂天帝的身影若隐若现。", "打断仪式", "exp:+200,reputation:+10", "夺取帝玉", "flag:emperor_jade_crisis=1"),
+    enc("enc_soul_battle_1", "map_soul_realm_battlefield", "魂界战场空间撕裂，远古种族联军与玄族的决战已至白热。", "冲锋陷阵", "exp:+250,reputation:+15", "侧翼包抄", "exp:+200,soul:+5"),
+    enc("enc_hun_ritual_1", "map_hun_clan_ritual_site", "玄族祭坛上，帝玉碎片在血光中汇聚，玄冥帝的身影若隐若现。", "打断仪式", "exp:+200,reputation:+10", "夺取帝玉", "flag:emperor_jade_crisis=1"),
     enc("enc_alliance_camp_1", "map_ancient_alliance_camp", "远古联盟营地中，各族首领齐聚，为最后的决战做准备。", "协调各族", "reputation:+10,soul:+3", "整编军队", "reputation:+8"),
 
     # ancient_emperor sub-areas
-    enc("enc_emperor_gate_1", "map_emperor_cave_gate", "魂族已经用集齐的八块陀舍古帝玉开启石门，联盟大军必须立刻追入洞府。", "跟随联盟追入洞府", "exp:+200,flag:emperor_cave_opened=1", "观察洞府入口", "soul:+10"),
+    enc("enc_emperor_gate_1", "map_emperor_cave_gate", "玄族已经用集齐的八块源帝玉开启石门，联盟大军必须立刻追入洞府。", "跟随联盟追入洞府", "exp:+200,flag:emperor_cave_opened=1", "观察洞府入口", "soul:+10"),
     enc("enc_emperor_inner_1", "map_emperor_cave_inner", "洞府内殿灵气浓郁到化雾，帝品丹药的香气若隐若现。", "深入探索", "exp:+250,douqi:+30", "小心前进", "exp:+150,soul:+5"),
-    enc("enc_emperor_treasure_1", "map_emperor_cave_treasure_room", "古帝丹室中悬浮着帝品雏丹，周围布满了斗帝级别的禁制。", "夺取雏丹", "item:+item_embryonic_emperor_pill", "破解禁制", "soul:+15"),
+    enc("enc_emperor_treasure_1", "map_emperor_cave_treasure_room", "古帝丹室中悬浮着帝品雏丹，周围布满了灵帝级别的禁制。", "夺取雏丹", "item:+item_embryonic_emperor_pill", "破解禁制", "soul:+15"),
 
     # final_war sub-areas
-    enc("enc_double_peak_1", "map_double_emperor_peak", "双帝峰顶，萧炎与魂天帝遥遥对峙，天地为之变色。", "全力迎战", "exp:+500,reputation:+30", "布置阵法", "exp:+300,soul:+10"),
+    enc("enc_double_peak_1", "map_double_emperor_peak", "双帝峰顶，林烬与玄冥帝遥遥对峙，天地为之变色。", "全力迎战", "exp:+500,reputation:+30", "布置阵法", "exp:+300,soul:+10"),
     enc("enc_allied_camp_1", "map_allied_forces_camp", "联军大营连绵百里，来自大陆各处的强者枕戈待旦。", "鼓舞士气", "reputation:+15", "部署战术", "soul:+5,reputation:+5"),
 
     # star_domain
-    enc("enc_star_domain_1", "map_star_domain", "星域中繁星点点，三千焱炎火化作一条火龙在星空间游弋。", "收服星焱", "item:+item_three_thousand_flame,douqi:+30", "观察星空", "soul:+8"),
+    enc("enc_star_domain_1", "map_star_domain", "星域中繁星点点，三千星空火化作一条火龙在星空间游弋。", "收服星焱", "item:+item_three_thousand_flame,douqi:+30", "观察星空", "soul:+8"),
 
     # chuyun sub-areas
     enc("enc_chuyun_border_1", "map_chuyun_border", "出云边塞的哨塔上，毒宗探子的身影若隐若现。", "潜入边境", "exp:+60", "正面突破", "exp:+80,reputation:+5"),
@@ -300,25 +300,25 @@ NEW_ENCOUNTERS = [
 
     # xuanhuang sub-areas
     enc("enc_xuanhuang_hall_1", "map_xuanhuang_war_hall", "战备厅的沙盘上标注着密密麻麻的敌军动向。", "制定作战计划", "soul:+5,reputation:+5", "调集援军", "reputation:+8"),
-    enc("enc_xuanhuang_wall_1", "map_xuanhuang_defense_wall", "要塞城墙上，守军与魂殿联军展开了激烈的攻防战。", "坚守城墙", "exp:+150,reputation:+10", "率队出击", "exp:+180"),
+    enc("enc_xuanhuang_wall_1", "map_xuanhuang_defense_wall", "要塞城墙上，守军与黑渊联军展开了激烈的攻防战。", "坚守城墙", "exp:+150,reputation:+10", "率队出击", "exp:+180"),
 
     # nether_spring sub-areas
     enc("enc_nether_pool_1", "map_nether_spring_pool", "黄泉血池中的精血翻涌起浪，远古九幽蟒的虚影在池中游动。", "浸泡血池", "douqi:+20", "收集精血", "item:+item_huangquan_blood_crystal"),
     enc("enc_nether_throne_1", "map_nether_python_throne", "冥蟒王座被篡位者占据，妖暝的灵魂在暗处注视着一切。", "帮助妖暝复位", "flag:yaoming_restored=1,exp:+200", "旁观局势", "soul:+5"),
 
     # soul_hall sub-areas
-    enc("enc_soul_person_1", "map_soul_hall_person_hall", "魂殿人殿中囚禁着无数灵魂体，哀嚎声不绝于耳。", "释放灵魂", "soul:+10,reputation:+10", "摧毁设施", "exp:+150"),
+    enc("enc_soul_person_1", "map_soul_hall_person_hall", "黑渊人殿中囚禁着无数灵魂体，哀嚎声不绝于耳。", "释放灵魂", "soul:+10,reputation:+10", "摧毁设施", "exp:+150"),
     enc("enc_soul_well_1", "map_soul_hall_soul_well", "灵魂井深不见底，井口的魂力波动令人灵魂震颤。", "吸取魂力", "soul:+20", "封印井口", "exp:+120,soul:+5"),
 
     # tianfu alliance hub
     enc("enc_alliance_hub_1", "map_star_pavilion_alliance_hub", "联盟枢纽中各方使者往来穿梭，情报如流水般汇聚。", "整合情报", "soul:+5,reputation:+3", "接取联盟任务", "exp:+80"),
 
     # ancient_ruins core
-    enc("enc_ruins_core_1", "map_ancient_ruins_core", "遗迹核心殿中悬浮着一具散发威压的斗圣骸骨。", "夺取骸骨", "flag:saint_bones_acquired=1,exp:+200", "先探查陷阱", "soul:+8"),
+    enc("enc_ruins_core_1", "map_ancient_ruins_core", "遗迹核心殿中悬浮着一具散发威压的灵圣骸骨。", "夺取骸骨", "flag:saint_bones_acquired=1,exp:+200", "先探查陷阱", "soul:+8"),
     enc("enc_beast_hub_1", "map_beast_region_trade_hub", "兽域交易区内，化形魔兽与人类商贩讨价还价。", "交易魔兽材料", "item:+core_magic", "打听情报", "soul:+2"),
 
     # world_gate sub-area
-    enc("enc_ascend_1", "map_emperor_ascension_platform", "飞升台上，五位斗帝的身影在光芒中若隐若现。", "踏上升仙台", "flag:story_finished=1,reputation:+100", "目送前辈", "soul:+20,reputation:+30"),
+    enc("enc_ascend_1", "map_emperor_ascension_platform", "飞升台上，五位灵帝的身影在光芒中若隐若现。", "踏上升仙台", "flag:story_finished=1,reputation:+100", "目送前辈", "soul:+20,reputation:+30"),
 ]
 
 # ══════════════════════════════════════════════════════════════

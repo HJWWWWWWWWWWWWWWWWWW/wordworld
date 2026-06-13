@@ -1,5 +1,5 @@
 """
-WordWorld Pygame UI — 斗破苍穹：瓦片地图探索 + 回合制战斗。
+WordWorld Pygame UI — 源火纪：瓦片地图探索 + 回合制战斗。
 
 运行：python run_pygame.py
 """
@@ -149,16 +149,16 @@ ENTITY_LABELS = {
 
 _NPC_CANONICAL_VISUALS: Dict[str, Dict[str, Any]] = {
     # 原文重点人物：颜色与标志物优先依据人物首次登场和长期形象。
-    "npc_xun_er": {"robe": (91, 63, 139), "trim": (224, 184, 62), "hair": (26, 24, 34), "hair_style": "long", "accessory": "gold_flame"},
-    "npc_yao_lao": {"robe": (35, 35, 43), "trim": (205, 208, 214), "hair": (220, 220, 224), "hair_style": "elder", "accessory": "staff"},
-    "npc_xiao_zhan": {"robe": (94, 92, 99), "trim": (196, 151, 72), "hair": (39, 31, 28), "hair_style": "short", "accessory": "brows"},
-    "npc_nalan_yanran": {"robe": (118, 183, 178), "trim": (230, 240, 233), "hair": (35, 31, 39), "hair_style": "long", "accessory": "sword"},
-    "npc_yun_yun": {"robe": (112, 164, 191), "trim": (218, 235, 240), "hair": (38, 35, 42), "hair_style": "long", "accessory": "sword"},
-    "npc_cai_lin": {"robe": (155, 48, 70), "trim": (235, 176, 67), "hair": (41, 25, 54), "hair_style": "long", "accessory": "crown"},
+    "npc_yun_xi": {"robe": (91, 63, 139), "trim": (224, 184, 62), "hair": (26, 24, 34), "hair_style": "long", "accessory": "gold_flame"},
+    "npc_xuanlu_elder": {"robe": (35, 35, 43), "trim": (205, 208, 214), "hair": (220, 220, 224), "hair_style": "elder", "accessory": "staff"},
+    "npc_lin_zhan": {"robe": (94, 92, 99), "trim": (196, 151, 72), "hair": (39, 31, 28), "hair_style": "short", "accessory": "brows"},
+    "npc_su_wanqing": {"robe": (118, 183, 178), "trim": (230, 240, 233), "hair": (35, 31, 39), "hair_style": "long", "accessory": "sword"},
+    "npc_qing_yun": {"robe": (112, 164, 191), "trim": (218, 235, 240), "hair": (38, 35, 42), "hair_style": "long", "accessory": "sword"},
+    "npc_chi_lin": {"robe": (155, 48, 70), "trim": (235, 176, 67), "hair": (41, 25, 54), "hair_style": "long", "accessory": "crown"},
     "npc_xiao_yixian": {"robe": (224, 229, 220), "trim": (132, 186, 132), "hair": (42, 39, 47), "hair_style": "long", "accessory": "medicine"},
     "npc_ya_fei": {"robe": (176, 48, 62), "trim": (231, 174, 76), "hair": (66, 37, 30), "hair_style": "long", "accessory": "jewel"},
     "npc_hai_bodong": {"robe": (72, 116, 151), "trim": (183, 222, 231), "hair": (207, 214, 218), "hair_style": "elder", "accessory": "ice"},
-    "npc_ziyan": {"robe": (139, 75, 166), "trim": (238, 174, 220), "hair": (63, 35, 76), "hair_style": "twin", "accessory": "dragon"},
+    "npc_zi_yan": {"robe": (139, 75, 166), "trim": (238, 174, 220), "hair": (63, 35, 76), "hair_style": "twin", "accessory": "dragon"},
     "npc_han_feng": {"robe": (45, 101, 137), "trim": (83, 207, 218), "hair": (35, 35, 39), "hair_style": "short", "accessory": "blue_flame"},
     "npc_qing_lin": {"robe": (74, 147, 117), "trim": (139, 225, 184), "hair": (41, 48, 42), "hair_style": "long", "accessory": "snake_eye"},
     "npc_hun_tiandi": {"robe": (42, 35, 49), "trim": (177, 47, 64), "hair": (28, 24, 31), "hair_style": "long", "accessory": "crown"},
@@ -218,21 +218,21 @@ def _add_town_building(
 
 
 _TOWN_STYLE_PROFILES = {
-    "wutan": ("族坊", ["萧家坊", "药铺", "铁匠铺", "茶楼", "客栈", "米特尔行", "演武馆"]),
+    "wutan": ("族坊", ["林家坊", "药铺", "铁匠铺", "茶楼", "客栈", "米特尔行", "演武馆"]),
     "desert": ("沙城", ["水站", "佣兵会", "香料铺", "地图铺", "商栈", "药铺", "驼队行"]),
     "capital": ("帝都", ["皇都客栈", "炼药师会", "米特尔行", "珍宝阁", "药材行", "茶楼", "商会"]),
     "black_corner": ("黑角", ["黑店", "拍卖行", "药材铺", "佣兵会", "情报馆", "酒馆", "黑市"]),
     "academy": ("学院", ["食堂", "任务厅", "交易所", "炼药房", "宿舍", "藏书楼", "竞技馆"]),
-    "dan": ("丹城", ["丹药铺", "药材行", "炼药师会", "鉴宝阁", "丹塔驿馆", "药鼎行", "灵药斋"]),
+    "dan": ("丹城", ["丹药铺", "药材行", "炼药师会", "鉴宝阁", "丹阁驿馆", "药鼎行", "灵药斋"]),
     "zhongzhou": ("中州", ["虫洞驿站", "商会", "灵宝阁", "酒楼", "药材行", "拍卖行", "客栈"]),
     "sect": ("宗门", ["任务殿", "功法阁", "丹房", "弟子居", "执事堂", "灵药园", "修炼堂"]),
-    "ancient": ("古族", ["古族客舍", "血脉堂", "灵药阁", "传承殿", "族库", "议事堂", "古市"]),
+    "ancient": ("云族", ["云族客舍", "血脉堂", "灵药阁", "传承殿", "族库", "议事堂", "古市"]),
     "frontier": ("边城", ["驿站", "粮行", "兵器铺", "佣兵会", "药铺", "酒馆", "商栈"]),
 }
 
 _CITY_IDENTITIES: List[Tuple[Tuple[str, ...], Dict[str, str]]] = [
     (("wutan", "xiao_"), {
-        "name": "乌坦城", "layout": "clan", "theme": "wutan_town",
+        "name": "青石城", "layout": "clan", "theme": "wutan_town",
         "landmark": "clan_monument", "motto": "青石族坊",
     }),
     (("black_rock",), {
@@ -260,7 +260,7 @@ _CITY_IDENTITIES: List[Tuple[Tuple[str, ...], Dict[str, str]]] = [
         "landmark": "mercenary_standard", "motto": "佣兵石垒",
     }),
     (("jia_ma_capital", "capital_", "imperial_palace", "miteer_"), {
-        "name": "加玛帝都", "layout": "imperial", "theme": "capital_town",
+        "name": "沧澜帝都", "layout": "imperial", "theme": "capital_town",
         "landmark": "imperial_statue", "motto": "金阙御道",
     }),
     (("canaan", "inner_", "pan_gate", "peace_town"), {
@@ -272,7 +272,7 @@ _CITY_IDENTITIES: List[Tuple[Tuple[str, ...], Dict[str, str]]] = [
         "landmark": "auction_bell", "motto": "地下拍卖城",
     }),
     (("feng_city", "black_emperor", "black_corner", "black_auction"), {
-        "name": "黑角域", "layout": "dark_market", "theme": "dark_town",
+        "name": "暗角域", "layout": "dark_market", "theme": "dark_town",
         "landmark": "black_obelisk", "motto": "暗巷斗城",
     }),
     (("tianya", "wormhole", "transfer_square", "zhongzhou"), {
@@ -288,8 +288,8 @@ _CITY_IDENTITIES: List[Tuple[Tuple[str, ...], Dict[str, str]]] = [
         "landmark": "great_cauldron", "motto": "丹火药都",
     }),
     (("ancient", "gu_", "heaven_tomb"), {
-        "name": "远古族域", "layout": "imperial", "theme": "void_town",
-        "landmark": "bloodline_gate", "motto": "古族天城",
+        "name": "远云族域", "layout": "imperial", "theme": "void_town",
+        "landmark": "bloodline_gate", "motto": "云族天城",
     }),
     (("yunlan", "pavilion", "sect", "flower_", "burning_", "valley"), {
         "name": "宗门", "layout": "academy", "theme": "jade_town",
@@ -311,7 +311,7 @@ def _city_identity(map_id: str) -> Dict[str, str]:
         "学院": ("academy", "academy_town", "academy_crest", "学院庭院"),
         "丹城": ("alchemy", "dan_town", "great_cauldron", "丹火药都"),
         "宗门": ("academy", "jade_town", "sect_stela", "云阶仙坊"),
-        "古族": ("imperial", "void_town", "bloodline_gate", "古族天城"),
+        "云族": ("imperial", "void_town", "bloodline_gate", "云族天城"),
         "中州": ("wormhole", "void_town", "wormhole", "空间都会"),
         "帝都": ("imperial", "capital_town", "imperial_statue", "金阙御道"),
         "族坊": ("clan", "wutan_town", "clan_monument", "青石族坊"),
@@ -595,7 +595,7 @@ def _town_square_template(map_id: str) -> Tuple[int, int, list, list]:
 
 
 def _mansion_template(map_id: str = "") -> Tuple[int, int, list, list]:
-    """府邸/室内——萧家、纳兰家等。"""
+    """府邸/室内——林家、纳兰家等。"""
     w, h = 16, 12
     tiles = _make_border(w, h, [(w//2, h-1), (w//2-1, h-1)])
     # 内部房间隔断
@@ -713,7 +713,7 @@ def _wilderness_cave(map_id: str) -> Tuple[int, int, list, list]:
 
 _MAP_CONNECTIONS: Dict[str, List[str]] = {
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 乌坦城区域
+    # 沧澜帝国 —— 青石城区域
     # ═══════════════════════════════════════════════════════════
     "map_wutan": [
         "map_xiao_mansion", "map_xiao_training_ground",
@@ -740,7 +740,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_xiao_council_hall": ["map_xiao_mansion"],
 
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 官道沿线城市
+    # 沧澜帝国 —— 官道沿线城市
     # ═══════════════════════════════════════════════════════════
     "map_jia_ma_road": [
         "map_wutan", "map_black_rock_city", "map_salt_city",
@@ -768,7 +768,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_jia_ma_post_station": ["map_jia_ma_road"],
 
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 魔兽山脉 & 青山镇
+    # 沧澜帝国 —— 魔兽山脉 & 青山镇
     # ═══════════════════════════════════════════════════════════
     "map_qingshan": [
         "map_jia_ma_road", "map_magic_mountains",
@@ -793,7 +793,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_jia_ma_garrison": ["map_jia_ma_mountain_pass"],
 
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 塔戈尔沙漠
+    # 沧澜帝国 —— 赤沙荒漠
     # ═══════════════════════════════════════════════════════════
     "map_tager": [
         "map_magic_mountains", "map_mo_city", "map_stone_mo_city",
@@ -822,7 +822,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_desert_ancient_well": ["map_tager"],
 
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 帝都 & 云岚宗
+    # 沧澜帝国 —— 帝都 & 青岚宗
     # ═══════════════════════════════════════════════════════════
     "map_jia_ma_capital": [
         "map_jia_ma_road", "map_magic_mountains",
@@ -859,7 +859,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_jia_ma_battle_front": ["map_yunlan", "map_yan_alliance_hq"],
 
     # ═══════════════════════════════════════════════════════════
-    # 加玛帝国 —— 边境 → 黑角域
+    # 沧澜帝国 —— 边境 → 暗角域
     # ═══════════════════════════════════════════════════════════
     "map_jia_ma_border": [
         "map_jia_ma_mountain_pass", "map_yan_alliance_hq",
@@ -867,7 +867,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     ],
 
     # ═══════════════════════════════════════════════════════════
-    # 黑角域
+    # 暗角域
     # ═══════════════════════════════════════════════════════════
     "map_peace_town": [
         "map_jia_ma_border", "map_black_corner", "map_canaan",
@@ -956,7 +956,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_emperor_cave_treasure_room": ["map_emperor_cave"],
 
     # ═══════════════════════════════════════════════════════════
-    # 天涯城 —— 连接黑角域 ↔ 中州的中转站
+    # 天涯城 —— 连接暗角域 ↔ 中州的中转站
     # ═══════════════════════════════════════════════════════════
     "map_tianya_city": [
         "map_feng_city", "map_black_emperor_city",
@@ -1058,7 +1058,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_dan_tower_trial_room": ["map_dan_tower"],
     "map_dan_beast_enclosure": ["map_dan_tower"],
 
-    # 星陨阁
+    # 星落阁
     "map_star_pavilion": [
         "map_zhongzhou", "map_star_realm",
         "map_star_pavilion_back_mountain", "map_star_pavilion_mission_hall",
@@ -1076,7 +1076,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_star_realm_core": ["map_star_realm"],
     "map_star_realm_training_ground": ["map_star_realm"],
 
-    # 天府联盟
+    # 天元联盟
     "map_star_pavilion_alliance_hub": [
         "map_star_pavilion", "map_tianfu_council_hall",
         "map_alliance_war_room",
@@ -1095,7 +1095,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_flower_sect_heritage_hall": ["map_flower_sect"],
     "map_flower_sect_market": ["map_flower_sect"],
 
-    # 魂殿区域 —— 山脉→魂殿→魂界 链式
+    # 黑渊殿区域 —— 山脉→黑渊殿→魂界 链式
     "map_soul_mountains": ["map_zhongzhou", "map_soul_hall"],
     "map_soul_hall": [
         "map_soul_mountains", "map_soul_realm",
@@ -1124,7 +1124,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_heavenly_gang_prison": ["map_heavenly_gang_hall"],
     "map_heavenly_gang_origin": ["map_heavenly_gang_hall"],
 
-    # 古族区域
+    # 云族区域
     "map_ancient_realm": [
         "map_zhongzhou", "map_ancient_sacred_city", "map_heaven_tomb",
     ],
@@ -1174,7 +1174,7 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     "map_heaven_mountain_blood_pool": ["map_tianmu_mountains"],
     "map_death_corpse_mountains": ["map_zhongzhou"],
 
-    # 药族 —— 药典→魂族袭击→逃亡路线
+    # 药族 —— 药典→玄族袭击→逃亡路线
     "map_yao_realm": [
         "map_zhongzhou", "map_yao_realm_ceremony_square",
     ],
@@ -1186,11 +1186,11 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
     ],
     "map_yao_realm_survivor_camp": ["map_yao_realm_herb_garden"],
 
-    # 异火广场 —— 古帝洞府内部，不直连中州
+    # 源火广场 —— 古帝洞府内部，不直连中州
     "map_strange_flame_square": ["map_emperor_cave"],
     "map_star_domain": ["map_dan_tower"],
 
-    # 净莲妖火空间
+    # 净世白莲火空间
     "map_demon_flame_space": [
         "map_zhongzhou", "map_demon_flame_plain",
         "map_demon_flame_illusion_realm", "map_demon_flame_core",
@@ -1292,13 +1292,13 @@ _MAP_CONNECTIONS: Dict[str, List[str]] = {
 
 
 _REGION_NPCS: Dict[str, List[str]] = {
-    "加玛": ["npc_xiao_zhan", "npc_xun_er", "npc_yao_lao"],
-    "黑角域": ["npc_hai_bodong", "npc_ziyan"],
-    "中州": ["npc_feng_xian", "npc_cai_lin", "npc_xun_er"],
-    "丹塔": ["npc_xuan_kongzi", "npc_cao_ying"],
-    "古族": ["npc_xun_er", "npc_gu_yuan"],
-    "龙岛": ["npc_ziyan", "npc_zhu_kun"],
-    "西北": ["npc_cai_lin", "npc_xiao_ding"],
+    "沧澜": ["npc_lin_zhan", "npc_yun_xi", "npc_xuanlu_elder"],
+    "暗角域": ["npc_hai_bodong", "npc_zi_yan"],
+    "中州": ["npc_feng_xian", "npc_chi_lin", "npc_yun_xi"],
+    "丹阁": ["npc_xuan_kongzi", "npc_cao_ying"],
+    "云族": ["npc_yun_xi", "npc_yun_yuan"],
+    "龙岛": ["npc_zi_yan", "npc_zhu_kun"],
+    "西北": ["npc_chi_lin", "npc_xiao_ding"],
 }
 
 
@@ -1324,7 +1324,7 @@ def _pick_npcs_for_map(map_id: str) -> List[str]:
     for key, npcs in _REGION_NPCS.items():
         if key in region:
             return npcs
-    return ["npc_xiao_zhan"]  # 默认
+    return ["npc_lin_zhan"]  # 默认
 
 
 # ── 地图分类 → 模板选择 ──────────────────────────────────────
@@ -1500,11 +1500,11 @@ def _wrap_text(font: pygame.font.Font, text: str, max_width: int) -> List[str]:
 # ═══════════════════════════════════════════════════════════════════
 
 class PygameGame:
-    """斗破苍穹 RPG — pygame 瓦片探索界面。"""
+    """源火纪 RPG — pygame 瓦片探索界面。"""
 
     def __init__(self) -> None:
         pygame.init()
-        pygame.display.set_caption("斗破苍穹 · 大陆历练")
+        pygame.display.set_caption("源火纪 · 大陆历练")
         self.screen = pygame.display.set_mode((WIN_W, WIN_H))
         self.clock = pygame.time.Clock()
         self.running = True
@@ -1532,7 +1532,7 @@ class PygameGame:
         self.font_big = _load_font(28)
 
         self.engine = GameEngine()
-        self.engine.new_game("萧炎")
+        self.engine.new_game("林烬")
 
         # 地图数据
         self.tile_grid: List[List[int]] = []
@@ -1543,7 +1543,7 @@ class PygameGame:
 
         # 消息
         self.messages: List[str] = []
-        self._msg("斗气大陆的故事由此开始。方向键移动，空格交互，M 菜单。")
+        self._msg("灵玄大陆的故事由此开始。方向键移动，空格交互，M 菜单。")
 
         # 场景
         self.scene = SCENE_EXPLORE
@@ -2237,7 +2237,7 @@ class PygameGame:
                 self.scene = SCENE_EXPLORE
                 skills = self.engine.player.get("known_skills", [])
                 names = [self.engine.skills.get(s, {}).get("name", s) for s in skills]
-                self._msg(f"已学斗技：{'、'.join(names) if names else '无'}")
+                self._msg(f"已学灵技：{'、'.join(names) if names else '无'}")
             elif self.menu_idx == 4:
                 self.engine.save()
                 self._play_sound("save")
@@ -2964,8 +2964,8 @@ class PygameGame:
         pygame.draw.rect(self.screen, C_HP_BAR, (x, y, int(bw * hr), 5))
         y += 10
 
-        # 斗气
-        qt = self.font_body.render(f"斗气 {p.get('douqi', 0)}", True, C_TEXT)
+        # 灵力
+        qt = self.font_body.render(f"灵力 {p.get('douqi', 0)}", True, C_TEXT)
         self.screen.blit(qt, (x, y))
         y += qt.get_height() + 3
         q_max = max(1, int(p.get("douqi", 0)) + 50)
@@ -3315,7 +3315,7 @@ class PygameGame:
             mt = self.font_small.render(msg, True, (200, 200, 100))
             self.screen.blit(mt, (20, h - 30))
 
-    # ── 异火界面 ─────────────────────────────────────────────
+    # ── 源火界面 ─────────────────────────────────────────────
 
     def _key_flame(self, e: pygame.event.Event) -> None:
         collected = self.engine.player.get("collected_flames", [])
@@ -3489,7 +3489,7 @@ class CombatView:
     """回合制战斗画面。"""
 
     def __init__(self) -> None:
-        self.actions = ["普通攻击", "施展斗技", "防御", "使用丹药", "蓄力", "逃跑", "自动战斗"]
+        self.actions = ["普通攻击", "施展灵技", "防御", "使用丹药", "蓄力", "逃跑", "自动战斗"]
         self.selected = 0
         self.sub_mode = ""  # "" | "skill" | "item"
         self.sub_idx = 0
@@ -3512,7 +3512,7 @@ class CombatView:
                 game._play_sound("select")
         elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
             act = self.actions[self.selected]
-            if act == "施展斗技":
+            if act == "施展灵技":
                 skills = engine.combat_skills()
                 if skills:
                     self.sub_mode = "skill"
@@ -3520,7 +3520,7 @@ class CombatView:
                     if game:
                         game._play_sound("confirm")
                 else:
-                    engine.last_message = "尚未习得任何斗技。"
+                    engine.last_message = "尚未习得任何灵技。"
                     if game:
                         game._play_sound("bump")
             elif act == "使用丹药":
@@ -3761,9 +3761,9 @@ class CombatView:
         if soul >= 20:
             intent = engine.combat_intent_text()
             ic = {"攻击": (255, 80, 80), "防御": (80, 160, 255)}.get(
-                intent[:2] if intent.startswith("斗技") else intent, (255, 180, 60))
-            # 如果以 "斗技「" 开头就用技能颜色
-            if intent.startswith("斗技"):
+                intent[:2] if intent.startswith("灵技") else intent, (255, 180, 60))
+            # 如果以 "灵技「" 开头就用技能颜色
+            if intent.startswith("灵技"):
                 ic = (255, 180, 60)
             it = font_body.render(f"👁 下回合: {intent}", True, ic)
             screen.blit(it, (18, ey + 104))
@@ -3779,14 +3779,14 @@ class CombatView:
 
         # ── 玩家 ──
         py_ = h - 170
-        pn = font_title.render(p.get("name", "萧炎"), True, (80, 210, 120))
+        pn = font_title.render(p.get("name", "林烬"), True, (80, 210, 120))
         screen.blit(pn, (w // 2 - pn.get_width() // 2, py_))
 
         hp_rp = max(0, p["hp"] / max(1, p["max_hp"]))
         pygame.draw.rect(screen, (40, 15, 15), (bx, py_ + 30, bw, 10))
         pygame.draw.rect(screen, (200, 50, 50), (bx, py_ + 30, int(bw * hp_rp), 10))
         pt = font_body.render(
-            f"HP {p['hp']}/{p['max_hp']}  斗气 {p.get('douqi', 0)}", True, (220, 220, 230)
+            f"HP {p['hp']}/{p['max_hp']}  灵力 {p.get('douqi', 0)}", True, (220, 220, 230)
         )
         screen.blit(pt, (bx, py_ + 42))
 
@@ -3826,12 +3826,12 @@ class CombatView:
         my_ = py_ + 80
         if self.sub_mode:
             # 子菜单：技能选择或物品选择
-            sub_title = "选择斗技" if self.sub_mode == "skill" else "选择丹药"
+            sub_title = "选择灵技" if self.sub_mode == "skill" else "选择丹药"
             sub_label = font_title.render(sub_title, True, C_ACCENT)
             screen.blit(sub_label, (bx, my_ - 28))
             sub_items: List[str] = []
             if self.sub_mode == "skill":
-                sub_items = [f"{s['name']} [{SKILL_ELEMENTS.get(s['id'], '?')}] {engine._skill_cost(s)}斗气"
+                sub_items = [f"{s['name']} [{SKILL_ELEMENTS.get(s['id'], '?')}] {engine._skill_cost(s)}灵力"
                              for s in engine.combat_skills()]
             else:
                 combat_item_ids = self._combat_usable_items(engine)
