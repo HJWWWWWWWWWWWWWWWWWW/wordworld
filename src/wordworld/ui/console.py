@@ -584,7 +584,7 @@ def menu_system(game: GameEngine) -> None:
 
 def main() -> None:
     game = GameEngine()
-    print("源火纪：沉浸式回合制 RPG")
+    print("残火长明：沉浸式回合制 RPG")
     if SAVE_PATH.exists() and input("检测到存档，是否读取？ y/n：").strip().lower() == "y":
         game.load()
     else:

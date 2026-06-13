@@ -1,4 +1,4 @@
-"""源火纪 RPG — 道具数据（自动生成）"""
+"""残火长明 RPG — 道具数据（自动生成）"""
 from typing import Any, Dict, List, Tuple
 
 # 道具数量: 396

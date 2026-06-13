@@ -32,7 +32,7 @@ def main():
     parser.add_argument("--quick", action="store_true", help="快速模式（跳过 Excel 加载和单元测试）")
     args = parser.parse_args()
 
-    print("源火纪 -- 烟雾测试")
+    print("残火长明 -- 烟雾测试")
     print(f"  Python: {sys.version.split()[0]}")
     print()
 

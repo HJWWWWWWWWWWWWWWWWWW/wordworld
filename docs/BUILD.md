@@ -12,15 +12,15 @@ pip install pyinstaller
 
 ```bash
 # 单文件打包（推荐）
-pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji
+pyinstaller --onefile --windowed run_pygame.py --name CanhuoChangming
 
 # 如需包含数据文件
-pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji --add-data "story;story" --add-data "src;src"
+pyinstaller --onefile --windowed run_pygame.py --name CanhuoChangming --add-data "story;story" --add-data "src;src"
 ```
 
 ### 产物位置
 
-- `dist/Yuanhuoji.exe` — 可分发的单文件
+- `dist/CanhuoChangming.exe` — 可分发的单文件
 - `build/` — 临时构建文件（不提交到 Git）
 - `*.spec` — PyInstaller 配置文件
 
@@ -36,13 +36,13 @@ pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji --add-data "stor
 ### macOS
 
 ```bash
-pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji
+pyinstaller --onefile --windowed run_pygame.py --name CanhuoChangming
 ```
 
 ### Linux
 
 ```bash
-pyinstaller --onefile run_pygame.py --name Yuanhuoji
+pyinstaller --onefile run_pygame.py --name CanhuoChangming
 ```
 
 ## 发布建议

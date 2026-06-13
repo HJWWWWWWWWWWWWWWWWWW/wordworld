@@ -1,4 +1,4 @@
-"""源火纪 RPG — 掉落表（自动生成）"""
+"""残火长明 RPG — 掉落表（自动生成）"""
 from typing import Dict, List, Tuple
 
 # 层级掉落映射: tier_id -> [(item_id, weight), ...]

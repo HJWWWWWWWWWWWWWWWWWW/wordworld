@@ -45,7 +45,7 @@ class GameWindow(tk.Tk):
 
     def __init__(self) -> None:
         super().__init__()
-        self.title("源火纪 · 文字回合制 RPG")
+        self.title("残火长明 · 文字回合制 RPG")
         self.geometry("900x650")
         self.configure(bg=BG)
         self.resizable(True, True)

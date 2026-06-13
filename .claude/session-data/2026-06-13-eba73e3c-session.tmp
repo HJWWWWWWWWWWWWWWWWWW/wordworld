@@ -1,7 +1,7 @@
 # Session: 2026-06-13
 **Date:** 2026-06-13
 **Started:** 14:33
-**Last Updated:** 14:49
+**Last Updated:** 15:59
 **Project:** wordworld
 **Branch:** master
 **Worktree:** D:\work\wordworld
@@ -13,6 +13,14 @@
 ### Tasks
 - 对照根目录下的改造计划.txt进行项目改造；
 - 对照源火纪 v0.1-demo，再此修正
+- 能否拆分一下367cd3b6-8512-402d-83f4-26eada47deda.jsonl这个文件？当前超过了180M无法上传到git；能否拆分成三个文件
+- [Request interrupted by user for tool use]
+- 是拆分成三个完整的文件，不要直接按行数，不然数据中间都被截断了
+- 游戏正式改名为残火长明，同时游戏剧情围绕剧情大纲开始修改，同步调整源火纪 v0.1-v0.5；的开发文档，改为残火长明开发文档；
+- 在当前游戏的玩法基础上；不要再基于原有的世界观，而是将原本的剧情修改为残火长明-剧情大纲；
+- 开始执行，同步将v0.2-0.5也一并修改了，如果不够自行创建v0.6等补齐；规划好每个阶段的任务与剧情
+- 继续
+- 将v0.6 ──→第六卷，v0.7-七卷，v0.8-八卷；然后继续
 
 ### Files Modified
 - D:\work\wordworld\scripts\migrate_to_original_world.py
@@ -27,12 +35,21 @@
 - D:\work\wordworld\docs\BUILD.md
 - D:\work\wordworld\src\wordworld\core\engine.py
 - D:\work\wordworld\src\wordworld\ui\console.py
+- D:\work\wordworld\残火长明-剧情大纲.txt
+- D:\work\wordworld\残火长明 v0.1-demo.txt
+- D:\work\wordworld\残火长明 v0.2-demo.txt
+- D:\work\wordworld\残火长明 v0.3-demo.txt
+- D:\work\wordworld\残火长明 v0.4-public.txt
+- D:\work\wordworld\残火长明 v0.5-feedback.txt
+- D:\work\wordworld\残火长明 v0.6-finale.txt
+- D:\work\wordworld\残火长明 v0.7-endwar.txt
+- D:\work\wordworld\残火长明 v0.8-epilogue.txt
 
 ### Tools Used
 Read, TaskCreate, TaskUpdate, Bash, Glob, Grep, Write, Edit
 
 ### Stats
-- Total user messages: 2
+- Total user messages: 10
 <!-- ECC:SUMMARY:END -->
 
 ### Notes for Next Session

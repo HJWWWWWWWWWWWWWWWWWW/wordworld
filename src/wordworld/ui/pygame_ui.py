@@ -1,5 +1,5 @@
 """
-WordWorld Pygame UI — 源火纪：瓦片地图探索 + 回合制战斗。
+WordWorld Pygame UI — 残火长明：瓦片地图探索 + 回合制战斗。
 
 运行：python run_pygame.py
 """
@@ -1500,11 +1500,11 @@ def _wrap_text(font: pygame.font.Font, text: str, max_width: int) -> List[str]:
 # ═══════════════════════════════════════════════════════════════════
 
 class PygameGame:
-    """源火纪 RPG — pygame 瓦片探索界面。"""
+    """残火长明 RPG — pygame 瓦片探索界面。"""
 
     def __init__(self) -> None:
         pygame.init()
-        pygame.display.set_caption("源火纪 · 大陆历练")
+        pygame.display.set_caption("残火长明 · 大陆历练")
         self.screen = pygame.display.set_mode((WIN_W, WIN_H))
         self.clock = pygame.time.Clock()
         self.running = True

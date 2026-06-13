@@ -1,4 +1,4 @@
-"""源火纪 RPG — 装备数据（自动生成）"""
+"""残火长明 RPG — 装备数据（自动生成）"""
 from typing import Any, Dict
 
 # 装备数量: 2142

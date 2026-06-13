@@ -1291,7 +1291,7 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with open(output_dir / "equipment_data.py", "w", encoding="utf-8") as f:
-        f.write('"""源火纪 RPG — 装备数据（自动生成）"""\n')
+        f.write('"""残火长明 RPG — 装备数据（自动生成）"""\n')
         f.write('from typing import Any, Dict\n\n')
         f.write(f'# 装备数量: {len(equipment)}\n')
         f.write('EQUIPMENT_DATA: Dict[str, Dict[str, Any]] = ')
@@ -1299,7 +1299,7 @@ def main() -> None:
         f.write('\n')
 
     with open(output_dir / "item_data.py", "w", encoding="utf-8") as f:
-        f.write('"""源火纪 RPG — 道具数据（自动生成）"""\n')
+        f.write('"""残火长明 RPG — 道具数据（自动生成）"""\n')
         f.write('from typing import Any, Dict, List, Tuple\n\n')
         f.write(f'# 道具数量: {len(items)}\n')
         f.write('ITEM_DATA: Dict[str, Dict[str, Any]] = ')
@@ -1307,7 +1307,7 @@ def main() -> None:
         f.write('\n')
 
     with open(output_dir / "loot_table.py", "w", encoding="utf-8") as f:
-        f.write('"""源火纪 RPG — 掉落表（自动生成）"""\n')
+        f.write('"""残火长明 RPG — 掉落表（自动生成）"""\n')
         f.write('from typing import Dict, List, Tuple\n\n')
         f.write(f'# 层级掉落映射: tier_id -> [(item_id, weight), ...]\n')
         f.write('LOOT_TABLE: Dict[str, List[Tuple[str, int]]] = ')

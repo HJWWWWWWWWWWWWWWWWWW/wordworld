@@ -1,4 +1,4 @@
-# CLAUDE.md — WordWorld（源火纪 RPG）
+# CLAUDE.md — WordWorld（残火长明 RPG）
 
 ## 项目概述
 
