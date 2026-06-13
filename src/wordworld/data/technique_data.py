@@ -8,7 +8,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "atk:+8,fire_power:+15%",
+    "effect": "atk:+8, fire_power:+15%",
     "desc": "[火系功法] 以烈焰斗气强化火属性攻击力。",
     "price_buy": 500,
     "price_sell": 250
@@ -19,7 +19,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "atk:+5,hp:+30",
+    "effect": "atk:+5, hp:+30",
     "desc": "[火系功法] 炎阳之力淬炼肉身，攻守兼备。",
     "price_buy": 500,
     "price_sell": 250
@@ -30,7 +30,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "fire_power:+20%,crit_rate:+5%",
+    "effect": "fire_power:+20%, crit_rate:+5%",
     "desc": "[火系功法] 引烈火入心，火系暴击率提升。",
     "price_buy": 500,
     "price_sell": 250
@@ -41,7 +41,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "hp:+50,hp_regen:+3",
+    "effect": "hp:+50, hp_regen:+3",
     "desc": "[火系功法] 朱雀血脉传承，徐徐回血。",
     "price_buy": 500,
     "price_sell": 250
@@ -52,7 +52,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "def:+8,fire_resist:+15%",
+    "effect": "def:+8, fire_resist:+15%",
     "desc": "[火系功法] 地心之火淬炼筋骨，增强防御。",
     "price_buy": 500,
     "price_sell": 250
@@ -63,7 +63,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "火",
-    "effect": "atk:+12,fire_power:+25%",
+    "effect": "atk:+12, fire_power:+25%",
     "desc": "[火系功法] 远古炎帝所创，火中称尊。",
     "price_buy": 500,
     "price_sell": 250
@@ -72,155 +72,155 @@ TECHNIQUE_DATA = [
     "id": "tech_火_紫焰锻魂法",
     "name": "《紫焰锻魂法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "soul:+8,fire_power:+10%",
+    "effect": "soul:+10, fire_power:+15%",
     "desc": "[火系功法] 紫焰锻炼灵魂，灵魂力与火焰双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_熔岩霸体诀",
     "name": "《熔岩霸体诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "def:+10,hp:+40",
+    "effect": "def:+13, hp:+52",
     "desc": "[火系功法] 熔岩覆盖周身，肉身如钢铁。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_星火燎原诀",
     "name": "《星火燎原诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "fire_power:+18%,spd:+5",
+    "effect": "fire_power:+23%, spd:+6",
     "desc": "[火系功法] 星星之火可以燎原，速度与火焰并行。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_龙炎真法",
     "name": "《龙炎真法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "atk:+10,fire_combo:+1",
+    "effect": "atk:+13, fire_combo:+1",
     "desc": "[火系功法] 龙族控火秘法，火系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_九阳焚天功",
     "name": "《九阳焚天功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "atk:+15,hp:-20",
+    "effect": "atk:+19, hp:-20",
     "desc": "[火系功法] 九阳聚顶，以血换攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_赤帝火皇功",
     "name": "《赤帝火皇功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "火",
-    "effect": "fire_power:+30%",
+    "effect": "fire_power:+35%",
     "desc": "[火系功法] 赤帝独门心法，极致火攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_火_离火归元诀",
     "name": "《离火归元诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "火",
-    "effect": "douqi_max:+30,fire_power:+12%",
+    "effect": "douqi_max:+48, fire_power:+22%",
     "desc": "[火系功法] 离火归元，斗气上限大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_火_火凤涅槃经",
     "name": "《火凤涅槃经》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "火",
-    "effect": "hp:+60,revive_chance:+5%",
+    "effect": "hp:+96, revive_chance:+15%",
     "desc": "[火系功法] 火凤涅槃，低概率自动复活。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_火_烈焰金身功",
     "name": "《烈焰金身功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "火",
-    "effect": "def:+12,thorns:10",
+    "effect": "def:+19, thorns:10",
     "desc": "[火系功法] 烈焰护体金身，反弹10%伤害。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_火_丹火养气法",
     "name": "《丹火养气法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "火",
-    "effect": "douqi_max:+40,douqi_regen:+5",
+    "effect": "douqi_max:+64, douqi_regen:+8",
     "desc": "[火系功法] 丹火养气，斗气自生不息。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_火_狂焰战法",
     "name": "《狂焰战法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "火",
-    "effect": "atk:+18,def:-8",
+    "effect": "atk:+28, def:-8",
     "desc": "[火系功法] 狂焰附体，全力猛攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_火_天火炼神诀",
     "name": "《天火炼神诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "火",
-    "effect": "soul:+12,fire_power:+15%",
+    "effect": "soul:+24, fire_power:+30%",
     "desc": "[火系功法] 天火炼神，灵魂蜕变。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_火_不灭火种法",
     "name": "《不灭火种法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "火",
-    "effect": "hp_regen:+5,fire_power:+10%",
+    "effect": "hp_regen:+10, fire_power:+25%",
     "desc": "[火系功法] 体内种下不灭火种。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_火_万火归宗诀",
     "name": "《万火归宗诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "火",
-    "effect": "fire_power:+35%,all_resist:+5%",
+    "effect": "fire_power:+50%, all_resist:+20%",
     "desc": "[火系功法] 万火朝宗，火系大成之境。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_冰_冰心诀",
@@ -228,7 +228,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "def:+8,ice_power:+15%",
+    "effect": "def:+8, ice_power:+15%",
     "desc": "[冰系功法] 心如冰清，增强冰系威力与防御。",
     "price_buy": 500,
     "price_sell": 250
@@ -239,7 +239,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "ice_power:+20%,spd:-5",
+    "effect": "ice_power:+20%, spd:-5",
     "desc": "[冰系功法] 寒冰真气凝聚，威力增但速度略降。",
     "price_buy": 500,
     "price_sell": 250
@@ -250,7 +250,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "def:+12,hp:+30",
+    "effect": "def:+12, hp:+30",
     "desc": "[冰系功法] 玄冰之气淬体，冰肌玉骨。",
     "price_buy": 500,
     "price_sell": 250
@@ -261,7 +261,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "spd:+10,ice_power:+12%",
+    "effect": "spd:+10, ice_power:+12%",
     "desc": "[冰系功法] 冰凤展翅，身法与冰系双修。",
     "price_buy": 500,
     "price_sell": 250
@@ -272,7 +272,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "atk:+10,ice_penetration:+15%",
+    "effect": "atk:+10, ice_penetration:+15%",
     "desc": "[冰系功法] 北冥之寒，冰系穿透力增加。",
     "price_buy": 500,
     "price_sell": 250
@@ -283,7 +283,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "冰",
-    "effect": "ice_power:+25%,freeze_chance:+8%",
+    "effect": "ice_power:+25%, freeze_chance:+8%",
     "desc": "[冰系功法] 霜雪纷飞，冰冻概率大幅提升。",
     "price_buy": 500,
     "price_sell": 250
@@ -292,155 +292,155 @@ TECHNIQUE_DATA = [
     "id": "tech_冰_万年冰髓法",
     "name": "《万年冰髓法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "hp:+80,ice_resist:+20%",
+    "effect": "hp:+104, ice_resist:+25%",
     "desc": "[冰系功法] 万年冰髓入体，生命与冰抗大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_寒魄炼魂诀",
     "name": "《寒魄炼魂诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "soul:+10,ice_power:+10%",
+    "effect": "soul:+13, ice_power:+15%",
     "desc": "[冰系功法] 寒魄炼魂，灵魂与冰系双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_冰皇不灭体",
     "name": "《冰皇不灭体》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "def:+15,ice_armor:+20",
+    "effect": "def:+19, ice_armor:+26",
     "desc": "[冰系功法] 冰皇之体，开场获得冰甲护盾。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_极寒领域功",
     "name": "《极寒领域功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "ice_power:+18%,enemy_spd:-10%",
+    "effect": "ice_power:+23%, enemy_spd:-10%",
     "desc": "[冰系功法] 极寒领域展开，敌人速度降低。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_冰晶玉骨诀",
     "name": "《冰晶玉骨诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "def:+8,hp_regen:+4",
+    "effect": "def:+10, hp_regen:+5",
     "desc": "[冰系功法] 冰晶护骨，生命缓慢回复。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_雪女之舞法",
     "name": "《雪女之舞法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "冰",
-    "effect": "spd:+12,dodge_rate:+8%",
+    "effect": "spd:+15, dodge_rate:+13%",
     "desc": "[冰系功法] 雪女曼舞，闪避率提升。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_冰_寒渊归墟功",
     "name": "《寒渊归墟功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "冰",
-    "effect": "ice_power:+30%,hp:-30",
+    "effect": "ice_power:+40%, hp:-30",
     "desc": "[冰系功法] 寒渊之力，以命换攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_冰_霜龙吐息诀",
     "name": "《霜龙吐息诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "冰",
-    "effect": "atk:+12,ice_power:+15%",
+    "effect": "atk:+19, ice_power:+25%",
     "desc": "[冰系功法] 霜龙吐息，冰系攻防一体。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_冰_冰封王座经",
     "name": "《冰封王座经》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "冰",
-    "effect": "def:+10,freeze_duration:+1",
+    "effect": "def:+16, freeze_duration:+1",
     "desc": "[冰系功法] 冰封之力，冻结时间延长。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_冰_玄霜碎玉功",
     "name": "《玄霜碎玉功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "冰",
-    "effect": "atk:+14,def:+4",
+    "effect": "atk:+22, def:+6",
     "desc": "[冰系功法] 玄霜碎玉，攻击为主防御为辅。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_冰_太阴寒月法",
     "name": "《太阴寒月法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "冰",
-    "effect": "douqi_max:+35,ice_power:+15%",
+    "effect": "douqi_max:+56, ice_power:+25%",
     "desc": "[冰系功法] 太阴月华，斗气与寒冰双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_冰_千山暮雪诀",
     "name": "《千山暮雪诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "冰",
-    "effect": "ice_power:+22%,all_resist:+5%",
+    "effect": "ice_power:+37%, all_resist:+20%",
     "desc": "[冰系功法] 千山暮雪，冰系小成。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_冰_永冻之铠法",
     "name": "《永冻之铠法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "冰",
-    "effect": "def:+18,spd:-10",
+    "effect": "def:+36, spd:-10",
     "desc": "[冰系功法] 永冻铠甲，极致防御降低速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_冰_冰祖归宗功",
     "name": "《冰祖归宗功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "冰",
-    "effect": "ice_power:+35%,ice_combo:+1",
+    "effect": "ice_power:+50%, ice_combo:+2",
     "desc": "[冰系功法] 冰祖传承，冰系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_雷_雷霆真解",
@@ -448,7 +448,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "atk:+10,thunder_power:+15%",
+    "effect": "atk:+10, thunder_power:+15%",
     "desc": "[雷系功法] 引雷霆入体，雷系攻击力大增。",
     "price_buy": 500,
     "price_sell": 250
@@ -459,7 +459,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "spd:+12,thunder_power:+10%",
+    "effect": "spd:+12, thunder_power:+10%",
     "desc": "[雷系功法] 紫电附体，雷速如电。",
     "price_buy": 500,
     "price_sell": 250
@@ -470,7 +470,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "atk:+8,def:+8",
+    "effect": "atk:+8, def:+8",
     "desc": "[雷系功法] 九天雷神锻体之法，攻防并重。",
     "price_buy": 500,
     "price_sell": 250
@@ -481,7 +481,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "thunder_power:+20%,spd:+8",
+    "effect": "thunder_power:+20%, spd:+8",
     "desc": "[雷系功法] 奔雷之势，雷威与速度并行。",
     "price_buy": 500,
     "price_sell": 250
@@ -492,7 +492,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "atk:+15,thunder_penetration:+20%",
+    "effect": "atk:+15, thunder_penetration:+20%",
     "desc": "[雷系功法] 天罚之雷，穿透力无与伦比。",
     "price_buy": 500,
     "price_sell": 250
@@ -503,7 +503,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "雷",
-    "effect": "spd:+15,thunder_power:+15%",
+    "effect": "spd:+15, thunder_power:+15%",
     "desc": "[雷系功法] 九霄云外雷动九天，极速雷法。",
     "price_buy": 500,
     "price_sell": 250
@@ -512,155 +512,155 @@ TECHNIQUE_DATA = [
     "id": "tech_雷_雷帝霸体诀",
     "name": "《雷帝霸体诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "atk:+18,def:+12,hp:+20",
+    "effect": "atk:+23, def:+15, hp:+26",
     "desc": "[雷系功法] 雷帝霸体，全面强化。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_紫雷锻魂法",
     "name": "《紫雷锻魂法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "soul:+10,thunder_power:+10%",
+    "effect": "soul:+13, thunder_power:+15%",
     "desc": "[雷系功法] 紫雷锻魂，灵魂与雷系双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_雷龙翻天诀",
     "name": "《雷龙翻天诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "atk:+14,thunder_combo:+1",
+    "effect": "atk:+18, thunder_combo:+1",
     "desc": "[雷系功法] 雷龙翻腾，雷系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_五雷正法",
     "name": "《五雷正法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "thunder_power:+25%,crit_rate:+8%",
+    "effect": "thunder_power:+30%, crit_rate:+13%",
     "desc": "[雷系功法] 五雷轰顶，暴击率大幅提升。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_雷池淬体功",
     "name": "《雷池淬体功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "def:+14,thunder_resist:+20%",
+    "effect": "def:+18, thunder_resist:+25%",
     "desc": "[雷系功法] 雷池淬体，大幅增强雷抗与防御。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_电光石火诀",
     "name": "《电光石火诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "雷",
-    "effect": "spd:+20,thunder_power:+8%",
+    "effect": "spd:+26, thunder_power:+13%",
     "desc": "[雷系功法] 电光石火，极致速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_雷_霹雳碎虚功",
     "name": "《霹雳碎虚功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "雷",
-    "effect": "atk:+20,def:-10",
+    "effect": "atk:+32, def:-10",
     "desc": "[雷系功法] 霹雳碎虚，以防御换攻击。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_雷_万雷朝宗法",
     "name": "《万雷朝宗法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "雷",
-    "effect": "thunder_power:+35%",
+    "effect": "thunder_power:+45%",
     "desc": "[雷系功法] 万雷朝宗，雷系极致。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_雷_雷凰天翔诀",
     "name": "《雷凰天翔诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "雷",
-    "effect": "spd:+10,dodge_rate:+10%",
+    "effect": "spd:+16, dodge_rate:+20%",
     "desc": "[雷系功法] 雷凰天翔，闪避与速度双增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_雷_雷霆万钧经",
     "name": "《雷霆万钧经》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "雷",
-    "effect": "atk:+12,stun_chance:+5%",
+    "effect": "atk:+19, stun_chance:+15%",
     "desc": "[雷系功法] 雷霆万钧，攻击附带眩晕概率。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_雷_雷元归一功",
     "name": "《雷元归一功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "雷",
-    "effect": "douqi_max:+30,thunder_power:+12%",
+    "effect": "douqi_max:+48, thunder_power:+22%",
     "desc": "[雷系功法] 雷元归一，斗气上限大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_雷_灭世雷罚法",
     "name": "《灭世雷罚法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "雷",
-    "effect": "atk:+25,hp:-40",
+    "effect": "atk:+50, hp:-40",
     "desc": "[雷系功法] 灭世雷罚，以命换极致攻击。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_雷_雷音贯耳诀",
     "name": "《雷音贯耳诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "雷",
-    "effect": "soul:+12,thunder_power:+15%",
+    "effect": "soul:+24, thunder_power:+30%",
     "desc": "[雷系功法] 雷音贯耳，灵魂与雷双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_雷_混沌雷祖功",
     "name": "《混沌雷祖功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "雷",
-    "effect": "thunder_power:+30%,all_resist:+8%",
+    "effect": "thunder_power:+45%, all_resist:+23%",
     "desc": "[雷系功法] 混沌雷祖，雷系大成。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_风_疾风真解",
@@ -668,7 +668,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "spd:+8,wind_power:+15%",
+    "effect": "spd:+8, wind_power:+15%",
     "desc": "[风系功法] 疾风之力，风系威力与速度。",
     "price_buy": 500,
     "price_sell": 250
@@ -679,7 +679,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "spd:+12,dodge_rate:+5%",
+    "effect": "spd:+12, dodge_rate:+5%",
     "desc": "[风系功法] 风云变幻，身法大增。",
     "price_buy": 500,
     "price_sell": 250
@@ -690,7 +690,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "atk:+10,wind_power:+18%",
+    "effect": "atk:+10, wind_power:+18%",
     "desc": "[风系功法] 飓风碎虚，风系攻击力。",
     "price_buy": 500,
     "price_sell": 250
@@ -701,7 +701,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "spd:+6,def:+6,hp:+20",
+    "effect": "spd:+6, def:+6, hp:+20",
     "desc": "[风系功法] 以天风锻体，全面小幅提升。",
     "price_buy": 500,
     "price_sell": 250
@@ -712,7 +712,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "spd:+15,dodge_rate:+10%",
+    "effect": "spd:+15, dodge_rate:+10%",
     "desc": "[风系功法] 御风而行，极致闪避速度。",
     "price_buy": 500,
     "price_sell": 250
@@ -723,7 +723,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "风",
-    "effect": "wind_power:+25%,spd:+10",
+    "effect": "wind_power:+25%, spd:+10",
     "desc": "[风系功法] 风神传承，风威与速度。",
     "price_buy": 500,
     "price_sell": 250
@@ -732,155 +732,155 @@ TECHNIQUE_DATA = [
     "id": "tech_风_青鸾天翔功",
     "name": "《青鸾天翔功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "spd:+12,wind_power:+12%",
+    "effect": "spd:+15, wind_power:+17%",
     "desc": "[风系功法] 青鸾展翅，风系双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_暴风眼心法",
     "name": "《暴风眼心法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "wind_power:+20%,crit_rate:+8%",
+    "effect": "wind_power:+25%, crit_rate:+13%",
     "desc": "[风系功法] 暴风眼中，暴击率大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_罡风裂天诀",
     "name": "《罡风裂天诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "atk:+16,wind_penetration:+15%",
+    "effect": "atk:+20, wind_penetration:+20%",
     "desc": "[风系功法] 罡风裂天，穿透力极强。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_流风回雪功",
     "name": "《流风回雪功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "def:+10,dodge_rate:+12%",
+    "effect": "def:+13, dodge_rate:+17%",
     "desc": "[风系功法] 流风回雪，防御与闪避。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_虚空风遁法",
     "name": "《虚空风遁法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "spd:+18,escape_bonus:+20%",
+    "effect": "spd:+23, escape_bonus:+25%",
     "desc": "[风系功法] 虚空风遁，逃跑与速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_九幽风煞诀",
     "name": "《九幽风煞诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "风",
-    "effect": "atk:+14,wind_power:+18%",
+    "effect": "atk:+18, wind_power:+23%",
     "desc": "[风系功法] 九幽之风，暗藏煞气。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_风_清风明月功",
     "name": "《清风明月功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "风",
-    "effect": "hp_regen:+5,douqi_regen:+5",
+    "effect": "hp_regen:+8, douqi_regen:+8",
     "desc": "[风系功法] 清风明月，双回复。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_风_风魔乱舞诀",
     "name": "《风魔乱舞诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "风",
-    "effect": "atk:+12,spd:+12,def:-10",
+    "effect": "atk:+19, spd:+19, def:-10",
     "desc": "[风系功法] 风魔乱舞，速度攻击增、防御降。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_风_天罡风体术",
     "name": "《天罡风体术》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "风",
-    "effect": "def:+12,wind_resist:+20%",
+    "effect": "def:+19, wind_resist:+30%",
     "desc": "[风系功法] 天罡风体，防御与风抗。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_风_大荒风祖功",
     "name": "《大荒风祖功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "风",
-    "effect": "wind_power:+35%,spd:+8",
+    "effect": "wind_power:+45%, spd:+12",
     "desc": "[风系功法] 大荒风祖，风系极致。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_风_扶摇直上诀",
     "name": "《扶摇直上诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "风",
-    "effect": "spd:+20,wind_power:+10%",
+    "effect": "spd:+32, wind_power:+20%",
     "desc": "[风系功法] 扶摇九万里，速度至上。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_风_裂空风暴法",
     "name": "《裂空风暴法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "风",
-    "effect": "atk:+20,wind_combo:+1",
+    "effect": "atk:+40, wind_combo:+2",
     "desc": "[风系功法] 裂空风暴，风系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_风_无影无形功",
     "name": "《无影无形功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "风",
-    "effect": "dodge_rate:+20%,spd:+8",
+    "effect": "dodge_rate:+35%, spd:+16",
     "desc": "[风系功法] 无影无形，极致闪避。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_风_风行天下诀",
     "name": "《风行天下诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "风",
-    "effect": "wind_power:+30%,all_spd:+10%",
+    "effect": "wind_power:+45%, all_spd:+25%",
     "desc": "[风系功法] 风行天下，风系大成。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_木_青木长生功",
@@ -888,7 +888,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "hp:+60,hp_regen:+8",
+    "effect": "hp:+60, hp_regen:+8",
     "desc": "[木系功法] 青木之气滋养肉身，生命回复大幅提升。",
     "price_buy": 500,
     "price_sell": 250
@@ -899,7 +899,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "wood_power:+15%,heal_bonus:+20%",
+    "effect": "wood_power:+15%, heal_bonus:+20%",
     "desc": "[木系功法] 万木逢春，治疗类技能效果增强。",
     "price_buy": 500,
     "price_sell": 250
@@ -910,7 +910,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "hp:+40,revive_chance:+5%",
+    "effect": "hp:+40, revive_chance:+5%",
     "desc": "[木系功法] 枯木亦能回春，低概率战斗复活。",
     "price_buy": 500,
     "price_sell": 250
@@ -921,7 +921,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "soul:+10,wood_power:+10%",
+    "effect": "soul:+10, wood_power:+10%",
     "desc": "[木系功法] 翠木灵心，灵魂与木系双修。",
     "price_buy": 500,
     "price_sell": 250
@@ -932,7 +932,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "def:+15,immobilize_resist:+20%",
+    "effect": "def:+15, immobilize_resist:+20%",
     "desc": "[木系功法] 如古树盘根，定身抗性大增。",
     "price_buy": 500,
     "price_sell": 250
@@ -943,7 +943,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "木",
-    "effect": "atk:+10,wood_bind_chance:+15%",
+    "effect": "atk:+10, wood_bind_chance:+15%",
     "desc": "[木系功法] 藤蔓缠绕，攻击附带束缚概率。",
     "price_buy": 500,
     "price_sell": 250
@@ -952,155 +952,155 @@ TECHNIQUE_DATA = [
     "id": "tech_木_森林之息法",
     "name": "《森林之息法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "douqi_max:+40,wood_power:+12%",
+    "effect": "douqi_max:+52, wood_power:+17%",
     "desc": "[木系功法] 森林吐息，斗气上限大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_木皇不灭体",
     "name": "《木皇不灭体》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "hp:+100,hp_regen:+5",
+    "effect": "hp:+130, hp_regen:+6",
     "desc": "[木系功法] 木皇之体，生命与回复双增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_灵芝养气功",
     "name": "《灵芝养气功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "douqi_regen:+5,hp_regen:+4",
+    "effect": "douqi_regen:+6, hp_regen:+5",
     "desc": "[木系功法] 灵芝养气，双回复速度提升。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_花雨纷飞诀",
     "name": "《花雨纷飞诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "spd:+10,dodge_rate:+10%",
+    "effect": "spd:+13, dodge_rate:+15%",
     "desc": "[木系功法] 花雨纷飞，闪避与速度双增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_生命之树功",
     "name": "《生命之树功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "hp:+120,atk:-5",
+    "effect": "hp:+156, atk:-5",
     "desc": "[木系功法] 生命之树，极致生命牺牲攻击。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_荆棘光环诀",
     "name": "《荆棘光环诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "木",
-    "effect": "def:+12,thorns_damage:+20",
+    "effect": "def:+15, thorns_damage:+26",
     "desc": "[木系功法] 荆棘光环，反弹伤害增强。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_木_柳絮随风法",
     "name": "《柳絮随风法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "木",
-    "effect": "spd:+15,wood_power:+8%",
+    "effect": "spd:+24, wood_power:+18%",
     "desc": "[木系功法] 柳絮随风，速度与木系双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_木_竹影清风功",
     "name": "《竹影清风功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "木",
-    "effect": "dodge_rate:+12%,spd:+8",
+    "effect": "dodge_rate:+22%, spd:+12",
     "desc": "[木系功法] 竹影清风，闪避与速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_木_毒蔓吞噬诀",
     "name": "《毒蔓吞噬诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "木",
-    "effect": "wood_power:+20%,poison_resist:+25%",
+    "effect": "wood_power:+30%, poison_resist:+35%",
     "desc": "[木系功法] 毒蔓吞噬，毒抗与木攻双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_木_万物生长法",
     "name": "《万物生长法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "木",
-    "effect": "hp_regen:+10,douqi_regen:+5",
+    "effect": "hp_regen:+16, douqi_regen:+8",
     "desc": "[木系功法] 万物生长，双回复速度极致。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_木_古榕遮天功",
     "name": "《古榕遮天功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "木",
-    "effect": "def:+18,wood_power:+10%",
+    "effect": "def:+28, wood_power:+20%",
     "desc": "[木系功法] 古榕遮天，防御与木攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_木_木祖归宗诀",
     "name": "《木祖归宗诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "木",
-    "effect": "wood_power:+35%,wood_combo:+1",
+    "effect": "wood_power:+50%, wood_combo:+2",
     "desc": "[木系功法] 木祖传承，木系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_木_生生不息诀",
     "name": "《生生不息诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "木",
-    "effect": "hp_regen:+8,all_resist:+5%",
+    "effect": "hp_regen:+16, all_resist:+20%",
     "desc": "[木系功法] 生生不息，全抗与回复。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_木_世界树之心",
     "name": "《世界树之心》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "木",
-    "effect": "hp:+150,wood_power:+25%",
+    "effect": "hp:+300, wood_power:+40%",
     "desc": "[木系功法] 世界树之心，木系大成。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_土_厚土载物功",
@@ -1108,7 +1108,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "def:+15,hp:+40",
+    "effect": "def:+15, hp:+40",
     "desc": "[土系功法] 厚土载物，防御与生命双增。",
     "price_buy": 500,
     "price_sell": 250
@@ -1119,7 +1119,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "def:+20,spd:-10",
+    "effect": "def:+20, spd:-10",
     "desc": "[土系功法] 山岳不动，极致防御牺牲速度。",
     "price_buy": 500,
     "price_sell": 250
@@ -1130,7 +1130,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "atk:+12,earth_power:+15%",
+    "effect": "atk:+12, earth_power:+15%",
     "desc": "[土系功法] 大地之力，土系攻击力。",
     "price_buy": 500,
     "price_sell": 250
@@ -1141,7 +1141,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "def:+10,earth_resist:+25%",
+    "effect": "def:+10, earth_resist:+25%",
     "desc": "[土系功法] 磐石护体，土系抗性大增。",
     "price_buy": 500,
     "price_sell": 250
@@ -1152,7 +1152,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "spd:+10,earth_slow_chance:+15%",
+    "effect": "spd:+10, earth_slow_chance:+15%",
     "desc": "[土系功法] 流沙陷阵，攻击附带减速概率。",
     "price_buy": 500,
     "price_sell": 250
@@ -1163,7 +1163,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "土",
-    "effect": "atk:+15,def:+15,spd:-15",
+    "effect": "atk:+15, def:+15, spd:-15",
     "desc": "[土系功法] 石魔霸体，攻防双增速度大减。",
     "price_buy": 500,
     "price_sell": 250
@@ -1172,155 +1172,155 @@ TECHNIQUE_DATA = [
     "id": "tech_土_地动山摇功",
     "name": "《地动山摇功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "atk:+18,earth_power:+20%",
+    "effect": "atk:+23, earth_power:+25%",
     "desc": "[土系功法] 地动山摇，土系攻击极致。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_岩龙真法",
     "name": "《岩龙真法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "atk:+14,def:+10",
+    "effect": "atk:+18, def:+13",
     "desc": "[土系功法] 岩龙真法，攻防一体。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_沙暴葬天诀",
     "name": "《沙暴葬天诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "earth_power:+25%,acc:-5%",
+    "effect": "earth_power:+30%, acc:-5%",
     "desc": "[土系功法] 沙暴葬天，威力增但命中略降。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_矿脉吸灵功",
     "name": "《矿脉吸灵功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "douqi_max:+30,earth_power:+12%",
+    "effect": "douqi_max:+39, earth_power:+17%",
     "desc": "[土系功法] 矿脉吸灵，斗气与土攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_陨石坠天诀",
     "name": "《陨石坠天诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "atk:+25,def:-10",
+    "effect": "atk:+32, def:-10",
     "desc": "[土系功法] 陨石坠天，以防御换攻击。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_地心淬体法",
     "name": "《地心淬体法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "土",
-    "effect": "def:+18,hp:+50",
+    "effect": "def:+23, hp:+65",
     "desc": "[土系功法] 地心淬体，防御与生命。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_土_丘陵起伏功",
     "name": "《丘陵起伏功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "土",
-    "effect": "spd:+8,dodge_rate:+8%",
+    "effect": "spd:+12, dodge_rate:+18%",
     "desc": "[土系功法] 丘陵起伏，闪避与速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_土_土皇霸体诀",
     "name": "《土皇霸体诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "土",
-    "effect": "def:+16,hp:+60",
+    "effect": "def:+25, hp:+96",
     "desc": "[土系功法] 土皇霸体，极致防御生命。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_土_化石为泥功",
     "name": "《化石为泥功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "土",
-    "effect": "earth_power:+18%,enemy_def:-10%",
+    "effect": "earth_power:+28%, enemy_def:-10%",
     "desc": "[土系功法] 化石为泥，降低敌人防御。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_土_金刚石体术",
     "name": "《金刚石体术》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "土",
-    "effect": "def:+25,earth_resist:+30%",
+    "effect": "def:+40, earth_resist:+40%",
     "desc": "[土系功法] 金刚石体，顶级防御。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_土_地震波诀",
     "name": "《地震波诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "土",
-    "effect": "atk:+16,earth_shock_chance:+10%",
+    "effect": "atk:+25, earth_shock_chance:+20%",
     "desc": "[土系功法] 地震波，攻击附带震荡。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_土_岩壁守护法",
     "name": "《岩壁守护法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "土",
-    "effect": "def:+12,shield_start:+50",
+    "effect": "def:+24, shield_start:+100",
     "desc": "[土系功法] 岩壁守护，开场获得护盾。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_土_大地归元功",
     "name": "《大地归元功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "土",
-    "effect": "douqi_max:+50,earth_power:+15%",
+    "effect": "douqi_max:+100, earth_power:+30%",
     "desc": "[土系功法] 大地归元，斗气与土攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_土_土祖归宗诀",
     "name": "《土祖归宗诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "土",
-    "effect": "earth_power:+35%,earth_combo:+1",
+    "effect": "earth_power:+50%, earth_combo:+2",
     "desc": "[土系功法] 土祖传承，土系连击+1。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_毒_毒经真解",
@@ -1328,7 +1328,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "poison_power:+15%,atk:+5",
+    "effect": "poison_power:+15%, atk:+5",
     "desc": "[毒系功法] 毒经入门，毒系威力。",
     "price_buy": 500,
     "price_sell": 250
@@ -1339,7 +1339,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "poison_power:+25%,poison_stacks:+1",
+    "effect": "poison_power:+25%, poison_stacks:+1",
     "desc": "[毒系功法] 小医仙所创，毒层数+1。",
     "price_buy": 500,
     "price_sell": 250
@@ -1350,7 +1350,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "poison_power:+20%,def:+5",
+    "effect": "poison_power:+20%, def:+5",
     "desc": "[毒系功法] 万毒归心，毒系攻防。",
     "price_buy": 500,
     "price_sell": 250
@@ -1361,7 +1361,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "def:+10,poison_resist:+20%",
+    "effect": "def:+10, poison_resist:+20%",
     "desc": "[毒系功法] 蛇蝎锻体，百毒不侵。",
     "price_buy": 500,
     "price_sell": 250
@@ -1372,7 +1372,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "atk:+12,poison_power:+15%",
+    "effect": "atk:+12, poison_power:+15%",
     "desc": "[毒系功法] 五毒俱全，毒系攻击。",
     "price_buy": 500,
     "price_sell": 250
@@ -1383,7 +1383,7 @@ TECHNIQUE_DATA = [
     "type": "technique",
     "tier": "refined",
     "element": "毒",
-    "effect": "hp:+60,poison_power:+10%",
+    "effect": "hp:+60, poison_power:+10%",
     "desc": "[毒系功法] 天毒霸体，生命与毒攻。",
     "price_buy": 500,
     "price_sell": 250
@@ -1392,144 +1392,144 @@ TECHNIQUE_DATA = [
     "id": "tech_毒_幽冥毒功",
     "name": "《幽冥毒功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "poison_power:+30%,poison_dmg:+50%",
+    "effect": "poison_power:+35%, poison_dmg:+55%",
     "desc": "[毒系功法] 幽冥之毒，毒伤大幅提升。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_化骨绵掌功",
     "name": "《化骨绵掌功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "atk:+8,poison_penetration:+20%",
+    "effect": "atk:+10, poison_penetration:+25%",
     "desc": "[毒系功法] 化骨绵毒，穿透防御。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_毒龙噬心诀",
     "name": "《毒龙噬心诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "atk:+16,poison_power:+18%",
+    "effect": "atk:+20, poison_power:+23%",
     "desc": "[毒系功法] 毒龙噬心，攻击与毒双修。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_碧磷蛇皇功",
     "name": "《碧磷蛇皇功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "poison_power:+22%,spd:+8",
+    "effect": "poison_power:+27%, spd:+10",
     "desc": "[毒系功法] 碧磷蛇皇，速度与毒攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_千蛛万毒功",
     "name": "《千蛛万毒功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "def:+12,thorns_poison:+15",
+    "effect": "def:+15, thorns_poison:+19",
     "desc": "[毒系功法] 千蛛万毒，反弹毒伤。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_毒姬魅影诀",
     "name": "《毒姬魅影诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "spirit",
     "element": "毒",
-    "effect": "spd:+12,dodge_rate:+8%",
+    "effect": "spd:+15, dodge_rate:+13%",
     "desc": "[毒系功法] 毒姬魅影，闪避与速度。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 1500,
+    "price_sell": 750
   },
   {
     "id": "tech_毒_腐骨噬魂法",
     "name": "《腐骨噬魂法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "毒",
-    "effect": "poison_power:+35%,hp:-20",
+    "effect": "poison_power:+45%, hp:-20",
     "desc": "[毒系功法] 腐骨噬魂，以命换毒。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_毒_百毒不侵体",
     "name": "《百毒不侵体》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "毒",
-    "effect": "def:+15,poison_resist:+30%",
+    "effect": "def:+24, poison_resist:+40%",
     "desc": "[毒系功法] 百毒不侵，极致抗毒。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_毒_毒帝传承功",
     "name": "《毒帝传承功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "毒",
-    "effect": "poison_power:+40%",
+    "effect": "poison_power:+50%",
     "desc": "[毒系功法] 毒帝传承，毒系极致。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_毒_蝎尾淬毒诀",
     "name": "《蝎尾淬毒诀》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "毒",
-    "effect": "atk:+10,crit_poison:+8%",
+    "effect": "atk:+16, crit_poison:+18%",
     "desc": "[毒系功法] 蝎尾淬毒，暴击附带中毒。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_毒_毒沼归墟法",
     "name": "《毒沼归墟法》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "treasure",
     "element": "毒",
-    "effect": "poison_power:+18%,enemy_spd:-8%",
+    "effect": "poison_power:+28%, enemy_spd:-8%",
     "desc": "[毒系功法] 毒沼领域，敌人减速。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 3000,
+    "price_sell": 1500
   },
   {
     "id": "tech_毒_蛇皇不灭体",
     "name": "《蛇皇不灭体》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "毒",
-    "effect": "hp:+80,poison_power:+10%",
+    "effect": "hp:+160, poison_power:+25%",
     "desc": "[毒系功法] 蛇皇不灭，生命与毒攻。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_毒_毒元归一功",
     "name": "《毒元归一功》",
     "type": "technique",
-    "tier": "refined",
+    "tier": "earth",
     "element": "毒",
-    "effect": "douqi_max:+35,poison_power:+12%",
+    "effect": "douqi_max:+70, poison_power:+27%",
     "desc": "[毒系功法] 毒元归一，斗气大增。",
-    "price_buy": 500,
-    "price_sell": 250
+    "price_buy": 6000,
+    "price_sell": 3000
   },
   {
     "id": "tech_毒_万毒归宗诀",

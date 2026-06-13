@@ -13,6 +13,8 @@ from wordworld.data.technique_data import TECHNIQUE_DATA
 from wordworld.data.skill_book_data import SKILL_BOOK_DATA
 from wordworld.data.skill_elements_full import SKILL_ELEMENTS_FULL
 from wordworld.data.elemental_rules import ELEMENTAL_RULES
+from wordworld.data.skill_mastery_data import build_skill_mastery
+from wordworld.data.enemy_skill_fallbacks import ENEMY_SKILL_FALLBACKS
 from wordworld.data.furnace_data import FURNACE_DATA
 from wordworld.data.recipe_data import ALCHEMY_RECIPE_DATA
 from wordworld.config.paths import SAVE_PATH, WORKBOOK_PATH
@@ -124,6 +126,23 @@ ALCHEMY_EXP_PER_GRADE = ALCHEMY_SUB_PER_GRADE * ALCHEMY_EXP_PER_SUB  # 1000
 # 炼药配方（从生成数据导入，504种）
 ALCHEMY_RECIPES = ALCHEMY_RECIPE_DATA
 
+REMOVED_ITEM_IDS = {
+    "item_repair_hammer",
+    "item_identify_scroll",
+    "item_pet_food",
+    "item_pet_taming_reins",
+    "item_enchant_stone_1",
+    "item_enchant_stone_2",
+    "item_enchant_stone_3",
+    "item_enchant_stone_4",
+    "item_enchant_stone_5",
+}
+
+ELEMENT_ITEM_NAMES = {
+    "fire": "火", "ice": "冰", "thunder": "雷", "wind": "风",
+    "wood": "木", "earth": "土", "poison": "毒",
+}
+
 TIME_PERIODS = ["清晨", "午后", "傍晚", "深夜"]
 
 EXPLORATION_ACTIONS = {
@@ -216,7 +235,7 @@ AUCTION_LISTING_COUNT = 8    # 每次刷新上架数量
 
 # ── 物品定价（按类型） ─────────────────────────────────────
 ITEM_PRICE_TABLE: Dict[str, Tuple[int, int]] = {
-    "consumable": (10, 30),     # 消耗品：(买价, 卖价) 基础
+    "consumable": (10, 15),     # 消耗品：(买价, 卖价) 基础
     "equipment": (50, 25),
     "book": (40, 20),
     "quest": (100, 50),
@@ -235,6 +254,24 @@ def item_price(item_type: str) -> Tuple[int, int]:
 COMBO_MAX = 10
 COMBO_DAMAGE_PER_STACK = 0.12
 CHARGE_DAMAGE_MULTIPLIER = 2.0
+
+# ── 行动条（CTB） ───────────────────────────────────────────
+GAUGE_MAX = 1000  # 行动条满值，达到后可行动
+
+# ── 野外遇敌系统 ─────────────────────────────────────────
+WILD_COMBAT_BASE_CHANCE = 0.35
+WILD_COMBAT_HUNT_MULT = 2.0
+WILD_COMBAT_SCOUT_MULT = 0.5
+WILD_COMBAT_GATHER_MULT = 0.15
+WILD_COMBAT_ROAM_MULT = 1.0
+WILD_ELITE_WEIGHT = 0.15
+WILD_MOB_WEIGHT = 0.85
+RESPAWN_COOLDOWN_PERIODS = 3
+BEAST_NAME_KEYWORDS = [
+    "beast", "snake", "wolf", "tiger", "eagle", "spider", "scorpion", "insect",
+    "dragon", "phoenix", "bear", "leopard", "fox", "lion", "elephant", "crocodile",
+    "turtle", "frog", "monster", "serpent", "hawk", "hound", "ape",
+]
 CHARGE_DOUQI_PER_TURN = 5
 
 FINISHER_SKILLS = {
@@ -247,6 +284,33 @@ FINISHER_SKILLS = {
 # ── 装备系统 ───────────────────────────────────────────────
 EQUIPMENT_SLOTS = ["weapon", "armor", "accessory"]
 EQUIPMENT_DATA: Dict[str, Dict[str, Any]] = _GEN_EQUIPMENT  # 2142件
+
+# ── 异火系统 ───────────────────────────────────────────────
+FLAME_TIER_BONUS: Dict[str, Dict[str, int]] = {
+    "iron":     {"atk": 2, "spd": 1, "fire_power": 5},
+    "refined":  {"atk": 4, "spd": 2, "fire_power": 8},
+    "spirit":   {"atk": 6, "spd": 3, "fire_power": 12},
+    "treasure": {"atk": 8, "spd": 4, "fire_power": 15},
+    "earth":    {"atk": 10, "spd": 5, "fire_power": 18},
+    "heaven":   {"atk": 14, "spd": 7, "fire_power": 22},
+    "mystic":   {"atk": 18, "spd": 9, "fire_power": 28},
+    "saint":    {"atk": 22, "spd": 11, "fire_power": 35},
+    "emperor":  {"atk": 28, "spd": 14, "fire_power": 45},
+    "divine":   {"atk": 35, "spd": 18, "fire_power": 60},
+}
+FLAME_ALCHEMY_BONUS: Dict[str, Dict[str, int]] = {
+    "iron":     {"success": 1, "exp": 0, "quality": 0},
+    "refined":  {"success": 2, "exp": 5, "quality": 0},
+    "spirit":   {"success": 3, "exp": 8, "quality": 1},
+    "treasure": {"success": 5, "exp": 12, "quality": 2},
+    "earth":    {"success": 7, "exp": 15, "quality": 3},
+    "heaven":   {"success": 9, "exp": 20, "quality": 5},
+    "mystic":   {"success": 12, "exp": 25, "quality": 7},
+    "saint":    {"success": 15, "exp": 30, "quality": 10},
+    "emperor":  {"success": 18, "exp": 40, "quality": 14},
+    "divine":   {"success": 22, "exp": 50, "quality": 20},
+}
+MAX_STORAGE_OVERFLOW = 200
 
 # 上一版存档只保存数字阶段。该列表用于把旧数字位置迁移到稳定阶段 ID。
 LEGACY_STORY_PHASE_IDS_V2 = [
@@ -970,6 +1034,8 @@ class GameEngine:
         self.item_rules: Dict[str, Dict[str, Any]] = data["items"]
         # 合并生成的扩展道具
         for gid, gitem in _GEN_ITEMS.items():
+            if gid in REMOVED_ITEM_IDS:
+                continue
             if gid not in self.item_rules:
                 self.item_rules[gid] = {
                     "name": gitem["name"],
@@ -1062,6 +1128,23 @@ class GameEngine:
                 }
                 if book.get("element", "无") != "无":
                     SKILL_ELEMENTS[sid] = book["element"]
+        for sid, (name, effect, description) in ENEMY_SKILL_FALLBACKS.items():
+            if sid not in self.skills:
+                self.skills[sid] = {
+                    "id": sid,
+                    "name": name,
+                    "description": description,
+                    "effect": effect,
+                    "type": "enemy_skill",
+                }
+        for removed_id in REMOVED_ITEM_IDS:
+            self.item_rules.pop(removed_id, None)
+        SKILL_ELEMENTS.update(_build_skill_elements(self.skills))
+        for sid, skill in self.skills.items():
+            skill["id"] = sid
+            skill["mastery"] = build_skill_mastery(
+                skill, SKILL_ELEMENTS.get(sid, "无")
+            )
         self.realms: List[Dict[str, Any]] = data["realms"]
         self.active_encounter: Optional[Dict[str, Any]] = None
         self.active_exploration: Optional[Dict[str, Any]] = None
@@ -1117,6 +1200,7 @@ class GameEngine:
                 "relationships": {},
                 "relationship_triggers": [],
                 "active_statuses": [],
+                "timed_statuses": {},
                 "current_event": self.start_event,
                 "last_map": "map_wutan",
                 "adventure_points": 0,
@@ -1187,7 +1271,9 @@ class GameEngine:
             inventory = player.get("inventory", {})
             if isinstance(inventory, dict):
                 player["items"] = [
-                    item_id for item_id, count in inventory.items() if int(count) > 0
+                    item_id
+                    for item_id, count in inventory.items()
+                    for _ in range(max(0, int(count)))
                 ]
             else:
                 player["items"] = []
@@ -1201,17 +1287,36 @@ class GameEngine:
         player.setdefault("relationships", {})
         player.setdefault("relationship_triggers", [])
         player.setdefault("active_statuses", [])
+        player.setdefault("timed_statuses", {})
         player.setdefault("last_map", "map_wutan")
         player.setdefault("adventure_points", 0)
         player.setdefault("equipped", {"weapon": None, "armor": None, "accessory": None})
         player.setdefault("equipped_technique", None)
         player.setdefault("known_techniques", [])
+        player.setdefault("equipped_flame", None)
+        player.setdefault("collected_flames", [])
+        player.setdefault("equipped_storage_rings", [])
+        player.setdefault("defeated_enemies", {})
+        player.setdefault("skill_levels", {})
+        player.setdefault("second_technique", None)
+        player.setdefault("fixed_technique", None)  # FenJue
+        player.setdefault("fen_jue_level", 0)
+        player.setdefault("attr_points", 0)
+        player.setdefault("skill_points", 0)
         player.setdefault("alchemy_grade", 1)
         player.setdefault("alchemy_sub", 0)
         player.setdefault("alchemy_exp", 0)
         player.setdefault("known_recipes", ["recipe_1","recipe_2","recipe_4","recipe_5","recipe_6"])
         player.setdefault("equipped_furnace", None)
         player.setdefault("furnace_uses", {})
+        player["items"] = [
+            item_id for item_id in player.get("items", [])
+            if item_id not in REMOVED_ITEM_IDS
+        ]
+        player["storage_overflow"] = [
+            item_id for item_id in player.get("storage_overflow", [])
+            if item_id not in REMOVED_ITEM_IDS
+        ]
         player.setdefault("reverse_progress", {})
         player.setdefault("inventory_capacity", BASE_INVENTORY_CAPACITY)
         player.setdefault("storage_overflow", [])
@@ -1254,7 +1359,7 @@ class GameEngine:
                 else ""
             )
         player.setdefault("story_substage", 0)
-        player.setdefault("known_skills", ["skill_bajibang", "skill_flame_mantra"])
+        player.setdefault("known_skills", [])  # Learned through story
         player.setdefault("day", 1)
         player.setdefault("time_period", 0)
         player.setdefault("completed_schedule_nodes", [])
@@ -1396,6 +1501,9 @@ class GameEngine:
             return True
         if token.startswith("item:"):
             return token[5:] in self.player.get("items", [])
+        # stamina system removed, always pass stamina conditions
+        if token.startswith("stamina"):
+            return True
         if token.startswith("flag:"):
             name, expected = token[5:].split("=", 1)
             actual = 1 if name in self.player.get("flags", []) else 0
@@ -1551,7 +1659,10 @@ class GameEngine:
             if attribute_id in ("silver", "gold"):
                 continue  # 货币已迁移到wallet系统
             value = int(player.get(attribute_id, rule["initial"]))
-            player[attribute_id] = max(rule["min"], min(rule["max"], value))
+            maximum = rule["max"]
+            if attribute_id == "douqi" and player is getattr(self, "player", None):
+                maximum = self.effective_max_douqi()
+            player[attribute_id] = max(rule["min"], min(maximum, value))
 
     def _progress_rule(self, level: int) -> Optional[Dict[str, Any]]:
         for rule in self.level_progression:
@@ -1559,9 +1670,333 @@ class GameEngine:
                 return rule
         return None
 
+
+    SKILL_LV_THRESHOLDS = {1: 0, 2: 10, 3: 30, 4: 60, 5: 100}
+    SKILL_LV_MULT = {1: 1.0, 2: 1.12, 3: 1.30, 4: 1.50, 5: 1.75}
+    SKILL_LV_CRIT = {1: 0, 2: 2, 3: 5, 4: 8, 5: 12}
+    SKILL_LV_NAMES = {1: "Beginner", 2: "Skilled", 3: "Expert", 4: "Master", 5: "Grandmaster"}
+    FEN_JUE_ID = "tech_火_焚天诀"
+
+    def _record_skill_use(self, skill_id: str) -> None:
+        if not skill_id:
+            return
+        sl = self.player.setdefault("skill_levels", {})
+        entry = sl.setdefault(skill_id, {"level": 1, "uses": 0})
+        entry["uses"] = entry.get("uses", 0) + 1
+        new_lv = entry["level"]
+        for lv in [2, 3, 4, 5]:
+            if entry["uses"] >= self.SKILL_LV_THRESHOLDS[lv]:
+                new_lv = lv
+        if new_lv > entry["level"]:
+            entry["level"] = new_lv
+            skill = self.skills.get(skill_id, {})
+            self.last_special = (
+                f"Skill [{skill.get('name', skill_id)}] leveled up to "
+                f"{self.SKILL_LV_NAMES[new_lv]} (Lv{new_lv})!"
+            )
+
+    def _skill_level_bonus(self, skill_id: str) -> tuple:
+        if not skill_id:
+            return (1.0, 0, 1)
+        sl = self.player.get("skill_levels", {})
+        entry = sl.get(skill_id, {"level": 1, "uses": 0})
+        lv = entry.get("level", 1)
+        return (self.SKILL_LV_MULT.get(lv, 1.0),
+                self.SKILL_LV_CRIT.get(lv, 0), lv)
+
+    def add_timed_status(
+        self, status_id: str, value: int, turns: int, name: str = ""
+    ) -> None:
+        """添加或刷新统一持续状态。"""
+        statuses = self.player.setdefault("timed_statuses", {})
+        current = statuses.get(status_id, {})
+        statuses[status_id] = {
+            "value": max(int(value), int(current.get("value", 0))),
+            "turns": max(int(turns), int(current.get("turns", 0))),
+            "name": name or current.get("name", status_id),
+        }
+
+    def timed_status_value(self, status_id: str) -> int:
+        status = self.player.get("timed_statuses", {}).get(status_id, {})
+        return int(status.get("value", 0)) if int(status.get("turns", 0)) > 0 else 0
+
+    def _tick_timed_statuses(self) -> List[str]:
+        """在玩家回合开始时结算回复并推进持续回合。"""
+        statuses = self.player.setdefault("timed_statuses", {})
+        logs: List[str] = []
+        hp_regen = self.timed_status_value("hp_regen")
+        douqi_regen = self.timed_status_value("douqi_regen")
+        if hp_regen:
+            before = self.player["hp"]
+            self.player["hp"] = min(self.effective_max_hp(), before + hp_regen)
+            if self.player["hp"] > before:
+                logs.append(f"持续恢复生命 {self.player['hp'] - before}")
+        if douqi_regen:
+            before = self.player["douqi"]
+            self.player["douqi"] = min(self.effective_max_douqi(), before + douqi_regen)
+            if self.player["douqi"] > before:
+                logs.append(f"持续恢复斗气 {self.player['douqi'] - before}")
+        expired = []
+        for status_id, status in statuses.items():
+            status["turns"] = int(status.get("turns", 0)) - 1
+            if status["turns"] <= 0:
+                expired.append(status_id)
+        for status_id in expired:
+            status = statuses.pop(status_id)
+            logs.append(f"{status.get('name', status_id)}效果结束")
+        return logs
+
+    def timed_status_text(self) -> str:
+        statuses = self.player.get("timed_statuses", {})
+        return "、".join(
+            f"{status.get('name', status_id)}({status.get('turns', 0)}回合)"
+            for status_id, status in statuses.items()
+            if int(status.get("turns", 0)) > 0
+        ) or "无"
+
+    def _apply_timed_item_effect(self, effect: str) -> List[str]:
+        """将物品 DSL 转换为统一持续状态。"""
+        logs: List[str] = []
+        match = re.fullmatch(r"(hp_regen|douqi_regen):(\d+),(\d+)", effect)
+        if match:
+            status_id, value, turns = match.groups()
+            name = "生命持续恢复" if status_id == "hp_regen" else "斗气持续恢复"
+            self.add_timed_status(status_id, int(value), int(turns), name)
+            return [f"获得{name}，持续{turns}回合"]
+        match = re.fullmatch(r"element_boost:(\w+)", effect)
+        if match:
+            element = ELEMENT_ITEM_NAMES.get(match.group(1), match.group(1))
+            self.add_timed_status(f"element_power_{element}", 30, 5, f"{element}属性强化")
+            return [f"{element}属性伤害提高30%，持续5回合"]
+        match = re.fullmatch(r"(thorns|lifesteal):(\d+)", effect)
+        if match:
+            status_id, value = match.groups()
+            name = "反伤" if status_id == "thorns" else "吸血"
+            self.add_timed_status(status_id, int(value), 5, name)
+            return [f"获得{name}{value}%，持续5回合"]
+        match = re.fullmatch(r"resist:(\w+)", effect)
+        if match:
+            element = ELEMENT_ITEM_NAMES.get(match.group(1), match.group(1))
+            self.add_timed_status(f"resist_{element}", 30, 5, f"{element}属性抗性")
+            return [f"{element}属性抗性提高30%，持续5回合"]
+        if effect == "temp_buff:all":
+            for status_id in ("atk_pct", "def_pct", "spd_pct"):
+                self.add_timed_status(status_id, 10, 5, "祝福")
+            return ["攻击、防御、速度提高10%，持续5回合"]
+        return logs
+
+    def skill_mastery_text(self, skill_id: str) -> str:
+        """返回技能的 Lv3/Lv5 强化说明，供各 UI 统一展示。"""
+        skill = self.skills.get(skill_id, {})
+        parts = []
+        for level in (3, 5):
+            data = skill.get("mastery", {}).get(level, {})
+            if data:
+                parts.append(f"Lv{level}【{data['name']}】{data['description']}")
+        return "；".join(parts)
+
+    def _apply_skill_mastery_before_damage(
+        self, skill: Dict[str, Any], level: int, multiplier: float, enemy_def: int
+    ) -> Tuple[float, int, int, float]:
+        """应用伤害结算前的技能里程碑，返回倍率、防御、额外暴击率、暴伤。"""
+        element = SKILL_ELEMENTS.get(skill.get("id", ""), "无")
+        crit_bonus = 0
+        crit_mult = 2.0
+        if level >= 3:
+            if element == "雷":
+                enemy_def = int(enemy_def * 0.85)
+            elif element == "无":
+                multiplier *= 1.10
+        if level >= 5:
+            if element == "火":
+                multiplier *= 1.25
+            elif element == "雷":
+                multiplier *= 1.20
+            elif element == "风":
+                multiplier *= 1.15
+            elif element == "土":
+                enemy_def = int(enemy_def * 0.70)
+            elif element == "毒" and self.combat:
+                multiplier *= 1.0 + self.combat.get("poison", 0) * 0.08
+            elif element == "无":
+                crit_bonus += 25
+                crit_mult = 2.5
+        return multiplier, enemy_def, crit_bonus, crit_mult
+
+    def _apply_skill_mastery_after_damage(
+        self, skill: Dict[str, Any], level: int, cost: int, actual_damage: int
+    ) -> List[str]:
+        """应用命中后的技能里程碑效果。"""
+        if self.combat is None or level < 3:
+            return []
+        combat = self.combat
+        element = SKILL_ELEMENTS.get(skill.get("id", ""), "无")
+        logs: List[str] = []
+        if element == "火":
+            combat["burn"] = max(combat.get("burn", 0), 2)
+            combat["burn_dmg"] = max(1, self._skill_attack_bonus(skill.get("effect", "")) // 5)
+            logs.append("Lv3【余烬】目标陷入灼烧")
+        elif element == "冰":
+            combat["debuff_spd"] = max(
+                combat.get("debuff_spd", 0), max(1, int(combat["spd"] * 0.20))
+            )
+            combat["debuff_spd_turns"] = max(combat.get("debuff_spd_turns", 0), 2)
+            logs.append("Lv3【寒侵】敌人速度降低")
+        elif element == "风":
+            refund = max(1, cost // 5)
+            self.player["douqi"] = min(
+                self.effective_max_douqi(), self.player["douqi"] + refund
+            )
+            combat["combo"] = combat.get("combo", 0) + 1
+            logs.append(f"Lv3【回风】返还{refund}斗气并增加连击")
+        elif element == "木":
+            heal = max(1, self.effective_max_hp() * 5 // 100)
+            self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + heal)
+            logs.append(f"Lv3【生息】恢复{heal}生命")
+        elif element == "土":
+            shield = max(1, self.effective_max_hp() * 8 // 100)
+            combat["player_shield"] = combat.get("player_shield", 0) + shield
+            logs.append(f"Lv3【岩甲】获得{shield}护盾")
+        elif element == "毒":
+            combat["poison"] = min(7, combat.get("poison", 0) + 1)
+            logs.append("Lv3【蚀骨】额外施加1层中毒")
+
+        if level >= 5:
+            if element == "火" and combat.get("burn", 0):
+                burst = combat.get("burn_dmg", 1) * combat.get("burn", 0)
+                combat["hp"] = max(0, combat["hp"] - burst)
+                combat["burn"] = 0
+                logs.append(f"Lv5【焚灭】引爆灼烧，额外造成{burst}伤害")
+            elif element in ("冰", "雷") and random.randint(1, 100) <= (25 if element == "冰" else 20):
+                combat["stunned"] = combat.get("stunned", 0) + 1
+                logs.append("Lv5里程碑触发，敌人下一次行动被封锁")
+            elif element == "风":
+                combat["player_gauge"] = combat.get("player_gauge", 0) + GAUGE_MAX // 2
+                logs.append("Lv5【无影】行动条推进50%")
+            elif element == "木":
+                heal = max(1, actual_damage // 5)
+                self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + heal)
+                logs.append(f"Lv5【共生】吸取{heal}生命")
+            elif element == "土":
+                combat["def"] = max(0, int(combat["def"] * 0.90))
+                logs.append("Lv5【山崩】敌人防御降低10%")
+        return logs
+
+    def _apply_utility_skill_effect(self, skill: Dict[str, Any], level: int) -> List[str]:
+        """执行辅助斗技效果；Lv3/Lv5分别提高25%/50%。"""
+        if self.combat is None or "atk:+" in skill.get("effect", ""):
+            return []
+        combat = self.combat
+        scale = 1.5 if level >= 5 else 1.25 if level >= 3 else 1.0
+        scale *= 1.0 + self._technique_effect_value("heal_bonus") / 100.0
+        logs: List[str] = []
+        debuff = re.search(r"debuff:(atk|def|spd),(\d+)", skill.get("effect", ""))
+        if debuff:
+            stat, raw_amount = debuff.groups()
+            amount = int(int(raw_amount) * scale)
+            if stat == "def":
+                combat["def"] = max(0, int(combat["def"] * (1 - amount / 100)))
+            elif stat == "spd":
+                combat["debuff_spd"] = max(
+                    combat.get("debuff_spd", 0), int(combat["spd"] * amount / 100)
+                )
+            else:
+                combat["atk"] = max(1, int(combat["atk"] * (1 - amount / 100)))
+            logs.append(f"敌人{stat}降低{amount}%")
+        for token in skill.get("effect", "").split(","):
+            parts = token.split(":")
+            kind = parts[0]
+            raw = parts[1].split(",")[0] if len(parts) > 1 else ""
+            value = int(float(raw) * scale) if raw.isdigit() else 0
+            if kind == "heal":
+                self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + value)
+                logs.append(f"斗技恢复{value}生命")
+            elif kind == "douqi_restore":
+                self.player["douqi"] = min(
+                    self.effective_max_douqi(), self.player["douqi"] + value
+                )
+                logs.append(f"斗技恢复{value}斗气")
+            elif kind == "shield":
+                combat["player_shield"] = combat.get("player_shield", 0) + value
+                logs.append(f"斗技生成{value}护盾")
+            elif kind == "hp_drain":
+                dealt = min(value, combat["hp"])
+                combat["hp"] -= dealt
+                self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + dealt)
+                logs.append(f"吸取敌人{dealt}生命")
+            elif kind == "douqi_drain":
+                combat["hp"] = max(0, combat["hp"] - value)
+                logs.append(f"扰乱斗气造成{value}伤害")
+            elif kind == "extra_turn":
+                combat["player_gauge"] = combat.get("player_gauge", 0) + GAUGE_MAX
+                logs.append("获得额外行动")
+            elif kind in ("seal", "cleanse", "cure_poison", "cure_mental"):
+                if kind == "seal":
+                    combat["stunned"] = combat.get("stunned", 0) + 1
+                    logs.append("敌人被封印一次行动")
+                else:
+                    logs.append("负面状态已被净化")
+        if level >= 5:
+            combat["player_gauge"] = combat.get("player_gauge", 0) + GAUGE_MAX // 2
+            logs.append("Lv5【圆满之境】行动条推进50%")
+        return logs
+
+    # ── Dual Technique Slots ─────────────────────────────────
+
+    def equip_technique(self, tech_id: str, slot: int = 0) -> bool:
+        """slot 0=auto: FenJue→fixed, other→second. slot 1=fixed, 2=second."""
+        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tech_id), None)
+        if tech is None:
+            self.last_message = "Technique not found."
+            return False
+        if tech_id not in self.player.get("known_techniques", []):
+            self.player.setdefault("known_techniques", []).append(tech_id)
+        if tech_id == self.FEN_JUE_ID:
+            self.player["fixed_technique"] = tech_id
+            self.player["equipped_technique"] = tech_id
+            self.last_message = f"Fixed technique: {tech['name']} ({tech['element']})"
+            return True
+        old = self.player.get("second_technique")
+        self.player["second_technique"] = tech_id
+        self.last_message = f"Equipped: {tech['name']} ({tech['element']})"
+        if old:
+            old_t = next((t for t in TECHNIQUE_DATA if t["id"] == old), {})
+            self.last_message += f" (replaced {old_t.get('name', old)})"
+        return True
+
+    def unequip_technique(self) -> bool:
+        tid = self.player.get("second_technique")
+        if not tid:
+            self.last_message = "No second technique equipped."
+            return False
+        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), {})
+        self.player["second_technique"] = None
+        self.last_message = f"Unequipped: {tech.get('name', tid)}"
+        return True
+
+    def upgrade_fen_jue(self) -> bool:
+        fid = self.player.get("equipped_flame")
+        if not fid:
+            self.last_message = "Need an equipped flame to upgrade FenJue."
+            return False
+        if self.player.get("fixed_technique") != self.FEN_JUE_ID:
+            self.last_message = "Need FenJue equipped first."
+            return False
+        flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == fid), None)
+        if not flame:
+            return False
+        self.player["equipped_flame"] = None
+        fj = self.player.get("fen_jue_level", 0) + 1
+        self.player["fen_jue_level"] = min(10, fj)
+        self.last_message = (
+            f"FenJue absorbed {flame['name']}! Now at layer {self.player['fen_jue_level']}."
+        )
+        return True
+
     def _exp_for_progress(self, level: int) -> int:
-        rule = self._progress_rule(level)
-        return rule["progress_exp"] if rule else 999999
+        """EXP per decile of progress. Total per level = return * 10.
+        Uses level^2/2 for smooth scaling: Lv1=10, Lv50=12500, Lv90=40500 total."""
+        return max(1, level * level // 2)
 
     def _is_realm_boundary(self, level: int) -> bool:
         return level in REALM_BOUNDARY_LEVELS
@@ -1584,9 +2019,13 @@ class GameEngine:
             return max(50, int((80 - level * 0.78) * 100))
 
     def _apply_level_gains(self, level: int, player: Optional[Dict[str, Any]] = None) -> List[str]:
-        """应用升级时的属性增益。"""
+        """应用升级时的属性增益 + 属性点 + 技能点。"""
         player = player if player is not None else self.player
         logs: List[str] = []
+        # 每级固定获得 10 属性点 + 5 技能点（不受 Excel 规则影响）
+        player["attr_points"] = player.get("attr_points", 0) + 10
+        player["skill_points"] = player.get("skill_points", 0) + 5
+        logs.append(f"获得 10 属性点、5 技能点（累计属性 {player['attr_points']}，技能 {player['skill_points']}）")
         rule = self._progress_rule(level)
         if rule is None:
             return logs
@@ -1600,6 +2039,49 @@ class GameEngine:
             player["known_skills"].append(skill_id)
             logs.append(f"领悟斗技：{self.skills[skill_id]['name']}")
         return logs
+
+    def allocate_attr_point(self, stat: str) -> bool:
+        """分配 1 属性点到 ATK/DEF/HP/SPD。"""
+        valid = {"atk": "atk", "def": "def", "hp": "max_hp", "spd": "spd"}
+        if stat not in valid:
+            self.last_message = f"无效属性：{stat}。可选：atk/def/hp/spd"
+            return False
+        if self.player.get("attr_points", 0) <= 0:
+            self.last_message = "没有可用的属性点。"
+            return False
+        self.player["attr_points"] -= 1
+        key = valid[stat]
+        self.player[key] = self.player.get(key, 0) + 1
+        if stat == "hp":
+            self.player["hp"] = self.player.get("hp", 0) + 1
+        name_map = {"atk": "攻击", "def": "防御", "hp": "生命", "spd": "速度"}
+        self.last_message = f"{name_map[stat]}+1（剩余属性点 {self.player['attr_points']}）"
+        return True
+
+    def upgrade_skill_with_point(self, skill_id: str) -> bool:
+        """消耗 1 技能点提升技能等级（跳过使用次数限制）。"""
+        if self.player.get("skill_points", 0) <= 0:
+            self.last_message = "没有可用的技能点。"
+            return False
+        skill = self.skills.get(skill_id)
+        if skill is None:
+            self.last_message = "未习得该技能。"
+            return False
+        self.player["skill_points"] -= 1
+        sl = self.player.setdefault("skill_levels", {})
+        entry = sl.setdefault(skill_id, {"level": 1, "uses": 0})
+        if entry["level"] >= 5:
+            self.last_message = f"{skill['name']} 已达最高等级。"
+            self.player["skill_points"] += 1  # refund
+            return False
+        entry["level"] += 1
+        entry["uses"] = self.SKILL_LV_THRESHOLDS[entry["level"]]
+        lv_name = self.SKILL_LV_NAMES[entry["level"]]
+        self.last_message = (
+            f"{skill['name']} 提升至 {lv_name}（Lv{entry['level']}）！"
+            f"（剩余技能点 {self.player['skill_points']}）"
+        )
+        return True
 
     def breakthrough(self) -> bool:
         """尝试突破到下一等级。返回是否成功。"""
@@ -1813,9 +2295,11 @@ class GameEngine:
                 return
 
     def advance_time(self, periods: int = 1) -> None:
-        absolute = self._absolute_time() + max(0, periods)
+        elapsed = max(0, periods)
+        absolute = self._absolute_time() + elapsed
         self.player["day"] = absolute // len(TIME_PERIODS) + 1
         self.player["time_period"] = absolute % len(TIME_PERIODS)
+        self._advance_auction_time(elapsed)
         self._check_schedule_nodes()
 
     def resolve_schedule_node(self) -> bool:
@@ -1921,19 +2405,14 @@ class GameEngine:
             self.last_message = "此处危机四伏，不宜休息。请前往城镇、客栈或据点等安全区域。"
             return False
         self.player["hp"] = self.player["max_hp"]
-        self.player["stamina"] = self.attribute_rules["stamina"]["initial"]
         periods = len(TIME_PERIODS) - int(self.player["time_period"])
         self.advance_time(periods)
-        self.last_message = f"你休整到{self.time_text()}，生命与体力已经恢复。"
+        self.last_message = f"你休整到{self.time_text()}，生命已经恢复。"
         return True
 
     def cultivate(self) -> bool:
         if not self._can_take_free_action():
             return False
-        if self.player["stamina"] < 10:
-            self.last_message = "体力不足，先休息再修炼。"
-            return False
-        self.player["stamina"] -= 10
         soul_gain = 2 if self.is_night() else 1
         self.player["adventure_points"] += 1
         if "ring_awakened" not in self.player["flags"]:
@@ -1947,6 +2426,97 @@ class GameEngine:
         if logs:
             self.last_message += "；" + "；".join(logs)
         return True
+
+
+    # ── 野外遇敌辅助方法 ─────────────────────────────────────
+
+    def _current_period(self) -> int:
+        """Current period index for cooldown tracking."""
+        return int(self.player.get("day", 1)) * 4 + int(self.player.get("time_period", 0))
+
+    def _is_story_enemy(self, enemy_id: str) -> bool:
+        """Story enemies (boss/final_boss/rival/with win_next) never spawn in wild."""
+        enemy = self.enemies.get(enemy_id, {})
+        etype = enemy.get("type", "mob")
+        if etype in ("boss", "final_boss", "rival"):
+            return True
+        if enemy.get("win_next") or enemy.get("lose_next"):
+            return True
+        if not enemy.get("can_kill", True):
+            return True
+        return False
+
+    def _is_beast_enemy(self, enemy_id: str) -> bool:
+        """Beast enemies drop materials only, no currency."""
+        enemy = self.enemies.get(enemy_id, {})
+        name = enemy.get("name", "")
+        eid_lower = enemy_id.lower()
+        return any(kw in name.lower() or kw in eid_lower for kw in BEAST_NAME_KEYWORDS)
+
+    def _spawn_wild_enemy(self, map_level: int) -> Optional[Dict[str, Any]]:
+        """Select a random wild enemy matching the map level."""
+        current = self._current_period()
+        candidates = []
+        weights = []
+
+        for eid, enemy in self.enemies.items():
+            if self._is_story_enemy(eid):
+                continue
+            etype = enemy.get("type", "mob")
+            if etype not in ("mob", "elite"):
+                continue
+            elv = int(enemy.get("level", 1))
+            if abs(elv - map_level) > 5:
+                continue
+            last_defeat = self.player.get("defeated_enemies", {}).get(eid, -999)
+            if current - last_defeat < RESPAWN_COOLDOWN_PERIODS:
+                continue
+            candidates.append(enemy)
+            weights.append(WILD_ELITE_WEIGHT if etype == "elite" else WILD_MOB_WEIGHT)
+
+        if not candidates:
+            return None
+        total_w = max(1, sum(weights))
+        weights = [w / total_w for w in weights]
+        return random.choices(candidates, weights=weights, k=1)[0]
+
+    def _random_beast_loot(self, enemy_level: int, count: int = 1,
+                            tier_shift: int = 0, enemy_type: str = "mob") -> List[str]:
+        """Beast loot: materials only, no equipment/currency. Respects tier_shift."""
+        tier = self._tier_for_level(enemy_level)
+        all_tiers = self.ALL_TIERS
+        tier_idx = all_tiers.index(tier) if tier in all_tiers else 0
+
+        results = []
+        for _ in range(count):
+            if tier_shift >= 3:
+                use_idx = min(len(all_tiers) - 1, tier_idx + 2)
+            elif tier_shift >= 1:
+                use_idx = min(len(all_tiers) - 1, tier_idx + 1) if random.random() < 0.10 else tier_idx
+            else:
+                use_idx = min(len(all_tiers) - 1, tier_idx + 1) if random.random() < 0.10 else tier_idx
+            use_tier = all_tiers[use_idx]
+            pool = LOOT_TABLE.get(use_tier, LOOT_TABLE.get(tier, []))
+            mat_ids, mat_weights = [], []
+            for pid, weight in pool:
+                rule = self.item_rules.get(pid, {})
+                itype = rule.get("type", "")
+                if itype in ("material", "consumable") and not pid.startswith("eq_"):
+                    mat_ids.append(pid)
+                    mat_weights.append(weight)
+            if not mat_ids:
+                continue
+            total_w = max(1, sum(mat_weights))
+            r = random.randint(1, total_w)
+            cum = 0
+            for i, w in enumerate(mat_weights):
+                cum += w
+                if r <= cum:
+                    results.append(mat_ids[i])
+                    break
+        return results
+
+    # ── 原有方法 ─────────────────────────────────────────────
 
     def exploration_actions(self) -> List[Dict[str, Any]]:
         map_rule = self.current_map()
@@ -1994,19 +2564,7 @@ class GameEngine:
             self.last_message = "没有这种探索方式。"
             return None
         map_rule = self.current_map()
-        night_cost = 2 if self.is_night() else 0
-        cost = max(
-            1,
-            int(map_rule["stamina_cost"]) + night_cost + int(action["cost_modifier"]),
-        )
-        if self.player["stamina"] < cost:
-            self.last_message = (
-                f"体力不足，无法进行“{action['name']}”。"
-                f"需要 {cost} 点体力，当前只有 {self.player['stamina']} 点。"
-            )
-            return None
-        self.player["stamina"] -= cost
-        action_logs = [f"体力 -{cost}"]
+        action_logs = []
         if action_id == "scout":
             action_logs.extend(self.apply_effects("soul:+1"))
         elif action_id == "gather":
@@ -2021,7 +2579,7 @@ class GameEngine:
         self.active_exploration = {
             "action_id": action_id,
             "action_name": action["name"],
-            "cost": cost,
+            "cost": 0,
             "logs": action_logs,
         }
         candidates = [
@@ -2151,6 +2709,8 @@ class GameEngine:
             "combo": 0,
             "charged": False,
             "charge_used": False,
+            "player_gauge": 0,
+            "enemy_gauge": 0,
         }
         self.last_message = "陪练弟子摆开架势，回合战斗开始。"
         return True
@@ -2162,12 +2722,42 @@ class GameEngine:
             return False
         level = int(self.player["level"])
         enemy_level = max(level, min(enemy["level"], level + 4))
-        # 敌人属性钳制——保证各等级段 TTK 在 3-12 回合
-        hp = max(30, min(enemy["hp"], 25 + enemy_level * 12))
-        atk_c = max(4, min(enemy["atk"], 5 + enemy_level * 2))
-        def_c = max(1, min(enemy["def"], 1 + enemy_level))
-        spd_c = max(3, min(enemy["spd"], 4 + enemy_level))
-        exp_c = max(8, min(enemy["exp_reward"], 10 + enemy_level * 5))
+        # Player-relative clamp: ensures TTK 3~15 while preserving type scaling
+        p_atk = max(10, int(self.player.get("atk", 10)))
+        p_def = max(3, int(self.player.get("def", 5)))
+        p_spd = max(5, int(self.player.get("spd", 8)))
+
+        tm = {"mob": 1.0, "elite": 1.5, "boss": 2.2, "final_boss": 3.5, "rival": 1.4}
+        t = tm.get(enemy.get("type", "mob"), 1.0)
+
+        raw_hp = enemy.get("hp", 30)
+        raw_atk = enemy.get("atk", 4)
+        raw_def = enemy.get("def", 1)
+        raw_spd = enemy.get("spd", 3)
+        raw_exp = enemy.get("exp_reward", 8)
+
+        # ATK: raw with cap so player survives 2+ hits (final_boss 1-hit KO acceptable)
+        atk_lo = max(4, int(p_def * 0.2 * t))
+        atk_hi = int(p_def * 1.5 * t)
+        atk_c = max(atk_lo, min(raw_atk, atk_hi))
+
+        # DEF: raw with cap so player always deals 30%+ ATK as damage
+        def_lo = max(1, int(p_atk * 0.03 * t))
+        def_hi = int(p_atk * 0.65)
+        def_c = max(def_lo, min(raw_def, def_hi))
+
+        # HP: after boss ×3 / final_boss ×5 post-multiplier, target TTK 4-15
+        # Use smaller base since HP multipliers apply after clamp
+        hp_lo = max(30, int(p_atk * 2))
+        hp_hi = int(p_atk * 4 * t)
+        hp = max(hp_lo, min(raw_hp, hp_hi))
+
+        # SPD: player-relative
+        spd_lo = max(3, int(p_spd * 0.3))
+        spd_hi = int(p_spd * 1.0 * t)
+        spd_c = max(spd_lo, min(raw_spd, spd_hi))
+
+        exp_c = max(8, raw_exp)
         # Boss/精英额外 HP 倍率
         if enemy["type"] == "final_boss":
             hp = hp * 5
@@ -2209,6 +2799,8 @@ class GameEngine:
             "combo": 0,
             "charged": False,
             "charge_used": False,
+            "player_gauge": 0,
+            "enemy_gauge": 0,
         }
         self.combat_is_training = False
         self.last_message = (
@@ -2229,10 +2821,17 @@ class GameEngine:
         poison = c.get("poison", 0)
         poison_line = f"  中毒：{poison}层(-{c.get('poison_dmg', 0)}/回)" if poison > 0 else ""
         shield = " [护盾已破]" if c.get("shield_broken") else ""
+        p_gauge = c.get("player_gauge", 0)
+        e_gauge = c.get("enemy_gauge", 0)
+        p_spd = self.effective_spd()
+        e_spd = int(c.get("spd", 5))
+        p_pct = p_gauge * 100 // GAUGE_MAX
+        e_pct = e_gauge * 100 // GAUGE_MAX
         return (
             f"第{c['round']}回合｜{c['name']}{shield}（{c.get('element', '?')}属性）\n"
-            f"生命 {c['hp']}/{c['max_hp']}\n"
+            f"生命 {c['hp']}/{c['max_hp']}  行动条 {e_gauge}/{GAUGE_MAX}({e_pct}%)（SPD:{e_spd}）\n"
             f"{self.player['name']} 生命 {self.player['hp']}｜斗气 {self.player['douqi']}"
+            f"  行动条 {p_gauge}/{GAUGE_MAX}({p_pct}%)（SPD:{p_spd}）"
             f"{intent_line}{combo_line}{poison_line}"
         )
 
@@ -2301,7 +2900,13 @@ class GameEngine:
         return 0
 
     def _skill_cost(self, skill: Dict[str, Any]) -> int:
-        return max(2, 2 + self._skill_attack_bonus(skill["effect"]) // 15)
+        cost = max(2, 2 + self._skill_attack_bonus(skill["effect"]) // 15)
+        level = self._skill_level_bonus(skill.get("id", ""))[2]
+        if level >= 3 and "atk:+" not in skill.get("effect", ""):
+            cost = max(1, cost * 3 // 4)
+        elif level >= 3 and SKILL_ELEMENTS.get(skill.get("id", ""), "无") == "无":
+            cost = max(1, cost * 4 // 5)
+        return cost
 
     def _estimated_attack_damage(self, bonus: int = 0, multiplier: float = 1.0) -> int:
         if self.combat is None:
@@ -2320,7 +2925,7 @@ class GameEngine:
         missing_hp = max(0, int(self.player["max_hp"]) - int(self.player["hp"]))
         missing_douqi = max(
             0,
-            int(self.attribute_rules["douqi"]["max"]) - int(self.player["douqi"]),
+            self.effective_max_douqi() - int(self.player["douqi"]),
         )
         candidates = []
         for item_id in self.player.get("items", []):
@@ -2395,6 +3000,226 @@ class GameEngine:
         self.last_message = "；".join(log for log in battle_logs if log)
         return result
 
+    def _advance_to_next_action(self) -> str:
+        """推进行动条直到有人能行动。返回 'player' 或 'enemy'。"""
+        if self.combat is None:
+            return "player"
+        player_spd = self.effective_spd()
+        enemy_spd = int(self.combat.get("spd", 5))
+        # 敌人速度受 debuff 影响
+        if self.combat.get("debuff_spd", 0) > 0:
+            enemy_spd = max(1, enemy_spd - self.combat["debuff_spd"])
+
+        for _ in range(1000):  # 安全上限
+            self.combat["player_gauge"] += player_spd
+            self.combat["enemy_gauge"] += enemy_spd
+
+            p_ready = self.combat["player_gauge"] >= GAUGE_MAX
+            e_ready = self.combat["enemy_gauge"] >= GAUGE_MAX
+
+            if p_ready and e_ready:
+                # 同时到达：SPD 高者先动
+                if player_spd >= enemy_spd:
+                    self.combat["player_gauge"] -= GAUGE_MAX
+                    return "player"
+                else:
+                    self.combat["enemy_gauge"] -= GAUGE_MAX
+                    return "enemy"
+
+            if p_ready:
+                self.combat["player_gauge"] -= GAUGE_MAX
+                return "player"
+
+            if e_ready:
+                self.combat["enemy_gauge"] -= GAUGE_MAX
+                return "enemy"
+
+        return "player"  # 安全回退
+
+    def _enemy_action(self) -> List[str]:
+        """执行敌人 AI 行动。返回日志列表。"""
+        combat = self.combat
+        if combat is None:
+            return []
+        logs: List[str] = []
+        enemy_intent = combat.get("intent", "attack")
+        hp_ratio = combat["hp"] / max(1, combat["max_hp"])
+        if combat.get("stunned", 0) > 0:
+            combat["stunned"] -= 1
+            logs.append(f"{combat['name']}被控制，无法行动")
+            return logs
+
+        if enemy_intent == "defend":
+            enemy_damage = max(1, (combat["atk"] - self.effective_def() + random.randint(-2, 3)) // 2)
+            logs.append(f"{combat['name']}转入防守姿态")
+        elif enemy_intent == "skill":
+            enemy_data = self.enemies.get(combat["enemy_id"], {})
+            enemy_skills = enemy_data.get("skills", [])
+            skill_bonus = 0
+            skill_name = "强力斗技"
+            if enemy_skills:
+                chosen = random.choice(enemy_skills)
+                skill_data = self.skills.get(chosen, {})
+                skill_name = skill_data.get("name", chosen)
+                skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
+                if hp_ratio < 0.3 and len(enemy_skills) >= 2:
+                    best = max(enemy_skills, key=lambda s: self._skill_attack_bonus(
+                        self.skills.get(s, {}).get("effect", "")))
+                    skill_data = self.skills.get(best, {})
+                    skill_name = skill_data.get("name", best)
+                    skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
+            enemy_damage = max(
+                1,
+                int(combat["atk"] * 1.3) + skill_bonus - self.effective_def() + random.randint(-1, 5),
+            )
+            logs.append(f"{combat['name']}施展了「{skill_name}」！")
+            combat["combo"] = 0
+        else:
+            enemy_damage = max(1, combat["atk"] - self.effective_def() + random.randint(-2, 3))
+            logs.append(f"{combat['name']}发起攻击")
+        if combat.get("blind", 0) > 0:
+            combat["blind"] -= 1
+            if random.randint(1, 100) <= 50:
+                enemy_damage = 0
+                logs.append(f"{combat['name']}因失明而攻击落空")
+
+        # 玩家闪避判定
+        dodge_rate = (
+            int(self.player.get("dodge_rate", 5))
+            + self._technique_effect_value("dodge_rate")
+            + self.timed_status_value("dodge_rate")
+        )
+        if random.randint(1, 100) <= dodge_rate:
+            enemy_damage = 0
+            logs.append(f"✨ 你灵巧地躲过了{combat['name']}的攻击！")
+        elif combat.get("defending"):
+            enemy_damage = max(1, enemy_damage // 2)
+            logs.append("防御姿态减免了伤害")
+
+        if enemy_damage > 0:
+            resist = self._technique_damage_resistance(combat.get("element", ""))
+            enemy_damage = max(1, int(enemy_damage * max(0.2, 1.0 - resist / 100.0)))
+            shield = combat.get("player_shield", 0)
+            if shield > 0:
+                absorbed = min(shield, enemy_damage)
+                combat["player_shield"] = shield - absorbed
+                enemy_damage -= absorbed
+                logs.append(f"功法护盾吸收{absorbed}伤害")
+            self.player["hp"] = max(0, self.player["hp"] - enemy_damage)
+            logs.append(f"{combat['name']}造成 {enemy_damage} 点伤害")
+            thorns = self._technique_effect_value("thorns")
+            thorns += self._technique_effect_value("thorns_damage")
+            thorns += self.timed_status_value("thorns")
+            if thorns > 0 and enemy_damage > 0:
+                reflected = max(1, enemy_damage * thorns // 100)
+                combat["hp"] = max(0, combat["hp"] - reflected)
+                logs.append(f"功法反震造成{reflected}伤害")
+            if self._technique_effect_value("thorns_poison") > 0 and enemy_damage > 0:
+                combat["poison"] = min(7, combat.get("poison", 0) + 1)
+                combat["poison_dmg"] = max(3, combat.get("poison_dmg", 3))
+                logs.append("功法反震附加中毒")
+        else:
+            logs.append(f"{combat['name']}的攻击落空了！")
+
+        # 更新敌人下回合意图
+        hp_ratio_new = combat["hp"] / max(1, combat["max_hp"])
+        if hp_ratio_new < 0.3:
+            combat["intent"] = random.choice(["attack", "defend", "skill", "skill"])
+        elif hp_ratio_new < 0.6:
+            combat["intent"] = random.choice(["attack", "attack", "defend", "skill"])
+        else:
+            combat["intent"] = random.choice(["attack", "attack", "attack", "defend"])
+
+        return logs
+
+    def combat_usable_items(self) -> List[str]:
+        """返回当前战斗中可直接使用的物品。"""
+        usable = []
+        combat_prefixes = (
+            "hp:+", "douqi:+", "inflict_poison:", "sleep:", "blind:",
+            "freeze:", "paralyze:", "escape:", "shield:", "damage_shield",
+            "hp_regen:", "douqi_regen:", "element_boost:", "thorns:",
+            "lifesteal:", "resist:", "temp_buff:", "auto_revive",
+        )
+        for item_id in self.player.get("items", []):
+            effect = self.item_rules.get(item_id, {}).get("use_effect", "")
+            if effect.startswith(combat_prefixes):
+                usable.append(item_id)
+        return usable
+
+    def _use_combat_item(self, item_id: str) -> Tuple[bool, List[str]]:
+        """在战斗中执行物品效果。"""
+        if self.combat is None or item_id not in self.player.get("items", []):
+            return False, []
+        item = self.item_rules.get(item_id, {})
+        effect = item.get("use_effect", "")
+        logs: List[str] = []
+        hp_gain = self._effect_gain(effect, "hp")
+        douqi_gain = self._effect_gain(effect, "douqi")
+        handled = False
+        if hp_gain > 0:
+            before = self.player["hp"]
+            self.player["hp"] = min(self.effective_max_hp(), before + hp_gain)
+            logs.append(f"恢复 {self.player['hp'] - before} 点生命")
+            handled = True
+        if douqi_gain > 0:
+            before = self.player["douqi"]
+            self.player["douqi"] = min(self.effective_max_douqi(), before + douqi_gain)
+            logs.append(f"恢复 {self.player['douqi'] - before} 点斗气")
+            handled = True
+
+        match = re.match(r"inflict_poison:(\d+),(\d+)", effect)
+        if match:
+            stacks, damage = map(int, match.groups())
+            self.combat["poison"] = min(7, self.combat.get("poison", 0) + stacks)
+            self.combat["poison_dmg"] = max(self.combat.get("poison_dmg", 0), damage)
+            logs.append(f"敌人中毒{stacks}层，每回合受到{damage}伤害")
+            handled = True
+        match = re.match(r"(sleep|freeze|paralyze):(\d+)", effect)
+        if match:
+            status, turns = match.groups()
+            self.combat["stunned"] = self.combat.get("stunned", 0) + int(turns)
+            logs.append(f"敌人陷入{status}，封锁{turns}次行动")
+            handled = True
+        match = re.match(r"blind:(\d+)", effect)
+        if match:
+            turns = int(match.group(1))
+            self.combat["blind"] = max(self.combat.get("blind", 0), turns)
+            logs.append(f"敌人失明{turns}回合")
+            handled = True
+        match = re.match(r"escape:(\d+)", effect)
+        if match:
+            chance = int(match.group(1))
+            if self.combat.get("can_escape") and random.randint(1, 100) <= chance:
+                self.player["items"].remove(item_id)
+                self.combat = None
+                logs.append("成功脱离战斗")
+                return True, logs
+            logs.append("脱离战斗失败")
+            handled = True
+        match = re.match(r"shield:(\d+)", effect)
+        if match:
+            shield = int(match.group(1))
+            self.combat["player_shield"] = self.combat.get("player_shield", 0) + shield
+            logs.append(f"获得{shield}点护盾")
+            handled = True
+        if effect == "damage_shield":
+            self.combat["player_shield"] = self.combat.get("player_shield", 0) + self.effective_max_hp()
+            logs.append("获得可抵挡一次重击的护盾")
+            handled = True
+        timed_logs = self._apply_timed_item_effect(effect)
+        if timed_logs:
+            logs.extend(timed_logs)
+            handled = True
+        if effect == "auto_revive":
+            self.add_timed_status("auto_revive", 1, 99, "重生之羽")
+            logs.append("本场战斗可自动复活一次")
+            handled = True
+        if handled:
+            self.player["items"].remove(item_id)
+            logs.insert(0, f"使用{item.get('name', item_id)}")
+        return handled, logs
+
     def combat_action(self, action: str, skill_id: Optional[str] = None) -> str:
         if self.combat is None:
             return "none"
@@ -2402,6 +3227,8 @@ class GameEngine:
         logs: List[str] = []
         combat["defending"] = False
         soul = int(self.player.get("soul", 0))
+        logs.extend(self._tick_timed_statuses())
+        logs.extend(self._technique_combat_turn_start())
 
         # ── 中毒伤害（回合开始时触发）──
         if combat.get("poison", 0) > 0:
@@ -2412,9 +3239,15 @@ class GameEngine:
             if combat["poison"] <= 0:
                 combat.pop("poison", None)
                 combat.pop("poison_dmg", None)
+        if combat.get("burn", 0) > 0:
+            burn_dmg = combat.get("burn_dmg", 1)
+            combat["hp"] = max(0, combat["hp"] - burn_dmg)
+            combat["burn"] -= 1
+            logs.append(f"灼烧伤害 -{burn_dmg}")
 
         if action == "escape":
             chance = 0.35 + max(0, self.player["spd"] - combat["spd"]) * 0.02
+            chance += self._technique_effect_value("escape_bonus") / 100.0
             if combat["can_escape"] and random.random() < min(0.9, chance):
                 self.combat = None
                 self.advance_time(getattr(self, "combat_time_cost", 0))
@@ -2424,24 +3257,15 @@ class GameEngine:
             combat["combo"] = 0
         elif action == "item":
             item_id = skill_id or "item_elixir"
-            item = self.item_rules.get(item_id, {})
-            hp_gain = self._effect_gain(item.get("use_effect", ""), "hp")
-            douqi_gain = self._effect_gain(item.get("use_effect", ""), "douqi")
-            if item_id not in self.player["items"] or hp_gain <= 0:
-                self.last_message = "背包中没有可用丹药。"
+            used, item_logs = self._use_combat_item(item_id)
+            if not used:
+                self.last_message = "该物品无法在战斗中使用。"
                 return "invalid"
-            self.player["items"].remove(item_id)
-            actual_heal = min(hp_gain, max(0, self.player["max_hp"] - self.player["hp"]))
-            actual_douqi = min(
-                douqi_gain,
-                max(0, self.attribute_rules["douqi"]["max"] - self.player["douqi"]),
-            )
-            self.player["hp"] += actual_heal
-            self.player["douqi"] += actual_douqi
-            self._clamp_player_stats()
-            logs.append(f"你服下{self.item_name(item_id)}，恢复 {actual_heal} 点生命")
-            if actual_douqi:
-                logs.append(f"恢复 {actual_douqi} 点斗气")
+            logs.extend(item_logs)
+            if self.combat is None:
+                self.advance_time(getattr(self, "combat_time_cost", 0))
+                self.last_message = "；".join(logs)
+                return "escaped"
             combat["combo"] = 0
         elif action == "defend":
             combat["defending"] = True
@@ -2454,7 +3278,7 @@ class GameEngine:
             combat["charged"] = True
             combat["combo"] = 0
             self.player["douqi"] = min(
-                self.attribute_rules["douqi"]["max"],
+                self.effective_max_douqi(),
                 self.player["douqi"] + CHARGE_DOUQI_PER_TURN,
             )
             logs.append(f"你凝神蓄力，斗气恢复 {CHARGE_DOUQI_PER_TURN} 点，下一击将威力倍增！")
@@ -2514,7 +3338,14 @@ class GameEngine:
                     return "invalid"
                 self.player["douqi"] -= cost
                 bonus = self._skill_attack_bonus(skill["effect"])
-                multiplier *= 1.25
+                bonus += int(self.effective_atk() * 0.5)
+                # Skill level bonus
+                lv_mult, lv_crit, lv = self._skill_level_bonus(skill["id"])
+                multiplier *= 1.25 * lv_mult
+                self._record_skill_use(skill["id"])
+                logs.extend(self._apply_utility_skill_effect(skill, lv))
+                if lv >= 3:
+                    logs.append(f"Lv{lv} skill! dmg x{lv_mult:.1f}")
                 logs.append(f"你施展了{skill['name']}（{SKILL_ELEMENTS.get(skill['id'], '?')}属性）")
                 finisher_threshold = FINISHER_SKILLS.get(skill["id"])
                 enemy_ratio = combat["hp"] / max(1, combat["max_hp"])
@@ -2524,6 +3355,7 @@ class GameEngine:
 
                 # ── 属性克制判断 ──
                 skill_element = SKILL_ELEMENTS.get(skill["id"], "")
+                multiplier *= self._technique_element_power(skill_element)
                 enemy_weakness = combat.get("weakness", "")
                 if skill_element and skill_element == enemy_weakness:
                     multiplier *= 1.5
@@ -2540,112 +3372,125 @@ class GameEngine:
             if combat.get("shield_broken"):
                 multiplier *= 1.1
 
+            enemy_def = combat["def"]
+            mastery_crit = 0
+            crit_multiplier = 2.0
+            if action == "skill":
+                penetration_key = {
+                    "火": "fire_penetration", "冰": "ice_penetration",
+                    "雷": "thunder_penetration", "风": "wind_penetration",
+                    "木": "wood_penetration", "土": "earth_penetration",
+                    "毒": "poison_penetration",
+                }.get(SKILL_ELEMENTS.get(skill_id or "", ""), "")
+                penetration = self._technique_effect_value(penetration_key)
+                enemy_def = int(enemy_def * max(0.0, 1.0 - penetration / 100.0))
+                multiplier, enemy_def, mastery_crit, crit_multiplier = (
+                    self._apply_skill_mastery_before_damage(
+                        skill, lv, multiplier, enemy_def
+                    )
+                )
             damage = max(
                 1,
                 int((self.effective_atk() + bonus) * multiplier)
-                - combat["def"]
+                - enemy_def
                 + random.randint(-2, 3),
             )
             # 暴击判定
-            crit_rate = int(self.player.get("crit_rate", 5))
+            crit_rate = (
+                int(self.player.get("crit_rate", 5))
+                + self._technique_effect_value("crit_rate")
+                + self.timed_status_value("crit_rate")
+                + (lv_crit if action == "skill" else 0)
+                + mastery_crit
+            )
+            was_crit = False
             if random.randint(1, 100) <= crit_rate:
-                damage = int(damage * 2)
+                was_crit = True
+                damage = int(damage * crit_multiplier)
                 logs.append("💥 暴击！伤害翻倍！")
             actual_damage = min(damage, combat["hp"])
             combat["hp"] = max(0, combat["hp"] - actual_damage)
             logs.append(f"对{combat['name']}造成 {actual_damage} 点伤害")
+            lifesteal = self.timed_status_value("lifesteal")
+            if lifesteal > 0 and actual_damage > 0:
+                healed = max(1, actual_damage * lifesteal // 100)
+                self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + healed)
+                logs.append(f"吸血恢复 {healed} 生命")
+            if action == "skill":
+                logs.extend(
+                    self._apply_skill_mastery_after_damage(
+                        skill, lv, cost, actual_damage
+                    )
+                )
+                logs.extend(
+                    self._apply_technique_skill_procs(
+                        SKILL_ELEMENTS.get(skill_id or "", ""), was_crit
+                    )
+                )
 
             # 中毒判定：毒属性技能命中施加中毒
             if action == "skill":
                 se = SKILL_ELEMENTS.get(skill_id or "", "")
                 if se == "毒":
-                    poison_stacks = combat.get("poison", 0) + 1
-                    combat["poison"] = min(poison_stacks, 5)
-                    combat["poison_dmg"] = 3 + int(self.player.get("poison", 0)) // 10
+                    extra_stacks = max(0, self._technique_effect_value("poison_stacks"))
+                    poison_stacks = combat.get("poison", 0) + 1 + extra_stacks
+                    combat["poison"] = min(poison_stacks, 7 if lv >= 3 else 5)
+                    combat["poison_dmg"] = (
+                        3 + int(self.player.get("poison", 0)) // 10
+                        + self._technique_effect_value("poison_dmg")
+                    )
                     logs.append(f"☠️ 中毒 +{combat['poison_dmg']}/回合 ({combat['poison']}层)")
 
             # 连击递增
             combat["combo"] = combo + 1
 
-        # ── 敌回合：意图预判 ──
+        # ── 胜负判定 ──
         if combat["hp"] <= 0:
             logs.extend(self._finish_combat_win())
             self.last_message = "；".join(logs)
             return "won"
 
+        # ── 灵魂感知：意图预判 ──
         enemy_intent = combat.get("intent", "attack")
         if soul >= 20:
             intent_names = {"attack": "攻击", "defend": "防御", "skill": "斗技", "charge": "蓄力"}
-            logs.append(f"👁️ 灵魂感知：{combat['name']}下回合将[{intent_names.get(enemy_intent, '?')}]")
+            logs.append(f"👁️ 灵魂感知：{combat['name']}意图[{intent_names.get(enemy_intent, '?')}]")
 
-        # 敌执行意图（不影响玩家防御标记）
-        hp_ratio = combat["hp"] / max(1, combat["max_hp"])
-        if enemy_intent == "defend":
-            enemy_damage = max(1, (combat["atk"] - self.effective_def() + random.randint(-2, 3)) // 2)
-        elif enemy_intent == "skill":
-            # 从 Excel 敌人配置中随机选取技能
-            enemy_data = self.enemies.get(combat["enemy_id"], {})
-            enemy_skills = enemy_data.get("skills", [])
-            skill_bonus = 0
-            skill_name = "强力斗技"
-            if enemy_skills:
-                chosen = random.choice(enemy_skills)
-                skill_data = self.skills.get(chosen, {})
-                skill_name = skill_data.get("name", chosen)
-                skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
-                # 低血量可能用更强技能
-                if hp_ratio < 0.3 and len(enemy_skills) >= 2:
-                    best = max(enemy_skills, key=lambda s: self._skill_attack_bonus(
-                        self.skills.get(s, {}).get("effect", "")))
-                    chosen = best
-                    skill_data = self.skills.get(chosen, {})
-                    skill_name = skill_data.get("name", chosen)
-                    skill_bonus = self._skill_attack_bonus(skill_data.get("effect", ""))
-            enemy_damage = max(
-                1,
-                int(combat["atk"] * 1.3) + skill_bonus - self.effective_def() + random.randint(-1, 5),
-            )
-            logs.append(f"{combat['name']}施展了「{skill_name}」！")
-            combat["combo"] = 0
-        else:
-            enemy_damage = max(1, combat["atk"] - self.effective_def() + random.randint(-2, 3))
-
-        # 玩家闪避判定
-        dodge_rate = int(self.player.get("dodge_rate", 5))
-        if random.randint(1, 100) <= dodge_rate:
-            enemy_damage = 0
-            logs.append(f"✨ 你灵巧地躲过了{combat['name']}的攻击！")
-        # 玩家防御减少伤害
-        elif combat.get("defending"):
-            enemy_damage = max(1, enemy_damage // 2)
-
-        if enemy_damage > 0:
-            self.player["hp"] = max(0, self.player["hp"] - enemy_damage)
-            logs.append(f"{combat['name']}反击，造成 {enemy_damage} 点伤害")
-        else:
-            logs.append(f"{combat['name']}的攻击落空了！")
-
-        # 更新敌人下回合意图
-        hp_ratio = combat["hp"] / max(1, combat["max_hp"])
-        if hp_ratio < 0.3:
-            combat["intent"] = random.choice(["attack", "defend", "skill", "skill"])
-        elif hp_ratio < 0.6:
-            combat["intent"] = random.choice(["attack", "attack", "defend", "skill"])
-        else:
-            combat["intent"] = random.choice(["attack", "attack", "attack", "defend"])
-
-        combat["round"] += 1
-        if self.player["hp"] <= 0:
-            self.player["hp"] = max(1, self.attribute_rules["hp"]["initial"] // 3)
-            self.player["stamina"] = 0
-            self.player["last_map"] = "map_wutan"
-            self.combat = None
-            self.advance_time(getattr(self, "combat_time_cost", 0))
-            logs.append("你失去意识，被送回乌坦城休养")
-            self.last_message = "；".join(logs)
-            return "lost"
-        self.last_message = "；".join(logs)
-        return "continue"
+        # ── 行动条：推进直到玩家回合 ──
+        while True:
+            next_actor = self._advance_to_next_action()
+            if next_actor == "enemy":
+                enemy_logs = self._enemy_action()
+                logs.extend(enemy_logs)
+                # 玩家死亡判定
+                if self.player["hp"] <= 0:
+                    if self.timed_status_value("auto_revive") > 0:
+                        self.player["timed_statuses"].pop("auto_revive", None)
+                        self.player["hp"] = max(1, self.effective_max_hp() // 2)
+                        logs.append("重生之羽生效，你恢复了一半生命")
+                        continue
+                    revive_chance = self._technique_effect_value("revive_chance")
+                    if (
+                        revive_chance > 0
+                        and not combat.get("technique_revived")
+                        and random.randint(1, 100) <= revive_chance
+                    ):
+                        combat["technique_revived"] = True
+                        self.player["hp"] = max(1, self.effective_max_hp() // 3)
+                        logs.append("功法护住心脉，你恢复了三分之一生命")
+                        continue
+                    self.player["hp"] = max(1, self.attribute_rules["hp"]["initial"] // 3)
+                    self.player["last_map"] = "map_wutan"
+                    self.combat = None
+                    self.advance_time(getattr(self, "combat_time_cost", 0))
+                    logs.append("你失去意识，被送回乌坦城休养")
+                    self.last_message = "；".join(logs)
+                    return "lost"
+                continue
+            else:  # player
+                combat["round"] += 1
+                self.last_message = "；".join(logs)
+                return "continue"
 
     def _finish_combat_win(self) -> List[str]:
         if self.combat is None:
@@ -2668,9 +3513,28 @@ class GameEngine:
                         logs.append(f"获得{self.item_name(item_id)}")
                     elif parts[0] in self.attribute_rules:
                         logs.extend(self.apply_effects(f"{parts[0]}:+{parts[1]}"))
-        # ── 等级匹配掉落（装备+道具）──
+        # ── 击败追踪 + 掉落等级偏移 + 野兽掉落 ──
+        enemy_id = combat.get("enemy_id", "")
+        if enemy_id and not self._is_story_enemy(enemy_id):
+            self.player["defeated_enemies"][enemy_id] = self._current_period()
+
+        enemy_type = combat.get("type", "mob")
+        if enemy_type in ("boss", "final_boss"):
+            tier_shift = 3  # Boss: always high-tier
+        elif enemy_type == "elite":
+            tier_shift = 1  # Elite: 90% mid, 10% high
+        else:
+            tier_shift = 0  # Mob: mid and below
+
         enemy_level = int(combat.get("level", 1))
-        extra_drops = self._random_loot(enemy_level, count=random.randint(0, 2))
+        if self._is_beast_enemy(enemy_id):
+            extra_drops = self._random_beast_loot(enemy_level, count=random.randint(1, 3),
+                                                   tier_shift=tier_shift,
+                                                   enemy_type=enemy_type)
+        else:
+            extra_drops = self._random_loot(enemy_level, count=random.randint(0, 2),
+                                            tier_shift=tier_shift,
+                                            enemy_type=enemy_type)
         for drop_id in extra_drops:
             if drop_id not in self.player["items"]:
                 self.player["items"].append(drop_id)
@@ -2693,25 +3557,84 @@ class GameEngine:
                 return tid
         return "iron"
 
+    ALL_TIERS = ["iron","refined","spirit","treasure","earth","heaven","mystic","saint","emperor","divine"]
+
+    RARITY_MULTIPLIERS = {
+        "common": 1.0, "uncommon": 1.2, "rare": 1.5,
+        "epic": 1.8, "legendary": 2.2, "mythic": 3.0,
+    }
+    RARITY_BY_TYPE = {
+        "final_boss": {"mythic": 10, "legendary": 25, "epic": 35, "rare": 20, "uncommon": 10},
+        "boss":       {"legendary": 8, "epic": 22, "rare": 30, "uncommon": 30, "common": 10},
+        "elite":      {"epic": 5, "rare": 15, "uncommon": 30, "common": 50},
+        "mob":        {"rare": 5, "uncommon": 15, "common": 80},
+    }
+
     @staticmethod
-    def _random_loot(enemy_level: int, count: int = 1) -> List[str]:
-        """从层级掉落池中随机抽取指定数量的物品。"""
+    def _roll_rarity(enemy_type: str) -> str:
+        dist = GameEngine.RARITY_BY_TYPE.get(enemy_type, {"common": 100})
+        r = random.randint(1, 100)
+        cum = 0
+        for rarity, chance in dist.items():
+            cum += chance
+            if r <= cum:
+                return rarity
+        return "common"
+
+    @staticmethod
+    def _rarity_stat_multiplier(rarity: str) -> float:
+        return GameEngine.RARITY_MULTIPLIERS.get(rarity, 1.0)
+
+    @staticmethod
+    def _random_loot(enemy_level: int, count: int = 1, tier_shift: int = 0,
+                     enemy_type: str = "mob") -> List[str]:
+        """从层级掉落池中随机抽取。tier_shift: boss=3, elite=1, mob=0。
+
+        Boss: always higher tier. Elite: 10% higher, 90% base.
+        Mob: 90% base-or-lower, 10% higher.
+        """
         tier = GameEngine._tier_for_level(enemy_level)
-        pool = LOOT_TABLE.get(tier, [])
-        if not pool:
-            return []
+        all_tiers = GameEngine.ALL_TIERS
+        tier_idx = all_tiers.index(tier) if tier in all_tiers else 0
+
         results = []
-        ids = [p[0] for p in pool]
-        weights = [p[1] for p in pool]
-        total_weight = sum(weights)
         for _ in range(count):
-            if total_weight <= 0:
-                break
-            r = random.randint(1, total_weight)
-            cumulative = 0
+            if tier_shift >= 3:
+                # Boss: always use elevated tier
+                use_idx = min(len(all_tiers) - 1, tier_idx + 2)
+            elif tier_shift >= 1:
+                # Elite: 10% chance of +1 tier
+                if random.random() < 0.10:
+                    use_idx = min(len(all_tiers) - 1, tier_idx + 1)
+                else:
+                    use_idx = tier_idx
+            else:
+                # Mob: 10% chance of +1, otherwise base or lower
+                if random.random() < 0.10:
+                    use_idx = min(len(all_tiers) - 1, tier_idx + 1)
+                else:
+                    use_idx = max(0, tier_idx)
+            use_tier = all_tiers[use_idx]
+            pool = LOOT_TABLE.get(use_tier, LOOT_TABLE.get(tier, []))
+            if not pool:
+                continue
+            # Rarity filter for equipment
+            rolled_rarity = GameEngine._roll_rarity(enemy_type)
+            rare_pool = [(pid, w) for pid, w in pool
+                         if not pid.startswith("eq_") or
+                         EQUIPMENT_DATA.get(pid, {}).get("rarity", "common") == rolled_rarity]
+            if not rare_pool:
+                rare_pool = pool
+            ids = [p[0] for p in rare_pool]
+            weights = [p[1] for p in rare_pool]
+            total_w = sum(weights)
+            if total_w <= 0:
+                continue
+            r = random.randint(1, total_w)
+            cum = 0
             for i, w in enumerate(weights):
-                cumulative += w
-                if r <= cumulative:
+                cum += w
+                if r <= cum:
                     results.append(ids[i])
                     break
         return results
@@ -2802,15 +3725,245 @@ class GameEngine:
                 total += EQUIPMENT_DATA[item_id].get(stat, 0)
         return total
 
+    TECHNIQUE_EFFECT_PATTERN = re.compile(r"^([a-z_]+):([+-]?\d+)(%?)$")
+
+    def _parse_technique_effect(self, effect_str: str) -> Dict[str, Tuple[int, bool]]:
+        """解析功法效果 DSL，返回 {stat: (value, is_percent)}。"""
+        result: Dict[str, Tuple[int, bool]] = {}
+        if not effect_str:
+            return result
+        for token in effect_str.split(","):
+            token = token.strip()
+            m = self.TECHNIQUE_EFFECT_PATTERN.match(token)
+            if m:
+                stat = m.group(1)
+                value = int(m.group(2))
+                is_pct = bool(m.group(3))
+                result[stat] = (value, is_pct)
+        return result
+
+    def _technique_stat_bonus(self, stat: str) -> int:
+        """Sum bonuses from fixed + second technique."""
+        total = 0
+        for tid in [self.player.get("fixed_technique"),
+                     self.player.get("second_technique")]:
+            if not tid:
+                continue
+            tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), None)
+            if not tech:
+                continue
+            effects = self._parse_technique_effect(tech.get("effect", ""))
+            bonus, is_pct = effects.get(stat, (0, False))
+            if not is_pct:
+                total += bonus
+        return total
+
+    def _technique_stat_multiplier(self, stat: str) -> float:
+        """Product of multipliers from both techniques."""
+        total = 1.0
+        for tid in [self.player.get("fixed_technique"),
+                     self.player.get("second_technique")]:
+            if not tid:
+                continue
+            tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), None)
+            if not tech:
+                continue
+            effects = self._parse_technique_effect(tech.get("effect", ""))
+            bonus, is_pct = effects.get(stat, (0, False))
+            if is_pct:
+                total *= (1.0 + bonus / 100.0)
+        return total
+
+    def _technique_effect_value(self, stat: str) -> int:
+        """汇总两部已装备功法的指定效果，百分比和固定值均按数值相加。"""
+        total = 0
+        for tid in [self.player.get("fixed_technique"),
+                    self.player.get("second_technique")]:
+            if not tid:
+                continue
+            tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), None)
+            if tech:
+                total += self._parse_technique_effect(
+                    tech.get("effect", "")
+                ).get(stat, (0, False))[0]
+        return total
+
+    def _technique_element_power(self, element: str) -> float:
+        key = {
+            "火": "fire_power", "冰": "ice_power", "雷": "thunder_power",
+            "风": "wind_power", "木": "wood_power", "土": "earth_power",
+            "毒": "poison_power",
+        }.get(element)
+        technique_bonus = self._technique_effect_value(key) if key else 0
+        status_bonus = self.timed_status_value(f"element_power_{element}")
+        status_bonus += self.timed_status_value("element_power_all")
+        return 1.0 + (technique_bonus + status_bonus) / 100.0
+
+    def _technique_damage_resistance(self, element: str) -> int:
+        key = {
+            "火": "fire_resist", "冰": "ice_resist",
+            "雷": "thunder_resist", "风": "wind_resist",
+            "木": "wood_resist", "土": "earth_resist",
+            "毒": "poison_resist",
+        }.get(element, "")
+        return (
+            self._technique_effect_value("all_resist")
+            + self._technique_effect_value(key)
+            + self.timed_status_value(f"resist_{element}")
+        )
+
+    def _technique_combat_turn_start(self) -> List[str]:
+        """兑现功法的开场、回复与敌方领域类效果。"""
+        if self.combat is None:
+            return []
+        combat = self.combat
+        logs: List[str] = []
+        if not combat.get("technique_opened"):
+            combat["technique_opened"] = True
+            shield = self._technique_effect_value("shield_start")
+            shield += self._technique_effect_value("ice_armor")
+            if shield > 0:
+                combat["player_shield"] = combat.get("player_shield", 0) + shield
+                logs.append(f"功法护体：开场获得{shield}护盾")
+            combat["def"] = max(
+                0, int(combat["def"] * self._technique_stat_multiplier("enemy_def"))
+            )
+            slowed_spd = int(combat["spd"] * self._technique_stat_multiplier("enemy_spd"))
+            combat["debuff_spd"] = max(
+                combat.get("debuff_spd", 0), combat["spd"] - slowed_spd
+            )
+        hp_regen = self._technique_effect_value("hp_regen")
+        douqi_regen = self._technique_effect_value("douqi_regen")
+        if hp_regen > 0:
+            self.player["hp"] = min(self.effective_max_hp(), self.player["hp"] + hp_regen)
+            logs.append(f"功法运转：恢复{hp_regen}生命")
+        if douqi_regen > 0:
+            self.player["douqi"] = min(
+                self.effective_max_douqi(), self.player["douqi"] + douqi_regen
+            )
+            logs.append(f"功法运转：恢复{douqi_regen}斗气")
+        return logs
+
+    def _apply_technique_skill_procs(self, element: str, was_crit: bool) -> List[str]:
+        """兑现功法中依赖技能命中的连击与控制类特殊效果。"""
+        if self.combat is None:
+            return []
+        combat = self.combat
+        logs: List[str] = []
+        combo_key = {
+            "火": "fire_combo", "冰": "ice_combo", "雷": "thunder_combo",
+            "风": "wind_combo", "木": "wood_combo", "土": "earth_combo",
+            "毒": "poison_combo",
+        }.get(element)
+        extra_combo = self._technique_effect_value(combo_key) if combo_key else 0
+        if extra_combo > 0:
+            combat["combo"] = combat.get("combo", 0) + extra_combo
+            logs.append(f"功法共鸣：额外获得{extra_combo}层连击")
+
+        control_chance = 0
+        if element == "冰":
+            control_chance = self._technique_effect_value("freeze_chance")
+        elif element == "雷":
+            control_chance = self._technique_effect_value("stun_chance")
+        elif element == "木":
+            control_chance = self._technique_effect_value("wood_bind_chance")
+        elif element == "土":
+            control_chance = self._technique_effect_value("earth_shock_chance")
+        if control_chance > 0 and random.randint(1, 100) <= control_chance:
+            duration = 1 + max(0, self._technique_effect_value("freeze_duration"))
+            combat["stunned"] = combat.get("stunned", 0) + duration
+            logs.append(f"功法控制触发：敌人被封锁{duration}次行动")
+
+        slow_chance = self._technique_effect_value("earth_slow_chance")
+        if element == "土" and slow_chance > 0 and random.randint(1, 100) <= slow_chance:
+            combat["debuff_spd"] = max(
+                combat.get("debuff_spd", 0), max(1, combat["spd"] // 5)
+            )
+            logs.append("功法触发：敌人速度降低")
+
+        if was_crit and self._technique_effect_value("crit_poison") > 0:
+            combat["poison"] = min(7, combat.get("poison", 0) + 1)
+            logs.append("功法触发：暴击附加中毒")
+        return logs
+
+    def _flame_stat_bonus(self, stat: str) -> int:
+        """读取已装备异火的属性加成。"""
+        fid = self.player.get("equipped_flame")
+        if not fid:
+            return 0
+        flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == fid), None)
+        if not flame:
+            return 0
+        tier = flame.get("tier", "iron")
+        bonus_table = FLAME_TIER_BONUS.get(tier, {})
+        return bonus_table.get(stat, 0)
+
+    def _flame_alchemy_bonus(self, stat: str) -> int:
+        """读取已装备异火的炼药加成。"""
+        fid = self.player.get("equipped_flame")
+        if not fid:
+            return 0
+        flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == fid), None)
+        if not flame:
+            return 0
+        tier = flame.get("tier", "iron")
+        bonus_table = FLAME_ALCHEMY_BONUS.get(tier, {})
+        return bonus_table.get(stat, 0)
+
+    def effective_spd(self) -> int:
+        """计算玩家有效速度（基础+装备+功法+异火）。"""
+        base = int(self.player.get("spd", 8))
+        base += self.get_equipped_bonus("spd")
+        base += self._technique_stat_bonus("spd")
+        base += self._flame_stat_bonus("spd")
+        mult = self._technique_stat_multiplier("spd")
+        mult *= self._technique_stat_multiplier("all_spd")
+        mult *= 1.0 + self.timed_status_value("spd_pct") / 100.0
+        return max(1, int(base * mult))
+
+    def _equipped_rarity_multiplier(self) -> float:
+        """Best rarity multiplier from equipped items."""
+        best = 1.0
+        for slot, item_id in self.player.get("equipped", {}).items():
+            if item_id and item_id in EQUIPMENT_DATA:
+                rarity = EQUIPMENT_DATA[item_id].get("rarity", "common")
+                mult = self._rarity_stat_multiplier(rarity)
+                if mult > best:
+                    best = mult
+        return best
+
     def effective_atk(self) -> int:
-        return int(self.player.get("atk", 0)) + self.get_equipped_bonus("atk")
+        base = int(self.player.get("atk", 0)) + self.get_equipped_bonus("atk")
+        base += self._technique_stat_bonus("atk")
+        base += self._flame_stat_bonus("atk")
+        rarity_mult = self._equipped_rarity_multiplier()
+        mult = self._technique_stat_multiplier("atk")
+        mult *= 1.0 + self.timed_status_value("atk_pct") / 100.0
+        return max(1, int(base * mult * rarity_mult))
 
     def effective_def(self) -> int:
-        return int(self.player.get("def", 0)) + self.get_equipped_bonus("def")
+        base = int(self.player.get("def", 0)) + self.get_equipped_bonus("def")
+        base += self._technique_stat_bonus("def")
+        base += self._flame_stat_bonus("def")
+        rarity_mult = self._equipped_rarity_multiplier()
+        mult = self._technique_stat_multiplier("def")
+        mult *= 1.0 + self.timed_status_value("def_pct") / 100.0
+        return max(0, int(base * mult * rarity_mult))
 
     def effective_max_hp(self) -> int:
         base = int(self.player.get("max_hp", 100))
-        return base + self.get_equipped_bonus("hp")
+        base += self.get_equipped_bonus("hp")
+        base += self._technique_stat_bonus("hp")
+        base += self._flame_stat_bonus("hp")
+        rarity_mult = self._equipped_rarity_multiplier()
+        mult = self._technique_stat_multiplier("hp")
+        return max(1, int(base * mult * rarity_mult))
+
+    def effective_max_douqi(self) -> int:
+        """计算玩家有效斗气上限（基础上限+功法固定/百分比加成）。"""
+        base = int(self.attribute_rules["douqi"]["max"])
+        base += self._technique_stat_bonus("douqi_max")
+        return max(1, int(base * self._technique_stat_multiplier("douqi_max")))
 
     def equip_item(self, item_id: str) -> bool:
         """装备一件物品。返回是否成功。"""
@@ -2850,26 +4003,45 @@ class GameEngine:
 
     # ── 功法系统 ─────────────────────────────────────────────
 
-    def equip_technique(self, tech_id: str) -> bool:
-        """装备功法（提供被动属性加成）。"""
-        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tech_id), None)
-        if tech is None:
-            self.last_message = "找不到该功法。"
+
+    # Dual-slot equip/unequip defined above
+
+
+    # ── 异火系统 ─────────────────────────────────────────────
+
+    def equip_flame(self, flame_id: str) -> bool:
+        """装备异火（提供战斗和炼药被动加成）。"""
+        flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == flame_id), None)
+        if flame is None:
+            self.last_message = "找不到该异火。"
             return False
-        if tech_id not in self.player.get("known_techniques", []):
-            self.player.setdefault("known_techniques", []).append(tech_id)
-        self.player["equipped_technique"] = tech_id
-        self.last_message = f"运起功法：{tech['name']}（{tech['element']}系）"
+        if flame_id not in self.player.get("items", []):
+            self.last_message = "背包中没有该异火。"
+            return False
+        old = self.player.get("equipped_flame")
+        if old and old not in self.player.get("items", []):
+            self.player.setdefault("items", []).append(old)
+        self.player["items"].remove(flame_id)
+        self.player["equipped_flame"] = flame_id
+        self.player.setdefault("collected_flames", [])
+        if flame_id not in self.player["collected_flames"]:
+            self.player["collected_flames"].append(flame_id)
+        tier_name = flame.get("tier", "iron")
+        atk_bonus = FLAME_TIER_BONUS.get(tier_name, {}).get("atk", 0)
+        self.last_message = f"装备异火：{flame['name']}（{tier_name}，攻击+{atk_bonus}）"
         return True
 
-    def unequip_technique(self) -> bool:
-        tid = self.player.get("equipped_technique")
-        if not tid:
-            self.last_message = "当前未装备功法。"
+    def unequip_flame(self) -> bool:
+        """卸下异火。"""
+        fid = self.player.get("equipped_flame")
+        if not fid:
+            self.last_message = "当前未装备异火。"
             return False
-        tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), {})
-        self.player["equipped_technique"] = None
-        self.last_message = f"收功：{tech.get('name', tid)}"
+        flame = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == fid), {})
+        self.player["equipped_flame"] = None
+        if fid not in self.player.get("items", []):
+            self.player.setdefault("items", []).append(fid)
+        self.last_message = f"收起异火：{flame.get('name', fid)}"
         return True
 
     LEARN_EFFECT_PATTERN = re.compile(r"^learn:(.+)$")
@@ -2923,6 +4095,9 @@ class GameEngine:
         if recipe is None:
             self.last_message = "无效的丹方ID。"
             return False
+        if recipe["output"] in REMOVED_ITEM_IDS:
+            self.last_message = "该丹方对应的道具系统已移除。"
+            return False
 
         # 检查是否习得丹方
         if recipe_id not in self.player.get("known_recipes", []):
@@ -2961,9 +4136,10 @@ class GameEngine:
             self.last_message = f"材料不足：{'、'.join(missing)}"
             return False
 
-        # 成功率：基础 + 品级差 + 药鼎加成
+        # 成功率：基础 + 品级差 + 药鼎加成 + 异火加成
         grade_diff = player_grade - req_grade
-        success_rate = min(98, max(3, base_rate + grade_diff * 8 + fdata["bonus"] // 2))
+        flame_success = self._flame_alchemy_bonus("success")
+        success_rate = min(98, max(3, base_rate + grade_diff * 8 + fdata["bonus"] // 2 + flame_success))
 
         # 消耗材料（圣鼎以上概率省材）
         for mat_id, count in materials:
@@ -2991,6 +4167,8 @@ class GameEngine:
             exp_gain = req_grade * 15 + random.randint(5, 15)
             if "经验" in fdata["special"]:
                 exp_gain = int(exp_gain * 1.2)
+            flame_exp = self._flame_alchemy_bonus("exp")
+            exp_gain += flame_exp
             self._gain_alchemy_exp(exp_gain)
             msg = f"炼制成功！获得 {self.item_name(pill_id)}"
             if count_out > 1:
@@ -3060,10 +4238,13 @@ class GameEngine:
         known = self.player.get("known_recipes", [])
         result = []
         for r in ALCHEMY_RECIPES:
+            if r["output"] in REMOVED_ITEM_IDS:
+                continue
             if r["id"] in known and r["grade"] <= player_grade + 1:
                 grade_diff = player_grade - r["grade"]
                 fdata = self._get_furnace_data()
-                success_rate = min(98, max(3, r["base_rate"] + grade_diff * 8 + fdata["bonus"] // 2))
+                flame_success = self._flame_alchemy_bonus("success")
+                success_rate = min(98, max(3, r["base_rate"] + grade_diff * 8 + fdata["bonus"] // 2 + flame_success))
                 mat_names = [f"{self.item_name(mid)}x{c}" for mid, c in r["materials"]]
                 result.append({
                     "id": r["id"], "name": r["name"],
@@ -3078,6 +4259,9 @@ class GameEngine:
     def reverse_engineer(self, pill_item_id: str) -> bool:
         """逆向研究丹药——必定销毁丹药，概率识别一种材料。
         识别出全部材料后自动习得对应丹方。"""
+        if pill_item_id in REMOVED_ITEM_IDS:
+            self.last_message = "该道具系统已移除。"
+            return False
         items = self.player.get("items", [])
         if pill_item_id not in items:
             self.last_message = "背包中没有该丹药。"
@@ -3160,7 +4344,44 @@ class GameEngine:
             return {"known": known_names, "total": total_names, "recipe_name": recipe["name"]}
         return None
 
-    def use_item(self, item_id: str) -> bool:
+    def gift_targets(self) -> List[Dict[str, str]]:
+        """返回当前可选择的赠礼目标。"""
+        result = []
+        for rule in self.relationship_rules.values():
+            if not rule.get("visible", False):
+                continue
+            target = rule["target"]
+            result.append({
+                "id": target,
+                "name": self.npc_names.get(target, target),
+                "stage": self.relation_stage(target),
+            })
+        return result
+
+    def give_gift(self, item_id: str, target: str) -> bool:
+        """向指定关系目标赠送礼物。"""
+        if item_id not in self.player.get("items", []):
+            self.last_message = "背包中没有该礼物。"
+            return False
+        if self.item_rules.get(item_id, {}).get("use_effect") != "gift":
+            self.last_message = "该物品不能用于赠礼。"
+            return False
+        if target not in {entry["id"] for entry in self.gift_targets()}:
+            self.last_message = "当前无法向该人物赠礼。"
+            return False
+        tier = self.item_rules[item_id].get("tier", "iron")
+        tier_values = {
+            "iron": 2, "refined": 3, "spirit": 5, "treasure": 7,
+            "earth": 9, "heaven": 12, "mystic": 15, "saint": 20,
+            "emperor": 25, "divine": 30,
+        }
+        gain = tier_values.get(tier, 2)
+        self.player["items"].remove(item_id)
+        logs = self.change_relation_value(target, gain)
+        self.last_message = f"向{self.npc_names.get(target, target)}赠送{self.item_name(item_id)}；" + "；".join(logs)
+        return True
+
+    def use_item(self, item_id: str, target: Optional[str] = None) -> bool:
         if item_id not in self.player["items"]:
             self.last_message = "背包中没有该道具。"
             return False
@@ -3170,6 +4391,20 @@ class GameEngine:
             return False
         etype = item.get("type", "")
         effect = item.get("use_effect", "")
+        if effect == "gift":
+            if target is None:
+                names = "、".join(entry["name"] for entry in self.gift_targets())
+                self.last_message = f"请选择赠礼目标：{names}"
+                return False
+            return self.give_gift(item_id, target)
+        # 药鼎装备
+        if etype == "furnace":
+            return self.equip_furnace(item_id)
+        # 异火装备
+        if etype == "heavenly_flame":
+            return self.equip_flame(item_id)
+        if etype == "storage_ring":
+            return self.equip_storage_ring(item_id)
         # 功法书学习
         if etype == "technique":
             tid = item_id
@@ -3195,10 +4430,70 @@ class GameEngine:
         if not self.check_conditions(item.get("use_condition")):
             self.last_message = "尚未满足该道具的使用条件。"
             return False
+        timed_logs = self._apply_timed_item_effect(effect)
+        if timed_logs:
+            self.player["items"].remove(item_id)
+            self.last_message = f"使用{item['name']}；" + "；".join(timed_logs)
+            return True
+        special_result = self._use_special_item_effect(item_id, item)
+        if special_result is not None:
+            return special_result
+        snapshot = json.loads(json.dumps(self.player))
+        try:
+            logs = self.apply_effects(item["use_effect"])
+        except (ValueError, KeyError, TypeError):
+            self.player = snapshot
+            self.last_message = f"{item['name']}的效果尚未接入，物品未消耗。"
+            return False
         self.player["items"].remove(item_id)
-        logs = self.apply_effects(item["use_effect"])
         self.last_message = f"使用{item['name']}；" + "；".join(logs)
         return True
+
+    def _use_special_item_effect(
+        self, item_id: str, item: Dict[str, Any]
+    ) -> Optional[bool]:
+        """执行无需额外目标选择的特殊物品；未知效果返回 None。"""
+        effect = item.get("use_effect", "")
+        if effect.startswith("teleport:"):
+            map_id = effect.split(":", 1)[1]
+            if map_id not in self.maps or not self.is_map_unlocked(map_id):
+                self.last_message = "目标区域尚未开放，传送道具未消耗。"
+                return False
+            map_name = self.maps[map_id].get("name", map_id)
+            self.player["items"].remove(item_id)
+            self.player["last_map"] = map_id
+            self.active_encounter = None
+            self.active_exploration = None
+            self.last_message = f"使用{item['name']}，传送至{map_name}。"
+            return True
+        if effect.startswith("cure:"):
+            status = effect.split(":", 1)[1]
+            statuses = self.player.setdefault("active_statuses", [])
+            if status in statuses:
+                statuses.remove(status)
+            self.player["items"].remove(item_id)
+            self.last_message = f"使用{item['name']}，清除了{status}状态。"
+            return True
+        if effect == "remove_curse":
+            statuses = self.player.setdefault("active_statuses", [])
+            self.player["active_statuses"] = [
+                status for status in statuses if "curse" not in status.lower()
+            ]
+            self.player["items"].remove(item_id)
+            self.last_message = f"使用{item['name']}，诅咒已被净化。"
+            return True
+        if effect == "expand_inventory":
+            self.player["items"].remove(item_id)
+            self.player["inventory_capacity"] = self.inventory_capacity() + 10
+            self.last_message = f"使用{item['name']}，背包容量增加10格。"
+            return True
+        if effect == "random_reward":
+            self.player["items"].remove(item_id)
+            reward = random.randint(50, 250)
+            self.player["wallet"] = wallet_add(self.player.get("wallet", {}), reward)
+            self.last_message = f"打开{item['name']}，获得{reward}铜币。"
+            return True
+        return None
 
     def is_ending(self) -> bool:
         return self.current_story_phase() is None
@@ -3225,7 +4520,7 @@ class GameEngine:
             return False
 
     def equip_storage_ring(self, ring_id: str) -> bool:
-        """使用纳戒扩容背包。"""
+        """使用纳戒扩容背包（支持多戒指累加容量）。"""
         ring = next((r for r in STORAGE_RINGS if r["id"] == ring_id), None)
         if ring is None:
             self.last_message = "这不是纳戒。"
@@ -3234,16 +4529,32 @@ class GameEngine:
             self.last_message = "背包中没有该纳戒。"
             return False
         self.player["items"].remove(ring_id)
-        current_cap = int(self.player.get("inventory_capacity", BASE_INVENTORY_CAPACITY))
-        self.player["inventory_capacity"] = current_cap + ring["capacity"]
-        # 从溢出区移入
+        # 累加到已装备纳戒列表
+        old_rings = self.player.get("equipped_storage_rings", [])
+        old_rings.append(ring_id)
+        self.player["equipped_storage_rings"] = old_rings
+        # 重新计算总容量
+        total_cap = BASE_INVENTORY_CAPACITY + sum(
+            (next((r for r in STORAGE_RINGS if r["id"] == rid), {})).get("capacity", 0)
+            for rid in old_rings
+        )
+        self.player["inventory_capacity"] = total_cap
+        # 溢出区上限处理
         overflow = self.player.get("storage_overflow", [])
+        if len(overflow) > MAX_STORAGE_OVERFLOW:
+            lost = len(overflow) - MAX_STORAGE_OVERFLOW
+            overflow = overflow[:MAX_STORAGE_OVERFLOW]
+            self.player["storage_overflow"] = overflow
+            self.last_message = f"警告：溢出区已达上限，{lost}件物品已丢失。"
+        # 从溢出区移入
         moved = 0
         while overflow and self.inventory_used() < self.inventory_capacity():
             self.player["items"].append(overflow.pop(0))
             moved += 1
+        self.player["storage_overflow"] = overflow
+        total_ring_cap = total_cap - BASE_INVENTORY_CAPACITY
         self.last_message = (
-            f"使用{ring['name']}，背包容量+{ring['capacity']}（当前{self.inventory_capacity()}格）"
+            f"使用{ring['name']}，纳戒总容量+{total_ring_cap}格（背包{total_cap}格）"
             + (f"，从溢出区移入{moved}件物品" if moved else "")
         )
         return True
@@ -3257,6 +4568,9 @@ class GameEngine:
         md = self.maps.get(map_id, {})
         map_level = md.get("recommend_level", 1)
 
+        player_listings = [
+            item for item in self.auction_listings if item.get("player_sold")
+        ]
         listings = []
         # 高tier物品池
         player_level = int(self.player.get("level", 1))
@@ -3300,13 +4614,13 @@ class GameEngine:
                     "price": price, "time_left": time_left, "currency": currency,
                 })
 
-        self.auction_listings = listings
+        self.auction_listings = player_listings + listings
         self.auction_last_map = map_id
         self.auction_last_period = int(self.player.get("time_period", 0)) + int(self.player.get("day", 1)) * 4
         return listings
 
     def get_auction_listings(self, map_id: str = "") -> List[Dict[str, Any]]:
-        """获取当前拍卖行商品（过期自动刷新）。"""
+        """获取当前拍卖行商品（过期自动下架并刷新）。"""
         if not map_id:
             map_id = self.player.get("last_map", "map_wutan")
         current_period = int(self.player.get("time_period", 0)) + int(self.player.get("day", 1)) * 4
@@ -3317,6 +4631,34 @@ class GameEngine:
             return self.refresh_auction(map_id)
         return self.auction_listings
 
+    def _advance_auction_time(self, periods: int) -> None:
+        """仅在游戏时间推进时结算拍卖倒计时与 NPC 购买。"""
+        for _ in range(periods):
+            expired = []
+            for item in self.auction_listings:
+                item["time_left"] = item.get("time_left", 0) - 1
+                if item["time_left"] <= 0:
+                    expired.append(item)
+            for item in expired:
+                if item.get("player_sold") and item.get("id"):
+                    self.add_item_safe(item["id"])
+                self.auction_listings.remove(item)
+            self._npc_auction_cycle()
+
+    def _npc_auction_cycle(self) -> None:
+        """NPC对拍卖行物品的兴趣——时段驱动自动购买玩家上架品。"""
+        if not self.auction_listings:
+            return
+        player_sold = [(i, item) for i, item in enumerate(self.auction_listings)
+                       if item.get("player_sold")]
+        if player_sold and random.random() < 0.3:
+            idx, item = random.choice(player_sold)
+            npc_price = max(1, int(item["price"] * random.uniform(0.6, 0.9)))
+            self.player["wallet"] = wallet_add(self.player.get("wallet", {}), npc_price)
+            bought_name = item.get("name", "物品")
+            self.auction_listings.pop(idx)
+            self.last_special = f"拍卖行：NPC以 {npc_price} 铜币买走了您上架的「{bought_name}」！"
+
     def auction_buy(self, listing_index: int) -> bool:
         """从拍卖行购买物品。"""
         listings = self.get_auction_listings()
@@ -3326,6 +4668,9 @@ class GameEngine:
         item = listings[listing_index]
         currency = item.get("currency", "copper")
         wallet = self.player.get("wallet", {})
+        if not self.can_add_item():
+            self.last_message = "背包已满，无法购买。"
+            return False
         if currency == "ancient":
             if wallet.get("ancient", 0) < item["price"]:
                 self.last_message = f"远古币不足！需要 {item['price']} 远古币。"
@@ -3336,9 +4681,6 @@ class GameEngine:
                 self.last_message = f"资金不足！需要 {item['price']} 铜币。"
                 return False
             self.player["wallet"] = wallet_add(wallet, -item["price"])
-        if not self.can_add_item():
-            self.last_message = "背包已满，无法购买。"
-            return False
         self.add_item_safe(item["id"])
         self.auction_listings.pop(listing_index)
         unit = "远古币" if currency == "ancient" else "铜币"
@@ -3418,5 +4760,5 @@ class GameEngine:
             f"｜关键阶段 {self.player['story_stage']}/{len(STORY_PHASES)}"
             f"｜阶段子节点 {self.player['story_substage']}/"
             f"{len(self.current_story_phase()['subnodes']) if self.current_story_phase() else 0}\n"
-            f"道具：{items}\n开关：{flags}\n关系：{relationship_text}{schedule}"
+            f"道具：{items}\n持续效果：{self.timed_status_text()}\n开关：{flags}\n关系：{relationship_text}{schedule}"
         )

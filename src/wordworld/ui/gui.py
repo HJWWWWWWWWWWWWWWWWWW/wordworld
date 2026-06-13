@@ -218,7 +218,7 @@ class GameWindow(tk.Tk):
         self.lbl_char.config(text=f"{p['name']}｜{g.realm_name()} Lv.{p['level']}")
         self.lbl_stats.config(
             text=f"修炼 {prog:.1f}%｜生命 {p['hp']}/{p['max_hp']}"
-            f"  斗气 {p['douqi']}  体力 {p['stamina']}  阅历 {p['adventure_points']}"
+            f"  斗气 {p['douqi']}  阅历 {p['adventure_points']}"
         )
         if phase:
             subnode = g.current_story_subnode()
@@ -426,7 +426,7 @@ class GameWindow(tk.Tk):
         parts: list[tuple[str, str]] = [
             (f"{p['name']}  {g.realm_name()}  Lv.{p['level']}\n", "title"),
             (f"修炼进度 {p['progress']:.1f}%  冒险阅历 {p['adventure_points']}\n\n", "dim"),
-            (f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}  体力 {p['stamina']}  资金 {wallet_display(p.get('wallet', {}))}\n", ""),
+            (f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}\n", ""),
             (f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}", ""),
             (f"  暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%\n", "dim"),
             (f"灵魂力量 {p['soul']}  炼药术 {p['alchemy']}  声望 {p['reputation']}\n", ""),
@@ -477,7 +477,28 @@ class GameWindow(tk.Tk):
 
     def _use_item(self, index: int, items: list[str]) -> None:
         if index < len(items):
-            self.game.use_item(items[index])
+            item_id = items[index]
+            if self.game.item_rules.get(item_id, {}).get("use_effect") == "gift":
+                self._show_gift_targets(item_id)
+                return
+            self.game.use_item(item_id)
+            self._show_message(self.game.last_message or "")
+        self._show_hub()
+
+    def _show_gift_targets(self, item_id: str) -> None:
+        targets = self.game.gift_targets()
+        self._set_detail(
+            f"选择「{self.game.item_name(item_id)}」的赠礼目标",
+            *[f"{target['name']}（{target['stage']}）" for target in targets],
+        )
+        self._set_menu(
+            [target["name"] for target in targets] + ["返回"],
+            lambda idx: self._give_gift(idx, item_id, targets),
+        )
+
+    def _give_gift(self, index: int, item_id: str, targets: list[dict]) -> None:
+        if index < len(targets):
+            self.game.give_gift(item_id, targets[index]["id"])
             self._show_message(self.game.last_message or "")
         self._show_hub()
 
@@ -512,7 +533,7 @@ class GameWindow(tk.Tk):
 
         lines = [
             f"修炼进度 {pct:.1f}%",
-            f"经验 {g.player.get('exp',0)}  斗气 {g.player['douqi']}  体力 {g.player['stamina']}",
+            f"经验 {g.player.get('exp',0)}  斗气 {g.player['douqi']}",
             "",
         ]
         menu = ["修炼", "返回"]
@@ -559,7 +580,6 @@ class GameWindow(tk.Tk):
         actions = self.game.exploration_actions()
         lines = [
             f"当前区域：{m['name']}",
-            f"当前体力：{self.game.player['stamina']}",
             "",
             "选择探索取向：",
         ]
@@ -661,7 +681,6 @@ class GameWindow(tk.Tk):
         self._set_detail(
             f"当前 {self.game.time_text()}｜{m['name']} {rest_hint}",
             f"生命 {self.game.player['hp']}/{self.game.player['max_hp']}",
-            f"体力 {self.game.player['stamina']}",
         )
 
         menu = []
@@ -744,6 +763,19 @@ class GameWindow(tk.Tk):
                 return
             self._show_skill_select(skills)
             return
+        elif action == "item":
+            items = self.game.combat_usable_items()
+            if not items:
+                self._show_message("没有可在战斗中使用的物品。")
+                return
+            self._set_detail("选择战斗物品：", *[
+                f"  {self.game.item_name(item_id)}" for item_id in items
+            ])
+            self._set_menu(
+                [self.game.item_name(item_id) for item_id in items] + ["取消"],
+                lambda idx: self._combat_item_chosen(idx, items),
+            )
+            return
         elif action == "auto":
             self.game.auto_battle()
             self._show_message(self.game.last_message or "")
@@ -775,6 +807,17 @@ class GameWindow(tk.Tk):
     def _skill_chosen(self, index: int, skills: list[dict]) -> None:
         if index < len(skills):
             self.game.combat_action("skill", skills[index]["id"])
+            self._show_message(self.game.last_message or "")
+            if self.game.combat is None:
+                self._after_action()
+            else:
+                self._refresh_combat_view()
+        else:
+            self._show_combat()
+
+    def _combat_item_chosen(self, index: int, items: list[str]) -> None:
+        if index < len(items):
+            self.game.combat_action("item", items[index])
             self._show_message(self.game.last_message or "")
             if self.game.combat is None:
                 self._after_action()

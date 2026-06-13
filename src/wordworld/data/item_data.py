@@ -1028,8 +1028,8 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "name": "精力丹",
     "type": "consumable",
     "tier": "iron",
-    "effect": "stamina:+20",
-    "desc": "恢复体力的丹药。",
+    "effect": "hp:+50",
+    "desc": "恢复生命的丹药。",
     "price_buy": 25,
     "price_sell": 12
   },
@@ -1038,8 +1038,8 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "name": "活力丹",
     "type": "consumable",
     "tier": "spirit",
-    "effect": "stamina:+50",
-    "desc": "大幅恢复体力的丹药。",
+    "effect": "hp:+120",
+    "desc": "大幅恢复生命的丹药。",
     "price_buy": 80,
     "price_sell": 40
   },
@@ -1048,7 +1048,7 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "name": "全回复药",
     "type": "consumable",
     "tier": "heaven",
-    "effect": "hp:+3000,douqi:+2000,stamina:+50",
+    "effect": "hp:+3000,douqi:+2000",
     "desc": "全面恢复状态的灵药。",
     "price_buy": 5000,
     "price_sell": 2500
@@ -2883,6 +2883,76 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "price_buy": 10000,
     "price_sell": 5000
   },
+  "item_flame_17": {
+    "id": "item_flame_17",
+    "name": "风雷怒焱",
+    "type": "heavenly_flame",
+    "tier": "spirit",
+    "effect": "flame",
+    "desc": "异火榜排名第十七，风雷交加而成的紫青火焰。",
+    "price_buy": 6250,
+    "price_sell": 3125
+  },
+  "item_flame_18": {
+    "id": "item_flame_18",
+    "name": "青莲地心火",
+    "type": "heavenly_flame",
+    "tier": "refined",
+    "effect": "flame",
+    "desc": "异火榜排名第十八，萧炎获得的第一种异火，生于青莲。",
+    "price_buy": 5555,
+    "price_sell": 2777
+  },
+  "item_flame_19": {
+    "id": "item_flame_19",
+    "name": "龙凤焱",
+    "type": "heavenly_flame",
+    "tier": "refined",
+    "effect": "flame",
+    "desc": "异火榜排名第十九，龙血凤骨诞生的双色火焰。",
+    "price_buy": 5555,
+    "price_sell": 2777
+  },
+  "item_flame_20": {
+    "id": "item_flame_20",
+    "name": "六道轮回焱",
+    "type": "heavenly_flame",
+    "tier": "iron",
+    "effect": "flame",
+    "desc": "异火榜排名第二十，传说来自六道轮回。",
+    "price_buy": 5000,
+    "price_sell": 2500
+  },
+  "item_flame_21": {
+    "id": "item_flame_21",
+    "name": "万兽灵火",
+    "type": "heavenly_flame",
+    "tier": "iron",
+    "effect": "flame",
+    "desc": "异火榜排名第二十一，万兽灵魂燃烧的火焰。",
+    "price_buy": 5000,
+    "price_sell": 2500
+  },
+  "item_flame_22": {
+    "id": "item_flame_22",
+    "name": "玄黄炎",
+    "type": "heavenly_flame",
+    "tier": "iron",
+    "effect": "flame",
+    "desc": "异火榜排名第二十二，玄黄之气凝聚而成。",
+    "price_buy": 4545,
+    "price_sell": 2272
+  },
+  "item_flame_23": {
+    "id": "item_flame_23",
+    "name": "幽冥毒火",
+    "type": "heavenly_flame",
+    "tier": "iron",
+    "effect": "flame",
+    "desc": "异火榜排名第二十三，蕴含剧毒的诡异绿焰。",
+    "price_buy": 4545,
+    "price_sell": 2272
+  },
   "item_skill_book_1": {
     "id": "item_skill_book_1",
     "name": "焚决·残卷",
@@ -3962,5 +4032,53 @@ ITEM_DATA: Dict[str, Dict[str, Any]] = {
     "desc": "获得陀舍古帝传承的信物。",
     "price_buy": 0,
     "price_sell": 0
+  },
+  "item_storage_ring_1": {
+    "id": "item_storage_ring_1",
+    "name": "低阶纳戒",
+    "type": "storage_ring",
+    "tier": "spirit",
+    "effect": "storage:100",
+    "desc": "低阶纳戒，内含100格空间。极其稀有的空间道具。",
+    "price_buy": 50000,
+    "price_sell": 10000
+  },
+  "item_storage_ring_2": {
+    "id": "item_storage_ring_2",
+    "name": "中阶纳戒",
+    "type": "storage_ring",
+    "tier": "earth",
+    "effect": "storage:200",
+    "desc": "中阶纳戒，内含200格空间。",
+    "price_buy": 150000,
+    "price_sell": 30000
+  },
+  "item_storage_ring_3": {
+    "id": "item_storage_ring_3",
+    "name": "高阶纳戒",
+    "type": "storage_ring",
+    "tier": "heaven",
+    "effect": "storage:400",
+    "desc": "高阶纳戒，内含400格空间。",
+    "price_buy": 500000,
+    "price_sell": 100000
+  },
+  "item_storage_ring_4": {
+    "id": "item_storage_ring_4",
+    "name": "顶级纳戒",
+    "type": "storage_ring",
+    "tier": "saint",
+    "effect": "storage:1000",
+    "desc": "顶级纳戒，内含1000格空间，可纳山河。",
+    "price_buy": 2000000,
+    "price_sell": 400000
   }
 }
+
+_REMOVED_SPECIAL_ITEMS = {
+  "item_repair_hammer", "item_identify_scroll", "item_pet_food",
+  "item_pet_taming_reins", "item_enchant_stone_1", "item_enchant_stone_2",
+  "item_enchant_stone_3", "item_enchant_stone_4", "item_enchant_stone_5",
+}
+for _item_id in _REMOVED_SPECIAL_ITEMS:
+  ITEM_DATA.pop(_item_id, None)

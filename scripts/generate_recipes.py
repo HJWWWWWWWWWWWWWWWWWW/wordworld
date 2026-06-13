@@ -219,6 +219,12 @@ def generate():
 
 def main():
     recipes = generate()
+    removed_item_ids = {
+        "item_repair_hammer", "item_identify_scroll", "item_pet_food",
+        "item_pet_taming_reins", "item_enchant_stone_1", "item_enchant_stone_2",
+        "item_enchant_stone_3", "item_enchant_stone_4", "item_enchant_stone_5",
+    }
+    recipes = [recipe for recipe in recipes if recipe["output"] not in removed_item_ids]
     print(f"丹方: {len(recipes)} / 药鼎: {len(FURNACES)}")
     d = Path("src/wordworld/data"); d.mkdir(parents=True, exist_ok=True)
     with open(d/"furnace_data.py","w",encoding="utf-8") as f:

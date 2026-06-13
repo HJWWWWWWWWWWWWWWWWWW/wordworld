@@ -92,7 +92,8 @@ ENTITY_NPC = 14
 ENTITY_TREASURE = 15
 ENTITY_ENEMY = 16
 ENTITY_EXIT = 17
-ENTITY_ENCOUNTER = 18  # 探索随机遭遇
+ENTITY_ENCOUNTER = 18
+ENTITY_GATHER = 19  # 探索随机遭遇
 
 # 场景
 SCENE_EXPLORE = "explore"
@@ -106,6 +107,10 @@ SCENE_ENCOUNTER = "encounter"
 SCENE_GUILD = "guild"
 SCENE_SKILL_SELECT = "skill_select"
 SCENE_ITEM_SELECT = "item_select"
+SCENE_ALCHEMY = "alchemy"
+SCENE_AUCTION = "auction"
+SCENE_TECHNIQUE = "technique"
+SCENE_FLAME = "flame"
 C_BG = (18, 18, 24)
 C_FLOOR = (42, 42, 54)
 C_WALL = (65, 65, 80)
@@ -139,6 +144,7 @@ ENTITY_LABELS = {
     ENTITY_ENEMY: "敌", ENTITY_TREASURE: "宝", ENTITY_NPC: "人",
     ENTITY_SHOP: "商", ENTITY_INN: "栈", ENTITY_GUILD: "会", ENTITY_EXIT: "出",
     ENTITY_ENCOUNTER: "!",
+    ENTITY_GATHER: "采",
 }
 
 _NPC_CANONICAL_VISUALS: Dict[str, Dict[str, Any]] = {
@@ -1371,9 +1377,74 @@ def _pick_template(map_id: str, safe: bool, name: str) -> Tuple[int, int, list, 
     else:
         for keyword, tmpl in _MAP_TEMPLATES.items():
             if keyword in name_lower:
-                return tmpl(map_id)
-        return _wilderness_forest(map_id)
+                w, h, tiles, entities = tmpl(map_id)
+                return _auto_populate_wild(w, h, tiles, entities, name, map_id)
+        w, h, tiles, entities = _wilderness_forest(map_id)
+        return _auto_populate_wild(w, h, tiles, entities, name, map_id)
 
+
+def _auto_populate_wild(w, h, tiles, entities, name, map_id):
+    """Auto-add enemies and gathering nodes to wilderness maps."""
+    import random as _rnd
+    level_hint = 5
+    for kw, lv in [
+        ("magic_mountains",5),("inner",15),("deep",25),("black_corner",22),
+        ("canaan",20),("tager",30),("dan_region",35),("skyfire",40),
+        ("beast_region",45),("dragon_island",55),("soul_mountains",60),
+        ("ancient_ruins",65),("heaven_tomb",70),("yao_realm",75),
+        ("bodhi_tree",65),("gu_clan",70),("demon_flame",80),
+        ("emperor_cave",90),("wilderness",15),("desert",10),("cave",8),
+        ("mountain",12),("valley",18),("peak",25),("abyss",35),
+        ("tundra",28),("swamp",20),("volcano",30),("ruins",40),("tomb",50),
+    ]:
+        if kw in map_id.lower() or kw in name.lower():
+            level_hint = lv
+            break
+    existing_enemies = sum(1 for e in entities if e[2] == ENTITY_ENEMY)
+    existing_gather = sum(1 for e in entities if e[2] in (ENTITY_TREASURE, ENTITY_GATHER))
+    target_enemies = max(3, min(8, level_hint // 8))
+    enemies_added = 0
+    for _ in range(target_enemies - existing_enemies):
+        for __ in range(30):
+            x, y = _rnd.randint(1, w-2), _rnd.randint(1, h-3)
+            blocked = False
+            for e in entities:
+                if e[0] == x and e[1] == y:
+                    blocked = True
+                    break
+            if blocked:
+                continue
+            for t in tiles:
+                if t[0] == x and t[1] == y and t[2] in (TILE_WALL, TILE_WATER):
+                    blocked = True
+                    break
+            if not blocked:
+                enemy_label = _rnd.choice(["\u9b54\u517d","\u86c7\u4eba","\u76d7\u532a","\u5996\u517d","\u4ea1\u7075","\u5b88\u536b"])
+                entities.append((x, y, ENTITY_ENEMY, enemy_label))
+                enemies_added += 1
+                break
+    target_gather = max(2, min(6, level_hint // 12))
+    gather_added = 0
+    for _ in range(target_gather - existing_gather):
+        for __ in range(30):
+            x, y = _rnd.randint(1, w-2), _rnd.randint(1, h-3)
+            blocked = False
+            for e in entities:
+                if e[0] == x and e[1] == y:
+                    blocked = True
+                    break
+            if blocked:
+                continue
+            for t in tiles:
+                if t[0] == x and t[1] == y and t[2] in (TILE_WALL, TILE_WATER):
+                    blocked = True
+                    break
+            if not blocked:
+                gather_label = _rnd.choice(["\u836f\u6750","\u77ff\u77f3","\u517d\u6750","\u7075\u8349","\u9b54\u6838","\u6676\u77f3"])
+                entities.append((x, y, ENTITY_GATHER, gather_label))
+                gather_added += 1
+                break
+    return w, h, tiles, entities
 
 def _build_tile_map(w, h, tile_defs, entity_defs):
     """根据模板定义构建瓦片网格和实体字典。"""
@@ -1481,6 +1552,8 @@ class PygameGame:
         self.shop_sell_mode = False
         self.menu_idx = 0
         self.select_idx = 0
+        self.gift_item_id: Optional[str] = None
+        self.gift_target_idx = 0
         self.travel_options: List[Tuple[str, str, str]] = []  # (map_id, name, route)
         self.travel_idx = 0
         # 遭遇/对话框
@@ -1845,7 +1918,13 @@ class PygameGame:
                 return  # 撞墙
             ent = self._entity_at(nx, ny)
             if ent is not None:
-                self._trigger_entity(nx, ny, ent)
+                dp = self.defeated_tiles.get((nx, ny), -999)
+                cp = self.engine._current_period()
+                if cp - dp >= 6:
+                    self._trigger_entity(nx, ny, ent)
+                elif ent != ENTITY_EXIT:
+                    remaining = 6 - (cp - dp)
+                    self._msg(f"This spot will refresh in {remaining} periods")
                 return
             self.player_pos = (nx, ny)
             self._on_step()
@@ -1939,8 +2018,46 @@ class PygameGame:
                 self.scene = SCENE_COMBAT
                 self.combat_ui = CombatView()
                 self._msg(f"与 {self.engine.combat['name']} 展开了战斗！")
-                self.tile_entities.pop((x, y), None)
-                self.entity_labels.pop((x, y), None)
+                # Mark for respawn instead of permanent removal
+                self.defeated_tiles[(x, y)] = self.engine._current_period()
+
+
+    def _open_gather(self, x: int, y: int) -> None:
+        """Collect materials from a gathering node."""
+        import random as _rnd
+        from wordworld.core.engine import GameEngine
+        from wordworld.data.loot_table import LOOT_TABLE
+        map_lv = self.engine.current_map().get("recommend_level", 1)
+        tier = GameEngine._tier_for_level(map_lv)
+        pool = LOOT_TABLE.get(tier, [])
+        mat_ids, mat_weights = [], []
+        for pid, weight in pool:
+            rule = self.engine.item_rules.get(pid, {})
+            itype = rule.get("type", "")
+            if itype in ("material", "consumable") and not pid.startswith("eq_"):
+                mat_ids.append(pid)
+                mat_weights.append(weight)
+        if not mat_ids:
+            self._msg("Nothing here...")
+            return
+        count = _rnd.randint(1, 3)
+        total_w = max(1, sum(mat_weights))
+        found = []
+        for _ in range(count):
+            r = _rnd.randint(1, total_w)
+            cum = 0
+            for i, w in enumerate(mat_weights):
+                cum += w
+                if r <= cum:
+                    lid = mat_ids[i]
+                    if lid not in self.engine.player.get("items", []):
+                        self.engine.player["items"].append(lid)
+                    found.append(self.engine.item_name(lid))
+                    break
+        if found:
+            self._msg("Gathered: " + ", ".join(found))
+        self.engine.advance_time(1)
+        self.defeated_tiles[(x, y)] = self.engine._current_period()
 
     def _open_treasure(self, x: int, y: int) -> None:
         copper = random.randint(50, 250)
@@ -2143,6 +2260,21 @@ class PygameGame:
 
     def _key_inventory(self, e: pygame.event.Event) -> None:
         inv = self.engine.player.get("items", [])
+        if self.gift_item_id:
+            targets = self.engine.gift_targets()
+            if e.key == pygame.K_ESCAPE:
+                self.gift_item_id = None
+            elif e.key == pygame.K_UP:
+                self.gift_target_idx = max(0, self.gift_target_idx - 1)
+            elif e.key == pygame.K_DOWN:
+                self.gift_target_idx = min(max(0, len(targets) - 1), self.gift_target_idx + 1)
+            elif e.key in (pygame.K_RETURN, pygame.K_SPACE) and targets:
+                self.engine.give_gift(
+                    self.gift_item_id, targets[self.gift_target_idx]["id"]
+                )
+                self._msg(self.engine.last_message)
+                self.gift_item_id = None
+            return
         if e.key == pygame.K_ESCAPE or e.key == pygame.K_i:
             self._play_sound("cancel")
             self.scene = SCENE_EXPLORE
@@ -2164,9 +2296,13 @@ class PygameGame:
                     rule = self.engine.item_rules.get(item_id, {})
                     use_effect = rule.get("use_effect", "")
                     if use_effect:
-                        self.engine.use_item(item_id)
+                        if use_effect == "gift":
+                            self.gift_item_id = item_id
+                            self.gift_target_idx = 0
+                        else:
+                            self.engine.use_item(item_id)
+                            self._msg(self.engine.last_message)
                         self._play_sound("item")
-                        self._msg(self.engine.last_message)
                     else:
                         self._msg(f"{self.engine.item_name(item_id)}：{rule.get('description', '无描述')}")
         elif e.key == pygame.K_u:
@@ -2634,6 +2770,8 @@ class PygameGame:
             pygame.draw.rect(self.screen, (178, 99, 41), (sx + 6, sy + 11, 20, 8))
             pygame.draw.rect(self.screen, (246, 191, 62), (cx - 2, sy + 17, 4, 7))
             pygame.draw.line(self.screen, (255, 222, 111), (sx + 8, sy + 12), (sx + 23, sy + 12), 2)
+        elif etype == ENTITY_GATHER:
+            self._draw_gather_icon(sx, sy, cx, cy, label)
         elif etype == ENTITY_EXIT:
             pulse = 2 + int((math.sin(pygame.time.get_ticks() / 260) + 1) * 2)
             pygame.draw.circle(self.screen, (38, 88, 86), (cx, cy), 11 + pulse, 2)
@@ -2656,6 +2794,51 @@ class PygameGame:
             ly = sy + TILE_SIZE - lb.get_height()
             self.screen.blit(bg, (lx - 2, ly))
             self.screen.blit(lb, (lx, ly))
+
+
+    def _draw_gather_icon(self, sx: int, sy: int, cx: int, cy: int, label: str) -> None:
+        """Pixel art for gathering nodes: herb/ore/beast/spirit/core/crystal."""
+        tick = pygame.time.get_ticks()
+        glow = abs(int((tick / 400 % 2.0 - 1) * 60))
+        if "\u836f\u6750" in label or "herb" in label.lower():
+            pygame.draw.line(self.screen, (60, 160, 40), (cx, sy + 26), (cx, sy + 14), 3)
+            pygame.draw.ellipse(self.screen, (40, 200, 50), (cx - 2, sy + 6, 10, 10))
+            pygame.draw.ellipse(self.screen, (20, 180, 30), (cx - 10, sy + 12, 8, 6))
+            pygame.draw.ellipse(self.screen, (100 + glow, 255, 100 + glow), (cx - 3, sy + 4, 4, 4))
+            pygame.draw.circle(self.screen, (200, 255, 120, 180), (cx, sy + 8), 2, 1)
+        elif "\u77ff\u77f3" in label or "ore" in label.lower():
+            dark, mid = (80, 70, 60), (140, 120, 90)
+            light = (200 + glow, 180 + glow, 140 + glow)
+            pygame.draw.polygon(self.screen, dark, [(cx-6, sy+24), (cx+2, sy+26), (cx+4, sy+18), (cx-4, sy+12)])
+            pygame.draw.polygon(self.screen, mid, [(cx-4, sy+12), (cx+4, sy+18), (cx+8, sy+8), (cx-2, sy+6)])
+            pygame.draw.polygon(self.screen, light, [(cx-2, sy+6), (cx+8, sy+8), (cx+4, sy+2)])
+            pygame.draw.circle(self.screen, (255, 240, 180, 150), (cx + 3, sy + 4), 2)
+        elif "\u517d\u6750" in label or "beast" in label.lower():
+            bone = (230, 220, 190)
+            pygame.draw.line(self.screen, bone, (cx - 3, sy + 26), (cx + 4, sy + 10), 4)
+            pygame.draw.circle(self.screen, (240, 235, 210), (cx - 4, sy + 24), 3, 2)
+            pygame.draw.circle(self.screen, (240, 235, 210), (cx + 5, sy + 10), 3, 2)
+            pygame.draw.line(self.screen, (200, 190, 160), (cx - 6, sy + 20), (cx - 2, sy + 26), 3)
+        elif "\u7075\u8349" in label or "spirit" in label.lower():
+            pygame.draw.rect(self.screen, (80, 40, 140), (cx - 1, sy + 12, 3, 14))
+            for off in [(3, 4), (-8, 10), (5, 16)]:
+                pulsing = (120 + glow, 80 + glow, 220 + glow)
+                pygame.draw.ellipse(self.screen, pulsing, (cx + off[0] - 5, sy + off[1] - 4, 10, 8))
+            pygame.draw.ellipse(self.screen, (200, 160, 255), (cx - 2, sy + 5, 6, 6))
+        elif "\u9b54\u6838" in label or "core" in label.lower():
+            pygame.draw.circle(self.screen, (60, 20, 80), (cx, sy + 15), 8)
+            pygame.draw.circle(self.screen, (140 + glow, 40 + glow, 200 + glow), (cx, sy + 15), 5)
+            pygame.draw.circle(self.screen, (220, 180, 255, 100), (cx - 1, sy + 13), 2)
+            pygame.draw.circle(self.screen, (255, 255, 255, 80), (cx + 2, sy + 14), 1)
+        elif "\u6676\u77f3" in label or "crystal" in label.lower():
+            for i, (dx, dy, s) in enumerate([(-4, 22, 6), (3, 14, 5), (-2, 8, 4), (5, 20, 3)]):
+                hue = (100 + i * 30, 200 + glow, 240 + i * 5)
+                pygame.draw.polygon(self.screen, hue, [(cx+dx-s, sy+dy), (cx+dx+s, sy+dy), (cx+dx, sy+dy-s*2)])
+            pygame.draw.circle(self.screen, (200, 255, 255, 150), (cx, sy + 12), 2)
+        else:
+            pygame.draw.rect(self.screen, (100, 160, 80), (sx + 8, sy + 14, 16, 12))
+            pygame.draw.ellipse(self.screen, (140, 220, 100), (sx + 6, sy + 6, 20, 12))
+            pygame.draw.circle(self.screen, (200, 255, 160, 120), (cx, sy + 10), 3, 1)
 
     def _draw_npc_icon(self, sx: int, sy: int, npc_id: str) -> None:
         """绘制由人物表身份与原文档案共同决定的 NPC 像素造型。"""
@@ -2809,10 +2992,9 @@ class PygameGame:
         wtext = wallet_display(wallet)
         ln = self.font_small.render(f"资金: {wtext}", True, C_ACCENT)
         self.screen.blit(ln, (x, y)); y += 16
-        # 体力/阅历
-        for name, key in [("体力", "stamina"), ("阅历", "adventure_points")]:
-            ln = self.font_small.render(f"{name}: {p.get(key, 0)}", True, C_TEXT)
-            self.screen.blit(ln, (x, y)); y += 16
+        # 阅历
+        ln = self.font_small.render(f"阅历: {p.get('adventure_points', 0)}", True, C_TEXT)
+        self.screen.blit(ln, (x, y)); y += 16
 
         y += 6
         md = self.engine.current_map()
@@ -2942,13 +3124,265 @@ class PygameGame:
         self.screen.blit(t2, (w // 2 - t2.get_width() // 2, h // 3 + 50))
         p = self.engine.player
         t3 = self.font_small.render(
-            f"当前: 生命 {p['hp']}/{p['max_hp']}  体力 {p.get('stamina', 0)}"
+            f"当前: 生命 {p['hp']}/{p['max_hp']}"
             f"  资金: {wallet_display(p.get('wallet', {}))}",
             True, (150, 150, 160)
         )
         self.screen.blit(t3, (w // 2 - t3.get_width() // 2, h // 3 + 80))
 
     # ── 菜单界面 ────────────────────────────────────────────
+
+
+    # ── 炼药界面 ─────────────────────────────────────────────
+
+    def _key_alchemy(self, e: pygame.event.Event) -> None:
+        recipes = self.engine.available_recipes()
+        if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
+            self.scene = SCENE_MENU
+        elif e.key == pygame.K_UP:
+            self.alchemy_idx = max(0, self.alchemy_idx - 1)
+            self._play_sound("select")
+        elif e.key == pygame.K_DOWN:
+            self.alchemy_idx = min(max(0, len(recipes) - 1), self.alchemy_idx + 1)
+            self._play_sound("select")
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if recipes and self.alchemy_idx < len(recipes):
+                rid = recipes[self.alchemy_idx]["id"]
+                self.engine.craft_pill(rid)
+                self._play_sound("confirm")
+        elif e.key == pygame.K_r:
+            inv = self.engine.player.get("items", [])
+            pills = [i for i in inv if self.engine.item_rules.get(i, {}).get("type") == "consumable"]
+            if pills and self.select_idx < len(pills):
+                self.engine.reverse_engineer(pills[self.select_idx])
+                self._play_sound("confirm")
+        elif e.key == pygame.K_d:
+            self.engine.study_alchemy()
+            self._play_sound("confirm")
+
+    def _render_alchemy(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        fdata = self.engine._get_furnace_data()
+        grade = self.engine.alchemy_grade_name()
+        progress = self.engine.alchemy_progress_text()
+        header = f"炼药术: {grade} [{progress}]  |  药鼎: {fdata.get('name', '无')} (加成+{fdata['bonus']}%)"
+        t = self.font_small.render(header, True, (160, 160, 180))
+        self.screen.blit(t, (20, 10))
+        hint = self.font_small.render("[Up/Down]选择丹方 [Space]炼制 [R]逆向研究 [D]研读 [Esc]返回", True, (120, 120, 130))
+        self.screen.blit(hint, (w // 2 - 180, 36))
+        recipes = self.engine.available_recipes()
+        y_pos = 70
+        for i, r in enumerate(recipes):
+            icon = "> " if i == self.alchemy_idx else "  "
+            color = C_ACCENT if i == self.alchemy_idx else C_TEXT
+            line = f"{icon}{r['name']} -> {r['output']} ({r['grade']}p, rate {r['rate']}%)"
+            text = self.font_body.render(line, True, color)
+            self.screen.blit(text, (20, y_pos))
+            y_pos += 24
+            if i == self.alchemy_idx and r.get("materials"):
+                mats = ", ".join(r["materials"])
+                mt = self.font_small.render(f"    Materials: {mats}", True, (140, 140, 160))
+                self.screen.blit(mt, (20, y_pos))
+                y_pos += 20
+            if y_pos > h - 40:
+                break
+        msg = self.engine.last_message
+        if msg:
+            mt = self.font_small.render(msg, True, (200, 200, 100))
+            self.screen.blit(mt, (20, h - 30))
+
+    # ── 拍卖行界面 ───────────────────────────────────────────
+
+    def _update_auction_listings(self) -> None:
+        self.engine.get_auction_listings()
+        self.auction_listings = self.engine.auction_listings
+        self.auction_idx = 0
+
+    def _key_auction(self, e: pygame.event.Event) -> None:
+        listings = self.engine.auction_listings
+        if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
+            self.scene = SCENE_MENU
+        elif e.key == pygame.K_UP:
+            self.auction_idx = max(0, self.auction_idx - 1)
+            self._play_sound("select")
+        elif e.key == pygame.K_DOWN:
+            self.auction_idx = min(max(0, len(listings) - 1), self.auction_idx + 1)
+            self._play_sound("select")
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if listings and self.auction_idx < len(listings):
+                self.engine.auction_buy(self.auction_idx)
+                self._play_sound("confirm")
+                self._update_auction_listings()
+        elif e.key == pygame.K_s:
+            inv = self.engine.player.get("items", [])
+            if inv and self.select_idx < len(inv):
+                item_id = inv[self.select_idx]
+                price = self.engine.item_rules.get(item_id, {}).get("price_sell", 100)
+                self.engine.auction_sell(self.select_idx, max(1, price))
+                self._play_sound("confirm")
+                self._update_auction_listings()
+
+    def _render_auction(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        wallet = self.engine.wallet_display(self.engine.player.get("wallet", {}))
+        t = self.font_title.render(f"Auction  |  Funds: {wallet}", True, C_ACCENT)
+        self.screen.blit(t, (20, 10))
+        hint = self.font_small.render("[Up/Down]Select [Space]Buy [S]Sell selected [Esc]Back", True, (120, 120, 130))
+        self.screen.blit(hint, (w // 2 - 170, 44))
+        listings = self.engine.auction_listings
+        y_pos = 70
+        for i, item in enumerate(listings):
+            icon = "> " if i == self.auction_idx else "  "
+            color = C_ACCENT if i == self.auction_idx else C_TEXT
+            cur = "Ancient" if item.get("currency") == "ancient" else "Copper"
+            sold = " [Yours]" if item.get("player_sold") else ""
+            left = item.get("time_left", 0)
+            line = f"{icon}{item['name']} - {item['price']}{cur} ({left} periods left){sold}"
+            text = self.font_body.render(line, True, color)
+            self.screen.blit(text, (20, y_pos))
+            y_pos += 26
+            if y_pos > h - 40:
+                break
+        msg = self.engine.last_message
+        if msg:
+            mt = self.font_small.render(msg, True, (200, 200, 100))
+            self.screen.blit(mt, (20, h - 30))
+
+    # ── 功法界面 ─────────────────────────────────────────────
+
+    def _key_technique(self, e: pygame.event.Event) -> None:
+        known = self.engine.player.get("known_techniques", [])
+        if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
+            self.scene = SCENE_MENU
+        elif e.key == pygame.K_UP:
+            self.technique_idx = max(0, self.technique_idx - 1)
+            self._play_sound("select")
+        elif e.key == pygame.K_DOWN:
+            self.technique_idx = min(max(0, len(known) - 1), self.technique_idx + 1)
+            self._play_sound("select")
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if known and self.technique_idx < len(known):
+                tid = known[self.technique_idx]
+                if self.engine.player.get("equipped_technique") == tid:
+                    self.engine.unequip_technique()
+                else:
+                    self.engine.equip_technique(tid)
+                self._play_sound("confirm")
+        elif e.key == pygame.K_u:
+            self.engine.unequip_technique()
+            self._play_sound("confirm")
+
+    def _render_technique(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        t = self.font_title.render("Techniques", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 10))
+        current = self.engine.player.get("equipped_technique")
+        cur_name = "None"
+        if current:
+            tech = next((t for t in TECHNIQUE_DATA if t["id"] == current), None)
+            cur_name = f"{tech['name']} ({tech['element']} tier:{tech['tier']})" if tech else current
+        ct = self.font_small.render(f"Active: {cur_name}", True, (160, 200, 160))
+        self.screen.blit(ct, (20, 36))
+        hint = self.font_small.render("[Up/Down]Select [Space]Equip/Switch [U]Unequip [Esc]Back", True, (120, 120, 130))
+        self.screen.blit(hint, (w // 2 - 160, 62))
+        known = self.engine.player.get("known_techniques", [])
+        y_pos = 90
+        for i, tid in enumerate(known):
+            tech = next((t for t in TECHNIQUE_DATA if t["id"] == tid), None)
+            if not tech:
+                continue
+            icon = "> " if i == self.technique_idx else "  "
+            equipped = " [ACTIVE]" if tid == current else ""
+            color = C_ACCENT if i == self.technique_idx else C_TEXT
+            line = f"{icon}{tech['name']} ({tech['element']} {tech['tier']}){equipped}"
+            text = self.font_body.render(line, True, color)
+            self.screen.blit(text, (20, y_pos))
+            y_pos += 22
+            if i == self.technique_idx:
+                eff = self.font_small.render(f"    Effect: {tech.get('effect', 'none')}  |  {tech.get('desc', '')}", True, (140, 140, 160))
+                self.screen.blit(eff, (20, y_pos))
+                y_pos += 20
+            if y_pos > h - 40:
+                break
+        msg = self.engine.last_message
+        if msg:
+            mt = self.font_small.render(msg, True, (200, 200, 100))
+            self.screen.blit(mt, (20, h - 30))
+
+    # ── 异火界面 ─────────────────────────────────────────────
+
+    def _key_flame(self, e: pygame.event.Event) -> None:
+        collected = self.engine.player.get("collected_flames", [])
+        if e.key == pygame.K_ESCAPE:
+            self._play_sound("cancel")
+            self.scene = SCENE_MENU
+        elif e.key == pygame.K_UP:
+            self.flame_idx = max(0, self.flame_idx - 1)
+            self._play_sound("select")
+        elif e.key == pygame.K_DOWN:
+            self.flame_idx = min(len(HEAVENLY_FLAMES_FULL) - 1, self.flame_idx + 1)
+            self._play_sound("select")
+        elif e.key in (pygame.K_RETURN, pygame.K_SPACE):
+            if self.flame_idx < len(HEAVENLY_FLAMES_FULL):
+                fid = HEAVENLY_FLAMES_FULL[self.flame_idx]["id"]
+                if fid in self.engine.player.get("items", []):
+                    self.engine.equip_flame(fid)
+                elif self.engine.player.get("equipped_flame") == fid:
+                    self.engine.unequip_flame()
+                self._play_sound("confirm")
+        elif e.key == pygame.K_u:
+            self.engine.unequip_flame()
+            self._play_sound("confirm")
+
+    def _render_flame(self) -> None:
+        self.screen.fill((20, 20, 30))
+        w, h = self.screen.get_size()
+        collected = self.engine.player.get("collected_flames", [])
+        current = self.engine.player.get("equipped_flame")
+        t = self.font_title.render(f"Flames [{len(collected)}/23]", True, C_ACCENT)
+        self.screen.blit(t, (w // 2 - t.get_width() // 2, 10))
+        cur_name = "None"
+        if current:
+            f = next((f for f in HEAVENLY_FLAMES_FULL if f["id"] == current), None)
+            cur_name = f"{f['name']} ({f['tier']})" if f else current
+        ct = self.font_small.render(f"Active: {cur_name}", True, (160, 200, 160))
+        self.screen.blit(ct, (20, 36))
+        hint = self.font_small.render("[Up/Down]Select [Space]Equip/Store [U]Unequip [Esc]Back", True, (120, 120, 130))
+        self.screen.blit(hint, (w // 2 - 160, 62))
+        y_pos = 90
+        for i, flame in enumerate(HEAVENLY_FLAMES_FULL):
+            fid = flame["id"]
+            owned = fid in collected or fid in self.engine.player.get("items", [])
+            equipped = fid == current
+            icon = "> " if i == self.flame_idx else "  "
+            status = " [ACTIVE]" if equipped else (" [OWNED]" if owned else " [LOST]")
+            color = C_ACCENT if i == self.flame_idx else (C_TEXT if owned else (100, 100, 110))
+            line = f"{icon}#{flame['rank']} {flame['name']} ({flame['tier']}){status}"
+            text = self.font_body.render(line, True, color)
+            self.screen.blit(text, (20, y_pos))
+            y_pos += 22
+            if i == self.flame_idx:
+                bonus = FLAME_TIER_BONUS.get(flame['tier'], {})
+                abonus = FLAME_ALCHEMY_BONUS.get(flame['tier'], {})
+                detail = f"    Combat: ATK+{bonus.get('atk',0)} SPD+{bonus.get('spd',0)} Fire+{bonus.get('fire_power',0)}  |  Alchemy: Success+{abonus.get('success',0)}% EXP+{abonus.get('exp',0)}"
+                eff = self.font_small.render(detail, True, (140, 140, 160))
+                self.screen.blit(eff, (20, y_pos))
+                y_pos += 20
+                desc = self.font_small.render(f"    {flame.get('desc', '')}", True, (120, 120, 140))
+                self.screen.blit(desc, (20, y_pos))
+                y_pos += 20
+            if y_pos > h - 40:
+                break
+        msg = self.engine.last_message
+        if msg:
+            mt = self.font_small.render(msg, True, (200, 200, 100))
+            self.screen.blit(mt, (20, h - 30))
 
     def _render_menu(self) -> None:
         self.screen.fill((20, 20, 30))
@@ -2967,6 +3401,20 @@ class PygameGame:
     def _render_inventory(self) -> None:
         self.screen.fill((20, 20, 30))
         w, h = self.screen.get_size()
+        if self.gift_item_id:
+            targets = self.engine.gift_targets()
+            title = self.font_title.render(
+                f"赠送 {self.engine.item_name(self.gift_item_id)}", True, C_ACCENT
+            )
+            self.screen.blit(title, (w // 2 - title.get_width() // 2, 30))
+            for index, target in enumerate(targets):
+                color = C_ACCENT if index == self.gift_target_idx else C_TEXT
+                prefix = "▶ " if index == self.gift_target_idx else "  "
+                line = self.font_body.render(
+                    f"{prefix}{target['name']}（{target['stage']}）", True, color
+                )
+                self.screen.blit(line, (w // 2 - 130, 100 + index * 28))
+            return
 
         # 标题 + 操作提示
         t = self.font_title.render("背 包", True, C_ACCENT)
@@ -3150,14 +3598,8 @@ class CombatView:
 
     @staticmethod
     def _combat_usable_items(engine: GameEngine) -> List[str]:
-        """返回可使用的回复类物品列表。"""
-        result = []
-        for item_id in engine.player.get("items", []):
-            item = engine.item_rules.get(item_id, {})
-            effect = item.get("use_effect", "")
-            if "hp:+" in effect or "douqi:+" in effect:
-                result.append(item_id)
-        return result
+        """返回战斗中可使用的物品列表。"""
+        return engine.combat_usable_items()
 
     @staticmethod
     def _element_color(element: str) -> Tuple[int, int, int]:
@@ -3364,7 +3806,23 @@ class CombatView:
         rt = font_body.render(f"第 {c['round']} 回合", True, (200, 160, 40))
         screen.blit(rt, (w - rt.get_width() - 18, ey + 104))
 
-        # 菜单
+        # ── CTB action gauge ──
+        p_gauge = c.get("player_gauge", 0)
+        e_gauge = c.get("enemy_gauge", 0)
+        p_pct = min(1.0, p_gauge / 1000.0)
+        e_pct = min(1.0, e_gauge / 1000.0)
+        gx, gy, gw, gh = 10, ey + 84, w - 20, 8
+        pygame.draw.rect(screen, (30, 30, 40), (gx, gy, gw, gh), border_radius=2)
+        pygame.draw.rect(screen, (220, 80, 80), (gx, gy, int(gw * e_pct), gh), border_radius=2)
+        el = font_body.render(f"Gauge {e_gauge}/1000", True, (180, 180, 190))
+        screen.blit(el, (gx + 4, gy - 2))
+        pyg = py_ + 70
+        pygame.draw.rect(screen, (30, 30, 40), (gx, pyg, gw, gh), border_radius=2)
+        pygame.draw.rect(screen, (60, 200, 100), (gx, pyg, int(gw * p_pct), gh), border_radius=2)
+        pl = font_body.render(f"Gauge {p_gauge}/1000", True, (180, 180, 190))
+        screen.blit(pl, (gx + 4, pyg - 2))
+
+        # menu
         my_ = py_ + 80
         if self.sub_mode:
             # 子菜单：技能选择或物品选择

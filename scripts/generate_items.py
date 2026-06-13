@@ -1263,6 +1263,16 @@ def generate_loot_table(equipment: Dict, items: Dict) -> Dict[str, List[Tuple[st
 def main() -> None:
     equipment = generate_equipment()
     items = generate_items()
+    removed_item_ids = {
+        "item_repair_hammer", "item_identify_scroll", "item_pet_food",
+        "item_pet_taming_reins", "item_enchant_stone_1", "item_enchant_stone_2",
+        "item_enchant_stone_3", "item_enchant_stone_4", "item_enchant_stone_5",
+    }
+    items = {
+        item_id: item
+        for item_id, item in items.items()
+        if item_id not in removed_item_ids
+    }
     loot = generate_loot_table(equipment, items)
 
     print(f"装备: {len(equipment)} 件")

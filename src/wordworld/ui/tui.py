@@ -152,7 +152,7 @@ class CharacterScreen(InfoScreen):
             f"进度 {p['progress']:.1f}%  阅历 {p['adventure_points']}",
             "",
             f"生命 {p['hp']}/{p['max_hp']}  {_hp_bar(p['hp'], p['max_hp'])}",
-            f"斗气 {p['douqi']}  体力 {p['stamina']}  资金 {wallet_display(p.get('wallet', {}))}",
+            f"斗气 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}",
             f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}",
             f"暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
             f"灵魂 {p['soul']}  炼药 {p['alchemy']}  声望 {p['reputation']}",
@@ -233,7 +233,11 @@ class ItemsScreen(_SubScreen):
         num = int(event.button.id.replace("use-", "")) if event.button.id else 0
         items = self.game.player.get("items", [])
         if 1 <= num <= len(items):
-            self.game.use_item(items[num - 1])
+            item_id = items[num - 1]
+            if self.game.item_rules.get(item_id, {}).get("use_effect") == "gift":
+                self.app.push_screen(GiftTargetScreen(self.game, item_id))
+                return
+            self.game.use_item(item_id)
             self.query_one("#sub-msg", Static).update(
                 self.game.last_message or ""
             )
@@ -242,6 +246,36 @@ class ItemsScreen(_SubScreen):
     @on(Button.Pressed, "#btn-back")
     def _back(self) -> None:
         self.dismiss()
+
+
+class GiftTargetScreen(_KeyboardNavigation, ModalScreen[None]):
+    """赠礼目标选择。"""
+
+    def __init__(self, game: GameEngine, item_id: str) -> None:
+        super().__init__()
+        self.game = game
+        self.item_id = item_id
+        self.targets = game.gift_targets()
+
+    def compose(self) -> ComposeResult:
+        yield Static(f"[bold]赠送 {self.game.item_name(self.item_id)}[/]")
+        for index, target in enumerate(self.targets, start=1):
+            yield Button(
+                f"{target['name']}（{target['stage']}）",
+                id=f"gift-{index}",
+            )
+        yield Button("取消", id="gift-cancel")
+
+    @on(Button.Pressed)
+    def _choose(self, event: Button.Pressed) -> None:
+        button_id = event.button.id or ""
+        if button_id == "gift-cancel":
+            self.dismiss()
+            return
+        if button_id.startswith("gift-"):
+            index = int(button_id.split("-", 1)[1]) - 1
+            self.game.give_gift(self.item_id, self.targets[index]["id"])
+            self.dismiss()
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -260,7 +294,7 @@ class CultivationScreen(_SubScreen):
 
         lines = [
             f"[bold]修炼进度 {pct:.1f}%[/]  经验 {self.game.player.get('exp',0)}",
-            f"斗气 {self.game.player['douqi']}  体力 {self.game.player['stamina']}",
+            f"斗气 {self.game.player['douqi']}",
             "",
         ]
         if pct >= 100.0 and level < 100:
@@ -315,7 +349,6 @@ class ExploreScreen(_SubScreen):
         actions = self.game.exploration_actions()
         lines = [
             f"[bold]当前区域：{map_rule['name']}[/]",
-            f"当前体力：{self.game.player['stamina']}",
             "",
             "[bold]选择探索取向：[/]",
         ]
@@ -465,7 +498,6 @@ class SystemScreen(_SubScreen):
         yield Static(
             f"当前 {self.game.time_text()}｜{map_rule['name']} {rest_hint}\n"
             f"生命 {self.game.player['hp']}/{self.game.player['max_hp']}"
-            f"  体力 {self.game.player['stamina']}"
         )
         yield Static("", id="sub-msg")
         with Horizontal():
@@ -576,7 +608,13 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
     def _def(self) -> None: self._do_action("defend")
 
     @on(Button.Pressed, "#btn-item")
-    def _item(self) -> None: self._do_action("item")
+    def _item(self) -> None:
+        items = self.game.combat_usable_items()
+        if not items:
+            self.game.last_message = "没有可在战斗中使用的物品。"
+            self._refresh_combat()
+            return
+        self.app.push_screen(CombatItemSelectScreen(self.game, items, self._do_action))
 
     @on(Button.Pressed, "#btn-esc")
     def _esc(self) -> None: self._do_action("escape")
@@ -592,7 +630,7 @@ class CombatScreen(_KeyboardNavigation, ModalScreen[None]):
     def action_attack(self) -> None: self._do_action("attack")
     def action_skill(self) -> None: self._skill()
     def action_defend(self) -> None: self._do_action("defend")
-    def action_item(self) -> None: self._do_action("item")
+    def action_item(self) -> None: self._item()
     def action_escape(self) -> None: self._do_action("escape")
     def action_auto(self) -> None: self._auto()
 
@@ -639,6 +677,33 @@ class SkillSelectScreen(_KeyboardNavigation, ModalScreen[None]):
 
     def action_cancel(self) -> None:
         self.dismiss()
+
+
+class CombatItemSelectScreen(_KeyboardNavigation, ModalScreen[None]):
+    """战斗中选择物品。"""
+
+    def __init__(self, game: GameEngine, items: list[str], callback: Callable) -> None:
+        super().__init__()
+        self.game = game
+        self.items = items
+        self.callback = callback
+
+    def compose(self) -> ComposeResult:
+        yield Static("[bold]选择战斗物品[/]")
+        for index, item_id in enumerate(self.items[:9], start=1):
+            yield Button(self.game.item_name(item_id), id=f"combat-item-{index}")
+        yield Button("取消", id="combat-item-cancel")
+
+    @on(Button.Pressed)
+    def _choose(self, event: Button.Pressed) -> None:
+        button_id = event.button.id or ""
+        if button_id == "combat-item-cancel":
+            self.dismiss()
+            return
+        if button_id.startswith("combat-item-"):
+            index = int(button_id.rsplit("-", 1)[1]) - 1
+            self.callback("item", self.items[index])
+            self.dismiss()
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -818,7 +883,6 @@ class HubScreen(_KeyboardNavigation, Screen[None]):
             f"修炼 {prog:.1f}%｜"
             f"生命 {p['hp']}/{p['max_hp']}"
             f"  斗气 {p['douqi']}"
-            f"  体力 {p['stamina']}"
             f"  阅历 {p['adventure_points']}"
         )
         self.query_one("#tr3", Label).update(right_3)

@@ -1,7 +1,7 @@
 # Session: 2026-06-11
 **Date:** 2026-06-11
 **Started:** 09:14
-**Last Updated:** 13:20
+**Last Updated:** 13:22
 **Project:** wordworld
 **Branch:** master
 **Worktree:** D:\work\wordworld
@@ -11,7 +11,6 @@
 ## Session Summary
 
 ### Tasks
-- 装备至少增加至500件，按等级分配；所有装备不需要等级限制；但是低等级怪物不能爆出高等级物品；道具方面也至少增加至500件；包括功能性道具，消耗性道具，特殊道具，关键道具；每件道具需要具体的实际功能；道具参考原文；缺少的再自行补齐；装备和道具设计要合理；
 - 异火 16 / 功法书 7偏少了，原著有23 种异火，同时功法书和技能书要区分开来；游戏中出现的功法和技能都应该有对应的技能书或者功法书可以学习，只是获取的难度不一致而已；注意每种功法或者技能都有对应功能而且不一样；同时要合理；功法每种元素至少20种，技能至少300+；同时要合理设计克制系统与组合增益系统；
 - 原著种是不是还有木系和土系两种元素？查找一下是否有遗漏
 - 炼药术也是有熟练度的；一共十级；从一品到九品，第十级为帝品；炼药术每一品中有十个小进度，每个小进度经验达到百分之百才可以进入下一个进度；品级之间也需要突破。突破难度和升级一样；
@@ -21,6 +20,7 @@
 - 现在全面检测一下游戏各个方面设计是否合理；哪里还有问题；
 - 记录会话
 - # Save Session Command  Capture everything that happened in this session — what was built, what worked, what failed, what's left — and write it to a dated file so the next session can pick up exactl
+- 不是说要存到项目中吗？
 
 ### Files Modified
 - D:\work\wordworld\src\wordworld\core\engine.py
@@ -38,7 +38,7 @@
 Glob, Read, Bash, Grep, TaskCreate, TaskUpdate, Edit, Write, Skill
 
 ### Stats
-- Total user messages: 12
+- Total user messages: 13
 <!-- ECC:SUMMARY:END -->
 
 ### Notes for Next Session

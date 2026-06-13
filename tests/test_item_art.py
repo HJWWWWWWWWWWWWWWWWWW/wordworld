@@ -17,7 +17,7 @@ class ItemArtTests(unittest.TestCase):
         item_ids = list(ITEM_DATA) + list(EQUIPMENT_DATA)
         signatures = [visual_signature(item_id) for item_id in item_ids]
 
-        self.assertEqual(len(item_ids), 2538)
+        self.assertEqual(len(item_ids), 2540)
         self.assertEqual(len(signatures), len(set(signatures)))
 
 

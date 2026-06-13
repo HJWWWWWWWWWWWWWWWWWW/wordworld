@@ -9468,7 +9468,7 @@ ALCHEMY_RECIPE_DATA=[
   {
     "id": "recipe_b07",
     "name": "丹方·古方",
-    "output": "item_despiration_pill",
+    "output": "item_desperation_pill",
     "grade": 4,
     "materials": [
       [
@@ -9957,4 +9957,14 @@ ALCHEMY_RECIPE_DATA=[
     "base_rate": 40,
     "is_special": False
   }
+]
+
+_REMOVED_RECIPE_OUTPUTS = {
+  "item_repair_hammer", "item_identify_scroll", "item_pet_food",
+  "item_pet_taming_reins", "item_enchant_stone_1", "item_enchant_stone_2",
+  "item_enchant_stone_3", "item_enchant_stone_4", "item_enchant_stone_5",
+}
+ALCHEMY_RECIPE_DATA[:] = [
+  _recipe for _recipe in ALCHEMY_RECIPE_DATA
+  if _recipe.get("output") not in _REMOVED_RECIPE_OUTPUTS
 ]

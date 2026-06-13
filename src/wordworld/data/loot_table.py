@@ -10176,3 +10176,13 @@ LOOT_TABLE: Dict[str, List[Tuple[str, int]]] = {
     ]
   ]
 }
+
+_REMOVED_LOOT_ITEMS = {
+  "item_repair_hammer", "item_identify_scroll", "item_pet_food",
+  "item_pet_taming_reins", "item_enchant_stone_1", "item_enchant_stone_2",
+  "item_enchant_stone_3", "item_enchant_stone_4", "item_enchant_stone_5",
+}
+for _tier, _entries in LOOT_TABLE.items():
+  LOOT_TABLE[_tier] = [
+    _entry for _entry in _entries if _entry[0] not in _REMOVED_LOOT_ITEMS
+  ]

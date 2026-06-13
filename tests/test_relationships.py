@@ -41,8 +41,8 @@ class LatestStoryTests(unittest.TestCase):
 
     def test_level_progression_uses_latest_attribute_rules(self) -> None:
         game = GameEngine()
-        # Lv1: 每进度 25 exp，10 进度 = 250 exp = 100%
-        game.apply_effects("exp:+250")
+        # Lv1: level^2/2=0.5→max(1,0.5)=1 per decile, total=10 per level
+        game.apply_effects("exp:+10")
 
         self.assertEqual(game.player["level"], 1)
         self.assertEqual(game.player["progress"], 100.0)
@@ -458,16 +458,14 @@ class RpgLoopTests(unittest.TestCase):
             self.assertIn(map_id, game.maps)
             self.assertEqual(game.maps[map_id]["safe_zone"], safe_zone)
 
-    def test_exploration_spends_stamina_and_grants_adventure_progress(self) -> None:
+    def test_exploration_returns_encounter_and_grants_adventure_progress(self) -> None:
         game = GameEngine()
-        stamina = game.player["stamina"]
 
         encounter = game.explore()
         self.assertIsNotNone(encounter)
-        self.assertLess(game.player["stamina"], stamina)
         self.assertTrue(game.choose_encounter_option(1))
         self.assertGreaterEqual(game.player["adventure_points"], 1)
-        self.assertIn("你在“随性游历”中选择了", game.last_message)
+        self.assertIn('你在“随性游历”中选择了', game.last_message)
         self.assertIn("结果：", game.last_message)
 
     def test_exploration_actions_have_distinct_costs_and_meaningful_rewards(self) -> None:
@@ -686,15 +684,13 @@ class TimeScheduleTests(unittest.TestCase):
         self.assertIn("item_elixir", game.player["items"])
         self.assertGreater(game.player["reputation"], 0)
 
-    def test_night_exploration_costs_more_and_rewards_more_progress(self) -> None:
+    def test_night_exploration_rewards_more_progress(self) -> None:
         game = GameEngine()
         game.player["time_period"] = 2
-        stamina = game.player["stamina"]
 
         game.explore()
         game.choose_encounter_option(game.encounter_options()[0][0])
 
-        self.assertEqual(stamina - game.player["stamina"], 5)
         self.assertGreaterEqual(game.player["adventure_points"], 2)
 
 
@@ -705,8 +701,8 @@ class ProgressBreakthroughTests(unittest.TestCase):
 
     def test_progress_increases_when_exp_sufficient(self) -> None:
         game = GameEngine()
-        # Lv1: 每级 250 exp = 100%，50 exp = 20%
-        game.apply_effects("exp:+50")
+        # Lv1: total=10 per level, 3 exp = 30% progress
+        game.apply_effects("exp:+3")
         self.assertGreater(game.player["progress"], 0.0)
         self.assertEqual(game.player["exp"], 0)
 
@@ -759,7 +755,6 @@ class ProgressBreakthroughTests(unittest.TestCase):
         game = GameEngine()
         game.player["flags"].append("ring_awakened")
         for _ in range(8):
-            game.player["stamina"] = 100
             game.cultivate()
         self.assertGreater(float(game.player["progress"]), 0.0)
 

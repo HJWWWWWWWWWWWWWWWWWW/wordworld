@@ -116,7 +116,19 @@ def combat_loop(game: GameEngine) -> None:
         elif choice == 3:
             game.combat_action("defend")
         elif choice == 4:
-            game.combat_action("item")
+            items = game.combat_usable_items()
+            if not items:
+                game.last_message = "没有可在战斗中使用的物品。"
+                show_result(game)
+                continue
+            thin()
+            print("  选择战斗物品：")
+            for index, item_id in enumerate(items, start=1):
+                print(f"  {index}. {game.item_name(item_id)}")
+            item_choice = ask_number()
+            if item_choice is None or not 1 <= item_choice <= len(items):
+                continue
+            game.combat_action("item", items[item_choice - 1])
         elif choice == 5:
             game.combat_action("escape")
         elif choice == 6:
@@ -151,7 +163,7 @@ def encounter_loop(game: GameEngine) -> None:
 
 def exploration_menu(game: GameEngine) -> None:
     bar()
-    print(f"  当前区域：{game.current_map()['name']}  当前体力：{game.player['stamina']}")
+    print(f"  当前区域：{game.current_map()['name']}")
     thin()
     actions = game.exploration_actions()
     for index, action in enumerate(actions, start=1):
@@ -251,7 +263,6 @@ def render_hub(game: GameEngine) -> None:
     right_2 = (f"修炼 {prog:.1f}%｜"
                f"生命 {game.player['hp']}/{game.player['max_hp']}"
                f"  斗气 {game.player['douqi']}"
-               f"  体力 {game.player['stamina']}"
                f"  阅历 {game.player['adventure_points']}")
     if phase:
         subnode = game.current_story_subnode()
@@ -269,7 +280,8 @@ def render_hub(game: GameEngine) -> None:
     # ── 中层：菜单 ──
     thin()
     print("  1.人物        2.物品        3.斗技        4.修炼")
-    print("  5.探索        6.移动        7.主线        8.系统")
+    print("  5.炼药        6.拍卖        7.功法        8.异火")
+    print("  9.探索       10.移动       11.主线       12.系统")
     print("  q.退出")
 
     # ── 底层：消息框 ──
@@ -288,7 +300,7 @@ def menu_character(game: GameEngine) -> None:
         f"修炼进度 {p['progress']:.1f}%  冒险阅历 {p['adventure_points']}",
         "",
         f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}/{game.attribute_rules['douqi']['max']}"
-        f"  体力 {p['stamina']}  资金 {wallet_display(p.get('wallet', {}))}",
+        f"  资金 {wallet_display(p.get('wallet', {}))}",
         f"攻击 {p['atk']}  防御 {p['def']}  速度 {p['spd']}"
         f"  暴击 {p.get('crit_rate',0)}%  命中 {p.get('hit_rate',0)}%",
         f"灵魂力量 {p['soul']}  炼药术 {p['alchemy']}  声望 {p['reputation']}",
@@ -341,7 +353,18 @@ def menu_items(game: GameEngine) -> None:
         if choice is None:
             return
         if 1 <= choice <= len(items):
-            game.use_item(items[choice - 1])
+            item_id = items[choice - 1]
+            if game.item_rules.get(item_id, {}).get("use_effect") == "gift":
+                targets = game.gift_targets()
+                msg("—— 选择赠礼目标 ——", *[
+                    f"{i}. {target['name']}（{target['stage']}）"
+                    for i, target in enumerate(targets, start=1)
+                ])
+                target_choice = ask_number()
+                if target_choice and 1 <= target_choice <= len(targets):
+                    game.give_gift(item_id, targets[target_choice - 1]["id"])
+            else:
+                game.use_item(item_id)
             show_result(game)
             press_enter()
 
@@ -376,8 +399,7 @@ def menu_cultivation(game: GameEngine) -> None:
         lines = [
             f"修炼进度 {pct:.1f}%  "
             f"经验 {game.player.get('exp', 0)}  "
-            f"斗气 {game.player['douqi']}/{game.attribute_rules['douqi']['max']}"
-            f"  体力 {game.player['stamina']}",
+            f"斗气 {game.player['douqi']}/{game.attribute_rules['douqi']['max']}",
             "",
             "  1. 修炼 —— 消耗体力，运转斗气获得经验",
         ]
@@ -523,8 +545,7 @@ def menu_system(game: GameEngine) -> None:
         rest_hint = "（安全区，可以休息）" if can_rest else "（非安全区，无法休息）"
         lines = [
             f"当前 {game.time_text()}｜{map_rule['name']} {rest_hint}",
-            f"生命 {game.player['hp']}/{game.player['max_hp']}"
-            f"  体力 {game.player['stamina']}",
+            f"生命 {game.player['hp']}/{game.player['max_hp']}",
             "",
             "  1. 休息 —— 推进到次日清晨，恢复生命体力",
             "  2. 保存进度",
