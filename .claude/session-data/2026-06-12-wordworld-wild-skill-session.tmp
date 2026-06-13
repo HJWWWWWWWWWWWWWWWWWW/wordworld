@@ -1,0 +1,85 @@
+# Session: 2026-06-12
+
+**Started:** ~11:10
+**Last Updated:** ~14:30
+**Project:** D:\work\wordworld (斗破苍穹 RPG)
+**Topic:** 野外怪物刷新 + 采集美术 + 掉落稀有度 + 审计修复 + 技能等级 + 功法双槽
+
+---
+
+## What We Are Building
+
+本次会话覆盖了六大子系统：
+
+1. **野外怪物刷新系统** — explore() 中增加动态野外遇敌判定，按地图等级匹配 mob/elite。所有野外地图自动生成固定敌人点位+采集物点位，6时段重生。野兽敌人只掉材料。
+2. **采集物像素美术** — 6种采集节点（药材/矿石/兽材/灵草/魔核/晶石）各有独立像素造型+呼吸发光动画。
+3. **掉落稀有度系统** — 6级稀有度 common 1.0x→mythic 3.0x。不同敌人类型有不同稀有度分布。
+4. **审计修复** — 删除min()钳制改用player-relative智能钳制、EXP公式重做为level²/2、技能+50%ATK、修复丹方笔误。
+5. **技能等级系统** — 5级制，使用次数升级(10/30/60/100)，Lv3/Lv5解锁更强效果。可用技能点直接提升。
+6. **功法双槽** — 焚决固定槽(吞噬异火升级)+第二槽自由替换。升级获10属性点+5技能点。初始无技能无功法。
+
+---
+
+## What WORKED (with evidence)
+
+- **126/126 测试全部通过** — `python -m unittest discover -s tests -v` OK, 0.8s
+- **野外遇敌** — `_spawn_wild_enemy(5)` 成功返回敌人
+- **stamina条件绕过** — `check_conditions("stamina>=10")` 返回 True
+- **稀有度掉落** — 1000次模拟: Mob 81% common, Elite 5.1% epic, Boss 24% epic, FinalBoss 9% mythic
+- **EXP公式** — Lv1=10, Lv50=12500, Lv90=40500 total
+- **技能等级** — 30 uses → Lv3, dmg x1.3, crit +5%
+- **功法双槽** — 焚决→fixed, 冰心诀→second, unequip works
+- **焚决升级** — 吞噬flame → fen_jue_level++
+- **属性点/技能点** — allocate_attr_point + upgrade_skill_with_point 正常工作
+- **42/42元素对** — cross_element_effects 完整
+- **23/23异火** — 所有flame_data.py异火在item_data.py有对应条目
+
+---
+
+## What Did NOT Work (and why)
+
+- **纯删除min()钳制** — Boss属性爆炸，改用player-relative智能钳制
+- **纳戒ID不在item_data.py** — 补充了4个纳戒条目
+- **GateGuard频繁阻断** — 每次需手动陈述4项事实，约15次
+- **_apply_level_gains属性点被跳过** — 移动到Excel规则检查之前
+
+---
+
+## Current State of Files
+
+| File | Status |
+|------|--------|
+| `src/wordworld/core/engine.py` | COMPLETE — 野外+稀有度+技能+功法+属性点+审计 |
+| `src/wordworld/data/item_data.py` | COMPLETE — +7异火 +4纳戒 |
+| `src/wordworld/data/technique_data.py` | COMPLETE — 140种品阶差异化 |
+| `src/wordworld/data/elemental_rules.py` | COMPLETE — 42/42元素对 |
+| `src/wordworld/data/recipe_data.py` | COMPLETE — 笔误修复 |
+| `src/wordworld/ui/pygame_ui.py` | COMPLETE — 4场景+采集美术+CTB+刷怪+respawn |
+| `src/wordworld/ui/console.py` | COMPLETE — 菜单重排 |
+| `tests/test_new_systems.py` | COMPLETE — 异火/功法/纳戒/拍卖 |
+| `tests/test_wild_encounter.py` | COMPLETE — 野外/野兽/stamina |
+| `tests/test_relationships.py` | COMPLETE — EXP测试更新 |
+
+---
+
+## Decisions Made
+
+- **Player-relative智能钳制** — 保留Excel差异化+保证可玩性
+- **技能点双通道(使用+点数)** — 自然成长+主动选择
+- **固定槽+第二槽** — 焚决永久+第二灵活
+- **EXP level²/2** — 简单平滑
+- **突破概率不变** — Lv99走剧情
+- **stamina条件始终通过** — 体力已移除
+
+---
+
+## Exact Next Step
+
+测试pygame_ui炼药/拍卖行/功法/异火面板实际可用性。按元素定制技能Lv3/Lv5特殊效果。
+
+## Environment
+
+```bash
+cd D:\work\wordworld
+python -m unittest discover -s tests -v  # 126 pass
+```

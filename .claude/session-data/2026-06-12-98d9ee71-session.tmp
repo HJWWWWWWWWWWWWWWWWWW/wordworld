@@ -1,0 +1,49 @@
+# Session: 2026-06-12
+**Date:** 2026-06-12
+**Started:** 09:48
+**Last Updated:** 11:10
+**Project:** wordworld
+**Branch:** master
+**Worktree:** D:\work\wordworld
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 读取一下之前的记忆
+- 当前还有行动力这个限制吗？
+- 从1级到99级要打多少只怪物才能升一级，按级区分给我列表；
+- 取消行动力的限制，然后将升级成本按等级拉开差距，重新设计升级经验公式；
+- 人物属性和怪物属性设计合理吗？
+- Lv99 斗圣高→斗帝保持原来的突破几率，因为正常是走剧情突破的；其他的按优先级开始修复，主要走提高玩家基础ATK
+- 增加行动条这个设计，人物和怪物都有基础速度，根据速度来计算谁先达到行动条顶端谁先行动；如果速度足够快甚至可以行动两回对方才行动一次；
+- claude update
+- 记录聊天
+- # Save Session Command  Capture everything that happened in this session — what was built, what worked, what failed, what's left — and write it to a dated file so the next session can pick up exactl
+
+### Files Modified
+- C:\Users\Administrator\.claude\plans\dapper-drifting-pond.md
+- D:\work\wordworld\src\wordworld\core\engine.py
+- D:\work\wordworld\src\wordworld\data\item_data.py
+- D:\work\wordworld\src\wordworld\ui\console.py
+- D:\work\wordworld\src\wordworld\ui\tui.py
+- D:\work\wordworld\src\wordworld\ui\gui.py
+- D:\work\wordworld\src\wordworld\ui\pygame_ui.py
+- D:\work\wordworld\tests\test_relationships.py
+- C:\Users\Administrator\.claude\session-data\2026-06-12-wordworld-session.tmp
+
+### Tools Used
+Read, Glob, Grep, Bash, EnterPlanMode, Agent, Write, ExitPlanMode, TaskCreate, TaskUpdate, Edit, Skill
+
+### Stats
+- Total user messages: 10
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```

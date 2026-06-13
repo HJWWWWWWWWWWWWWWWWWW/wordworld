@@ -1,0 +1,58 @@
+# Session: 2026-06-12
+**Date:** 2026-06-12
+**Started:** 11:14
+**Last Updated:** 17:30
+**Project:** wordworld
+**Branch:** master
+**Worktree:** D:\work\wordworld
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 修复这些问题，除剧情驱动的这些敌人外，要让之前设计的众多小怪，精英，boss都可以挑战；使其融入到各个地图当中；同时增加野外怪物的刷新机制所有怪物都可以重复挑战除剧情敌人外；同时魔兽类敌人不会掉落货币，只会掉落材料；
+- 那么小怪，精英，boss分别要如何才能遭遇呢？还是说野外有固定点位触碰触发战斗？
+- 可以，就按这个方案来修改；除了遭遇战，还需要增加固定点位怪物和采集物；
+- 野外地图"采"字格，不要单纯一个采字，美术升级一下；发光的草药或者矿石样还是其他的通用类型你自己来决定；同时掉落分级，不单单只有等级，还要区分稀有度；按稀有度来区分装备的强度；普通装备是1；那么一级别的装备就应该至少1.2，最高3；你自行决定；
+- 野外地图"采"字格，不要单纯一个采字，美术升级一下；发光的草药或者矿石样还是其他的通用类型你自己来决定；同时掉落分级，不单单只有等级，还要区分稀有度；按稀有度来区分装备的强度；普通装备是1；那么一级别的装备就应该至少1.2，依次类推最高3；其中具体如何分配你自行决定；
+- 对游戏进行全面的审计；看看有哪些不合理的地方？
+- 可以就按照你说的来修改，除了突破概率后期离谱（最高需 10000 次尝试）这一点不动；
+- 在同步增加技能等级系统，通过使用次数来升级；一共五级，每升到3级和5级后会有更强力效果或者出现新的效果；功法类技能不可升级；但是可以学习高级功法来替换低级功法；唯一例外就是关键剧情功法焚决（可以通过吞噬异火来提升功法等级）；人物刚出生时，不会功法也不会技能；八极崩和焚决之类的技能都是要随着剧情推进才会习得的；将焚决这个功法改为人物固定功法，同时允许人物习得第二部功法；第二部功法可以随意替换；
+- 记录聊天记录
+- # Save Session Command  Capture everything that happened in this session — what was built, what worked, what failed, what's left — and write it to a dated file so the next session can pick up exactl
+
+### Files Modified
+- C:\Users\Administrator\.claude\plans\velvet-hopping-axolotl.md
+- D:\work\wordworld\src\wordworld\data\item_data.py
+- D:\work\wordworld\scripts\upgrade_techniques.py
+- D:\work\wordworld\src\wordworld\data\elemental_rules.py
+- D:\work\wordworld\src\wordworld\core\engine.py
+- D:\work\wordworld\tests\test_item_art.py
+- D:\work\wordworld\scripts\patch_pygame_ui.py
+- D:\work\wordworld\src\wordworld\ui\pygame_ui.py
+- D:\work\wordworld\src\wordworld\ui\console.py
+- D:\work\wordworld\tests\test_new_systems.py
+- D:\work\wordworld\scripts\patch_wild_encounter.py
+- D:\work\wordworld\tests\test_wild_encounter.py
+- D:\work\wordworld\scripts\patch_map_spawns.py
+- D:\work\wordworld\scripts\patch_gather_rarity.py
+- D:\work\wordworld\scripts\patch_audit_fixes.py
+- D:\work\wordworld\tests\test_relationships.py
+- D:\work\wordworld\scripts\patch_skill_levels.py
+- C:\Users\Administrator\.claude\session-data\2026-06-12-wordworld-wild-skill-session.tmp
+
+### Tools Used
+Bash, Glob, Read, TaskCreate, TaskUpdate, Agent, EnterPlanMode, Write, ExitPlanMode, Grep, Edit, mcp__plugin_claude-mem_mcp-search__smart_outline, Skill
+
+### Stats
+- Total user messages: 17
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```

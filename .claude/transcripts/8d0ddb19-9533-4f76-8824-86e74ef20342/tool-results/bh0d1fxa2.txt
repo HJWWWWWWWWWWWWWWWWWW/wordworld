@@ -1,0 +1,347 @@
+Total encounters: 340
+Encounters with combat options: 4
+Total enemies: 363
+Total maps: 269
+Maps with encounters: 269/269
+
+=== All encounter IDs and their map_ids ===
+rand_magic_beast                         | map=map_magic_mountains            | weight= 45 [COMBAT]
+rand_find_herb                           | map=map_magic_mountains            | weight= 35
+rand_desert_map                          | map=map_tager                      | weight= 20
+rand_canaan_training                     | map=map_canaan                     | weight= 50
+rand_black_corner_ambush                 | map=map_black_corner               | weight= 40 [COMBAT]
+rand_zhongzhou_ruins                     | map=map_zhongzhou                  | weight= 15
+rand_explore_wutan                       | map=map_wutan                      | weight=100
+rand_explore_yunlan                      | map=map_yunlan                     | weight=100
+rand_explore_jia_ma                      | map=map_jia_ma                     | weight=100
+rand_explore_jia_ma_capital              | map=map_jia_ma_capital             | weight=100
+rand_explore_qingshan                    | map=map_qingshan                   | weight=100
+rand_explore_miteer_auction              | map=map_miteer_auction             | weight=100
+rand_explore_alchemist_guild             | map=map_alchemist_guild            | weight=100
+rand_explore_canaan_inner                | map=map_canaan_inner               | weight=100
+rand_explore_skyfire_tower               | map=map_skyfire_tower              | weight=100
+rand_explore_feng_city                   | map=map_feng_city                  | weight=100
+rand_explore_star_pavilion               | map=map_star_pavilion              | weight=100
+rand_explore_star_realm                  | map=map_star_realm                 | weight=100
+rand_explore_dan_region                  | map=map_dan_region                 | weight=100
+rand_explore_sacred_dan_city             | map=map_sacred_dan_city            | weight=100
+rand_explore_ancient_realm               | map=map_ancient_realm              | weight=100
+rand_explore_heaven_tomb                 | map=map_heaven_tomb                | weight=100
+rand_explore_dragon_island               | map=map_dragon_island              | weight=100
+rand_explore_beast_region                | map=map_beast_region               | weight=100
+rand_explore_wilderness                  | map=map_wilderness                 | weight=100
+rand_explore_ancient_ruins               | map=map_ancient_ruins              | weight=100
+rand_explore_demon_flame_space           | map=map_demon_flame_space          | weight=100
+rand_explore_soul_realm                  | map=map_soul_realm                 | weight=100
+rand_explore_yao_realm                   | map=map_yao_realm                  | weight=100
+rand_explore_emperor_cave                | map=map_emperor_cave               | weight=100
+rand_explore_soul_mountains              | map=map_soul_mountains             | weight=100
+rand_explore_double_emperor              | map=map_double_emperor             | weight=100
+rand_explore_bodhi_tree                  | map=map_bodhi_tree                 | weight=100
+rand_explore_ancient_sacred_city         | map=map_ancient_sacred_city        | weight=100
+rand_explore_peace_town                  | map=map_peace_town                 | weight=100
+rand_explore_black_emperor_city          | map=map_black_emperor_city         | weight=100
+rand_explore_space_trade_fair            | map=map_space_trade_fair           | weight=100
+rand_explore_east_dragon_island          | map=map_east_dragon_island         | weight=100
+rand_explore_west_dragon_island          | map=map_west_dragon_island         | weight=100
+rand_explore_south_dragon_island         | map=map_south_dragon_island        | weight=100
+rand_explore_north_dragon_island         | map=map_north_dragon_island        | weight=100
+rand_explore_tianbei_city                | map=map_tianbei_city               | weight=100
+rand_explore_ye_city                     | map=map_ye_city                    | weight=100
+rand_explore_wind_lightning_pavilion     | map=map_wind_lightning_pavilion    | weight=100
+rand_explore_burning_flame_valley        | map=map_burning_flame_valley       | weight=100
+rand_explore_flower_sect                 | map=map_flower_sect                | weight=100
+rand_explore_ice_river_valley            | map=map_ice_river_valley           | weight=100
+rand_explore_dan_tower                   | map=map_dan_tower                  | weight=100
+rand_explore_soul_hall                   | map=map_soul_hall                  | weight=100
+rand_explore_huangquan_pavilion          | map=map_huangquan_pavilion         | weight=100
+rand_explore_wanjian_pavilion            | map=map_wanjian_pavilion           | weight=100
+rand_explore_ancient_dragon_island       | map=map_ancient_dragon_island      | weight=100
+rand_explore_hun_clan_space              | map=map_hun_clan_space             | weight=100
+rand_gather_qingshan                     | map=map_qingshan                   | weight= 25
+rand_gather_magic_mountains              | map=map_magic_mountains            | weight= 25 [COMBAT]
+rand_gather_tager                        | map=map_tager                      | weight= 25
+rand_gather_canaan_inner                 | map=map_canaan_inner               | weight= 25
+rand_gather_skyfire_tower                | map=map_skyfire_tower              | weight= 25
+rand_gather_black_corner                 | map=map_black_corner               | weight= 25 [COMBAT]
+rand_gather_dan_region                   | map=map_dan_region                 | weight= 25
+rand_gather_beast_region                 | map=map_beast_region               | weight= 25
+rand_gather_dragon_island                | map=map_dragon_island              | weight= 25
+rand_gather_wilderness                   | map=map_wilderness                 | weight= 25
+rand_gather_bodhi_tree                   | map=map_bodhi_tree                 | weight= 25
+rand_gather_heaven_tomb                  | map=map_heaven_tomb                | weight= 25
+rand_gather_soul_mountains               | map=map_soul_mountains             | weight= 25
+rand_gather_ancient_ruins                | map=map_ancient_ruins              | weight= 25
+rand_gather_yao_realm                    | map=map_yao_realm                  | weight= 25
+rand_alchemy_alchemist_guild             | map=map_alchemist_guild            | weight= 20
+rand_alchemy_canaan_inner                | map=map_canaan_inner               | weight= 20
+rand_alchemy_dan_tower                   | map=map_dan_tower                  | weight= 20
+rand_alchemy_yao_realm                   | map=map_yao_realm                  | weight= 20
+rand_alchemy_star_pavilion               | map=map_star_pavilion              | weight= 20
+rand_explore_xiao_mansion                | map=map_xiao_mansion               | weight=100
+rand_explore_xiao_training_ground        | map=map_xiao_training_ground       | weight=100
+rand_explore_wutan_commercial_street     | map=map_wutan_commercial_street    | weight=100
+rand_explore_wutan_back_mountain         | map=map_wutan_back_mountain        | weight=100
+rand_explore_xiao_market                 | map=map_xiao_market                | weight=100
+rand_explore_wutan_inn                   | map=map_wutan_inn                  | weight=100
+rand_explore_wutan_pharmacy              | map=map_wutan_pharmacy             | weight=100
+rand_explore_wutan_smithy                | map=map_wutan_smithy               | weight=100
+rand_explore_wutan_teahouse              | map=map_wutan_teahouse             | weight=100
+rand_explore_wutan_gate                  | map=map_wutan_gate                 | weight=100
+rand_explore_miteer_appraisal            | map=map_miteer_appraisal           | weight=100
+rand_explore_xiao_council_hall           | map=map_xiao_council_hall          | weight=100
+rand_explore_wutan_east_market           | map=map_wutan_east_market          | weight=100
+rand_explore_wutan_warehouse_district    | map=map_wutan_warehouse_district   | weight=100
+rand_explore_jia_ma_road                 | map=map_jia_ma_road                | weight=100
+rand_explore_jia_ma_border               | map=map_jia_ma_border              | weight=100
+rand_explore_jia_ma_garrison             | map=map_jia_ma_garrison            | weight=100
+rand_explore_jia_ma_mountain_pass        | map=map_jia_ma_mountain_pass       | weight=100
+rand_explore_jia_ma_post_station         | map=map_jia_ma_post_station        | weight=100
+rand_explore_magic_inner                 | map=map_magic_inner                | weight=100
+rand_explore_magic_herb_valley           | map=map_magic_herb_valley          | weight=100
+rand_explore_wolfhead_camp               | map=map_wolfhead_camp              | weight=100
+rand_explore_magic_hidden_cave           | map=map_magic_hidden_cave          | weight=100
+rand_explore_qingshan_mercenary_camp     | map=map_qingshan_mercenary_camp    | weight=100
+rand_explore_qingshan_medical_hall       | map=map_qingshan_medical_hall      | weight=100
+rand_explore_qingshan_market             | map=map_qingshan_market            | weight=100
+rand_explore_desert_trade_route          | map=map_desert_trade_route         | weight=100
+rand_explore_snake_oasis                 | map=map_snake_oasis                | weight=100
+rand_explore_desert_camp                 | map=map_desert_camp                | weight=100
+rand_explore_snake_temple_outer          | map=map_snake_temple_outer         | weight=100
+rand_explore_desert_salt_lake            | map=map_desert_salt_lake           | weight=100
+rand_explore_desert_ancient_well         | map=map_desert_ancient_well        | weight=100
+rand_explore_capital_commercial          | map=map_capital_commercial         | weight=100
+rand_explore_imperial_palace             | map=map_imperial_palace            | weight=100
+rand_explore_capital_alchemist_market    | map=map_capital_alchemist_market   | weight=100
+rand_explore_capital_nalan_mansion       | map=map_capital_nalan_mansion      | weight=100
+rand_explore_capital_miteer_hq           | map=map_capital_miteer_hq          | weight=100
+rand_explore_capital_arena               | map=map_capital_arena              | weight=100
+rand_explore_yunlan_gate                 | map=map_yunlan_gate                | weight=100
+rand_explore_yunlan_stairs               | map=map_yunlan_stairs              | weight=100
+rand_explore_yunlan_square               | map=map_yunlan_square              | weight=100
+rand_explore_yunlan_back_cliff           | map=map_yunlan_back_cliff          | weight=100
+rand_explore_yunlan_elder_hall           | map=map_yunlan_elder_hall          | weight=100
+rand_explore_canaan_outer_square         | map=map_canaan_outer_square        | weight=100
+rand_explore_canaan_library              | map=map_canaan_library             | weight=100
+rand_explore_canaan_dormitory            | map=map_canaan_dormitory           | weight=100
+rand_explore_canaan_mission_hall         | map=map_canaan_mission_hall        | weight=100
+rand_explore_canaan_duel_arena           | map=map_canaan_duel_arena          | weight=100
+rand_explore_inner_arena                 | map=map_inner_arena                | weight=100
+rand_explore_inner_trade_district        | map=map_inner_trade_district       | weight=100
+rand_explore_skyfire_lower               | map=map_skyfire_lower              | weight=100
+rand_explore_skyfire_seal_core           | map=map_skyfire_seal_core          | weight=100
+rand_explore_black_blood_plain           | map=map_black_blood_plain          | weight=100
+rand_explore_black_herb_market           | map=map_black_herb_market          | weight=100
+rand_explore_black_inn                   | map=map_black_inn                  | weight=100
+rand_explore_black_auction_lane          | map=map_black_auction_lane         | weight=100
+rand_explore_black_emperor_square        | map=map_black_emperor_square       | weight=100
+rand_explore_zhongzhou_transfer_square   | map=map_zhongzhou_transfer_square  | weight=100
+rand_explore_zhongzhou_inn_district      | map=map_zhongzhou_inn_district     | weight=100
+rand_explore_zhongzhou_north_market      | map=map_zhongzhou_north_market     | weight=100
+rand_explore_tianbei_han_clan            | map=map_tianbei_han_clan           | weight=100
+rand_explore_tianbei_hong_clan           | map=map_tianbei_hong_clan          | weight=100
+rand_explore_zhongzhou_wormhole_station  | map=map_zhongzhou_wormhole_station | weight=100
+rand_explore_ye_mansion                  | map=map_ye_mansion                 | weight=100
+rand_explore_ye_city_gate                | map=map_ye_city_gate               | weight=100
+rand_explore_ye_alchemy_room             | map=map_ye_alchemy_room            | weight=100
+rand_explore_dan_herb_street             | map=map_dan_herb_street            | weight=100
+rand_explore_sacred_dan_market           | map=map_sacred_dan_market          | weight=100
+rand_explore_dan_tower_outer_square      | map=map_dan_tower_outer_square     | weight=100
+rand_explore_dan_tower_trial_room        | map=map_dan_tower_trial_room       | weight=100
+rand_explore_dan_beast_enclosure         | map=map_dan_beast_enclosure        | weight=100
+rand_explore_star_pavilion_back_mountain | map=map_star_pavilion_back_mountain | weight=100
+rand_explore_star_pavilion_mission_hall  | map=map_star_pavilion_mission_hall | weight=100
+rand_explore_soul_hall_prison            | map=map_soul_hall_prison           | weight=100
+rand_explore_ancient_ruins_gate          | map=map_ancient_ruins_gate         | weight=100
+rand_explore_beast_bone_mountains        | map=map_beast_bone_mountains       | weight=100
+rand_explore_beast_market                | map=map_beast_market               | weight=100
+rand_explore_wilderness_outpost          | map=map_wilderness_outpost         | weight=100
+rand_explore_wilderness_poison_swamp     | map=map_wilderness_poison_swamp    | weight=100
+rand_explore_dragon_island_harbor        | map=map_dragon_island_harbor       | weight=100
+rand_explore_ancient_city_market         | map=map_ancient_city_market        | weight=100
+rand_explore_heaven_tomb_camp            | map=map_heaven_tomb_camp           | weight=100
+enc_cloud_peak_1                         | map=map_cloud_mountain_peak        | weight=  1
+enc_yan_hq_1                             | map=map_yan_alliance_hq            | weight=  1
+enc_jia_ma_front_1                       | map=map_jia_ma_battle_front        | weight=  1
+enc_chuyun_1                             | map=map_chuyun_empire              | weight=  1
+enc_poison_sect_1                        | map=map_poison_sect                | weight=  1
+enc_golden_goose_1                       | map=map_golden_goose_sect          | weight=  1
+enc_mulan_1                              | map=map_mulan_valley               | weight=  1
+enc_magma_world_1                        | map=map_skyfire_magma_world        | weight=  1
+enc_xuanhuang_1                          | map=map_xuanhuang_fortress         | weight=  1
+enc_northwest_front_1                    | map=map_northwest_battle_front     | weight=  1
+enc_tianfu_hall_1                        | map=map_tianfu_council_hall        | weight=  1
+enc_alliance_war_1                       | map=map_alliance_war_room          | weight=  1
+enc_nether_spring_1                      | map=map_nether_spring              | weight=  1
+enc_nether_python_1                      | map=map_nether_python_tribe        | weight=  1
+enc_nether_palace_1                      | map=map_nether_underground_palace  | weight=  1
+enc_soul_throne_1                        | map=map_soul_emperor_throne        | weight=  1
+enc_world_gate_1                         | map=map_world_gate                 | weight=  1
+enc_emperor_peak_1                       | map=map_emperor_memorial_peak      | weight=  1
+enc_feng_hall_1                          | map=map_feng_merchant_hall         | weight=  1
+enc_feng_alchemy_1                       | map=map_feng_alchemy_room          | weight=  1
+enc_feng_wall_1                          | map=map_feng_defense_wall          | weight=  1
+enc_star_core_1                          | map=map_star_realm_core            | weight=  1
+enc_star_train_1                         | map=map_star_realm_training_ground | weight=  1
+enc_star_council_1                       | map=map_star_pavilion_council      | weight=  1
+enc_flower_gate_1                        | map=map_flower_sect_gate           | weight=  1
+enc_flower_garden_1                      | map=map_flower_sect_garden         | weight=  1
+enc_flower_heritage_1                    | map=map_flower_sect_heritage_hall  | weight=  1
+enc_west_palace_1                        | map=map_west_dragon_palace         | weight=  1
+enc_south_battle_1                       | map=map_south_dragon_battlefield   | weight=  1
+enc_north_throne_1                       | map=map_north_dragon_throne        | weight=  1
+enc_demon_illusion_1                     | map=map_demon_flame_illusion_realm | weight=  1
+enc_demon_core_1                         | map=map_demon_flame_core           | weight=  1
+enc_demon_saint_1                        | map=map_demon_flame_saint_remains  | weight=  1
+enc_yao_square_1                         | map=map_yao_realm_ceremony_square  | weight=  1
+enc_yao_garden_1                         | map=map_yao_realm_herb_garden      | weight=  1
+enc_yao_survivor_1                       | map=map_yao_realm_survivor_camp    | weight=  1
+enc_soul_battle_1                        | map=map_soul_realm_battlefield     | weight=  1
+enc_hun_ritual_1                         | map=map_hun_clan_ritual_site       | weight=  1
+enc_alliance_camp_1                      | map=map_ancient_alliance_camp      | weight=  1
+enc_emperor_gate_1                       | map=map_emperor_cave_gate          | weight=  1
+enc_emperor_inner_1                      | map=map_emperor_cave_inner         | weight=  1
+enc_emperor_treasure_1                   | map=map_emperor_cave_treasure_room | weight=  1
+enc_double_peak_1                        | map=map_double_emperor_peak        | weight=  1
+enc_allied_camp_1                        | map=map_allied_forces_camp         | weight=  1
+enc_star_domain_1                        | map=map_star_domain                | weight=  1
+enc_chuyun_border_1                      | map=map_chuyun_border              | weight=  1
+enc_poison_hall_1                        | map=map_poison_sect_hall           | weight=  1
+enc_poison_cave_1                        | map=map_poison_sect_herb_cave      | weight=  1
+enc_xuanhuang_hall_1                     | map=map_xuanhuang_war_hall         | weight=  1
+enc_xuanhuang_wall_1                     | map=map_xuanhuang_defense_wall     | weight=  1
+enc_nether_pool_1                        | map=map_nether_spring_pool         | weight=  1
+enc_nether_throne_1                      | map=map_nether_python_throne       | weight=  1
+enc_soul_person_1                        | map=map_soul_hall_person_hall      | weight=  1
+enc_soul_well_1                          | map=map_soul_hall_soul_well        | weight=  1
+enc_alliance_hub_1                       | map=map_star_pavilion_alliance_hub | weight=  1
+enc_ruins_core_1                         | map=map_ancient_ruins_core         | weight=  1
+enc_beast_hub_1                          | map=map_beast_region_trade_hub     | weight=  1
+enc_ascend_1                             | map=map_emperor_ascension_platform | weight=  1
+enc_mo_1                                 | map=map_mo_city                    | weight=  1
+enc_mo_2                                 | map=map_mo_city                    | weight=  1
+enc_mo_3                                 | map=map_mo_city                    | weight=  1
+enc_stone_mo_1                           | map=map_stone_mo_city              | weight=  1
+enc_stone_mo_2                           | map=map_stone_mo_city              | weight=  1
+enc_stone_mo_3                           | map=map_stone_mo_city              | weight=  1
+enc_black_rock_1                         | map=map_black_rock_city            | weight=  1
+enc_black_rock_2                         | map=map_black_rock_city            | weight=  1
+enc_black_rock_3                         | map=map_black_rock_city            | weight=  1
+enc_salt_1                               | map=map_salt_city                  | weight=  1
+enc_salt_2                               | map=map_salt_city                  | weight=  1
+enc_ghost_pass_1                         | map=map_ghost_pass                 | weight=  1
+enc_ghost_pass_2                         | map=map_ghost_pass                 | weight=  1
+enc_scorpion_1                           | map=map_scorpion_gate              | weight=  1
+enc_scorpion_2                           | map=map_scorpion_gate              | weight=  1
+enc_black_seal_1                         | map=map_black_seal_city            | weight=  1
+enc_black_seal_2                         | map=map_black_seal_city            | weight=  1
+enc_black_seal_3                         | map=map_black_seal_city            | weight=  1
+enc_demon_valley_1                       | map=map_demon_flame_valley         | weight=  1
+enc_demon_valley_2                       | map=map_demon_flame_valley         | weight=  1
+enc_demon_valley_3                       | map=map_demon_flame_valley         | weight=  1
+enc_tianya_1                             | map=map_tianya_city                | weight=  1
+enc_tianya_2                             | map=map_tianya_city                | weight=  1
+enc_tianya_3                             | map=map_tianya_city                | weight=  1
+enc_tianya_4                             | map=map_tianya_city                | weight=  1
+enc_tianmu_1                             | map=map_tianmu_mountains           | weight=  1
+enc_tianmu_2                             | map=map_tianmu_mountains           | weight=  1
+enc_blood_pool_1                         | map=map_heaven_mountain_blood_pool | weight=  1
+enc_blood_pool_2                         | map=map_heaven_mountain_blood_pool | weight=  1
+enc_sky_demon_1                          | map=map_sky_demon_sect             | weight=  1
+enc_sky_demon_2                          | map=map_sky_demon_sect             | weight=  1
+enc_corpse_mt_1                          | map=map_death_corpse_mountains     | weight=  1
+enc_corpse_mt_2                          | map=map_death_corpse_mountains     | weight=  1
+enc_heavenly_gang_1                      | map=map_heavenly_gang_hall         | weight=  1
+enc_heavenly_gang_2                      | map=map_heavenly_gang_hall         | weight=  1
+enc_demon_plain_1                        | map=map_demon_flame_plain          | weight=  1
+enc_demon_plain_2                        | map=map_demon_flame_plain          | weight=  1
+enc_flame_square_1                       | map=map_strange_flame_square       | weight=  1
+enc_flame_square_2                       | map=map_strange_flame_square       | weight=  1
+enc_mo_market_1                          | map=map_mo_market                  | weight=  1
+enc_mo_market_2                          | map=map_mo_market                  | weight=  1
+enc_mo_inn_1                             | map=map_mo_inn                     | weight=  1
+enc_mo_inn_2                             | map=map_mo_inn                     | weight=  1
+enc_stone_mo_market_1                    | map=map_stone_mo_market            | weight=  1
+enc_stone_mo_market_2                    | map=map_stone_mo_market            | weight=  1
+enc_stone_mo_merc_1                      | map=map_stone_mo_mercenary         | weight=  1
+enc_stone_mo_merc_2                      | map=map_stone_mo_mercenary         | weight=  1
+enc_black_rock_market_1                  | map=map_black_rock_market          | weight=  1
+enc_black_rock_market_2                  | map=map_black_rock_market          | weight=  1
+enc_black_rock_black_1                   | map=map_black_rock_black_market    | weight=  1
+enc_black_rock_black_2                   | map=map_black_rock_black_market    | weight=  1
+enc_salt_market_1                        | map=map_salt_market                | weight=  1
+enc_salt_market_2                        | map=map_salt_market                | weight=  1
+enc_ghost_pass_market_1                  | map=map_ghost_pass_market          | weight=  1
+enc_ghost_pass_market_2                  | map=map_ghost_pass_market          | weight=  1
+enc_ghost_pass_barracks_1                | map=map_ghost_pass_barracks        | weight=  1
+enc_tianya_wormhole_1                    | map=map_tianya_wormhole_square     | weight=  1
+enc_tianya_wormhole_2                    | map=map_tianya_wormhole_square     | weight=  1
+enc_tianya_market_1                      | map=map_tianya_market              | weight=  1
+enc_tianya_market_2                      | map=map_tianya_market              | weight=  1
+enc_tianya_inn_1                         | map=map_tianya_inn                 | weight=  1
+enc_tianya_inn_2                         | map=map_tianya_inn                 | weight=  1
+enc_black_seal_auction_1                 | map=map_black_seal_auction         | weight=  1
+enc_black_seal_auction_2                 | map=map_black_seal_auction         | weight=  1
+enc_black_seal_market_1                  | map=map_black_seal_market          | weight=  1
+enc_demon_valley_hall_1                  | map=map_demon_valley_hall          | weight=  1
+enc_demon_valley_archive_1               | map=map_demon_valley_archive       | weight=  1
+enc_scorpion_hall_1                      | map=map_scorpion_hall              | weight=  1
+enc_scorpion_cave_1                      | map=map_scorpion_cave              | weight=  1
+enc_sky_demon_gate_1                     | map=map_sky_demon_gate             | weight=  1
+enc_sky_demon_hall_1                     | map=map_sky_demon_hall             | weight=  1
+enc_heavenly_gang_prison_1               | map=map_heavenly_gang_prison       | weight=  1
+enc_heavenly_gang_origin_1               | map=map_heavenly_gang_origin       | weight=  1
+enc_daling_1                             | map=map_daling_city                | weight=  1
+enc_daling_2                             | map=map_daling_city                | weight=  1
+enc_black_plain_1                        | map=map_black_domain_plain         | weight=  1
+enc_black_plain_2                        | map=map_black_domain_plain         | weight=  1
+enc_blood_sect_1                         | map=map_blood_sect                 | weight=  1
+enc_blood_sect_2                         | map=map_blood_sect                 | weight=  1
+enc_eight_gates_1                        | map=map_eight_gates                | weight=  1
+enc_pan_gate_1                           | map=map_pan_gate                   | weight=  1
+enc_pan_gate_2                           | map=map_pan_gate                   | weight=  1
+enc_xiao_gate_1                          | map=map_xiao_gate                  | weight=  1
+enc_scorching_1                          | map=map_scorching_mountains        | weight=  1
+enc_scorching_2                          | map=map_scorching_mountains        | weight=  1
+enc_qifeng_1                             | map=map_qi_feng_mountain           | weight=  1
+enc_qifeng_2                             | map=map_qi_feng_mountain           | weight=  1
+enc_tianhuang_1                          | map=map_tianhuang_city             | weight=  1
+enc_tianhuang_2                          | map=map_tianhuang_city             | weight=  1
+enc_black_fire_1                         | map=map_black_fire_sect            | weight=  1
+enc_black_fire_2                         | map=map_black_fire_sect            | weight=  1
+enc_wan_yao_1                            | map=map_wan_yao_mountains          | weight=  1
+enc_wan_yao_2                            | map=map_wan_yao_mountains          | weight=  1
+enc_manghuang_town_1                     | map=map_manghuang_town             | weight=  1
+enc_manghuang_town_2                     | map=map_manghuang_town             | weight=  1
+enc_demon_blood_1                        | map=map_heaven_demon_blood_pool    | weight=  1
+enc_demon_blood_2                        | map=map_heaven_demon_blood_pool    | weight=  1
+enc_ancient_platform_1                   | map=map_ancient_domain_platform    | weight=  1
+enc_ancient_platform_2                   | map=map_ancient_domain_platform    | weight=  1
+enc_small_dan_1                          | map=map_small_dan_tower            | weight=  1
+enc_small_dan_2                          | map=map_small_dan_tower            | weight=  1
+enc_black_pavilion_1                     | map=map_black_emperor_pavilion     | weight=  1
+enc_black_pavilion_2                     | map=map_black_emperor_pavilion     | weight=  1
+enc_burial_sky_1                         | map=map_burial_sky_mountains       | weight=  1
+enc_burial_sky_2                         | map=map_burial_sky_mountains       | weight=  1
+enc_br_inn_1                             | map=map_black_rock_inn             | weight=  1
+enc_mo_trade_1                           | map=map_mo_trade_post              | weight=  1
+enc_sm_inn_1                             | map=map_stone_mo_inn               | weight=  1
+enc_salt_inn_1                           | map=map_salt_inn                   | weight=  1
+enc_be_market_1                          | map=map_black_emperor_market       | weight=  1
+enc_bs_inn_1                             | map=map_black_seal_inn             | weight=  1
+enc_feng_market_1                        | map=map_feng_market                | weight=  1
+enc_pt_inn_1                             | map=map_peace_town_inn             | weight=  1
+enc_pt_market_1                          | map=map_peace_town_market          | weight=  1
+enc_canaan_trade_1                       | map=map_canaan_trade_street        | weight=  1
+enc_inner_market_1                       | map=map_inner_market               | weight=  1
+enc_tb_market_1                          | map=map_tianbei_market             | weight=  1
+enc_tb_inn_1                             | map=map_tianbei_inn                | weight=  1
+enc_ye_market_1                          | map=map_ye_market                  | weight=  1
+enc_th_market_1                          | map=map_tianhuang_market           | weight=  1
+enc_th_inn_1                             | map=map_tianhuang_inn              | weight=  1
+enc_mh_inn_1                             | map=map_manghuang_inn              | weight=  1
+enc_dl_market_1                          | map=map_daling_market              | weight=  1
+enc_dl_inn_1                             | map=map_daling_inn                 | weight=  1
+enc_bv_market_1                          | map=map_burning_valley_market      | weight=  1
+enc_sp_market_1                          | map=map_star_pavilion_market       | weight=  1
+enc_fs_market_1                          | map=map_flower_sect_market         | weight=  1

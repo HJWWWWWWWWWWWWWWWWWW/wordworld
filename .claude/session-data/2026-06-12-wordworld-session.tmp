@@ -1,0 +1,66 @@
+# Session: 2026-06-12
+
+**Started:** ~09:47
+**Last Updated:** 12:30
+**Project:** D:\work\wordworld (斗破苍穹 RPG)
+**Topic:** 体力移除 + 经验公式重构 + 属性平衡修复 + 行动条战斗系统
+
+---
+
+## What We Are Building
+
+本次会话对斗破苍穹 RPG 进行了四轮重大重构：
+
+1. **移除体力限制** — 取消 stamina 对行动的约束，玩家可自由修炼/探索
+2. **重构升级经验公式** — 启用 Excel 中已有的 `Exp_Formula` 列，让每级 EXP 动态计算
+3. **属性成长重新平衡** — 修复前期无法破防、Lv40-49 怪物倒挂、Boss 秒杀三大问题
+4. **行动条战斗系统** — 将固定先手回合制改为基于 SPD 的 CTB 系统
+
+---
+
+## What WORKED (with evidence)
+
+- **体力系统完全移除** — 确认：engine.py 中 cultivate/explore/rest/combat_lose 四处 stamina 代码全部删除，4 个 UI 文件 17 处显示全部移除，3 个体力道具改为 HP 回复
+- **升级经验公式动态计算** — 确认：`_exp_for_progress()` 现在解析 `level*N` 公式，Lv1:250→Lv9:2250→Lv10:6000
+- **Excel Lv95-98→Lv95-99 修复** — 确认：加载 workbook 验证 Lv99 不再返回 999999
+- **属性成长 55 个单元格全部更新** — 确认：Lv20 ATK 59→145，普攻伤害 1→108
+- **Lv40-49 怪物属性倒挂修复** — 确认：HP 均值 3742→4987
+- **行动条系统实现** — 确认：SPD 200 vs 50 = 4:1 行动比；SPD 相等 = 1:1
+- **全部 85 项测试通过** — 确认：4 次运行均返回 OK
+
+---
+
+## What Did NOT Work (and why)
+
+- **GateGuard 频繁阻断 Edit/Write** — 每次编辑前需手动陈述 4 项事实，严重拖慢速度
+- **Edit 工具产生智能引号乱码** — 修改 test_relationships.py 时中文引号被替换，需额外 Python 脚本修复
+- **explore() 中 cost 变量引用残留** — 删除 stamina 后 `"cost": cost` 导致 NameError
+
+---
+
+## Current State of Files
+
+| File | Status | Notes |
+|------|--------|-------|
+| `src/wordworld/core/engine.py` | COMPLETE | 体力移除 + `_exp_for_progress` 重构 + 行动条系统 |
+| `story/text_game_event_schema_v4.xlsx` | COMPLETE | 55 个增益值 + Lv95-99 + 23 个怪物属性 |
+| `src/wordworld/data/item_data.py` | COMPLETE | 3 个体力道具改为 HP |
+| `src/wordworld/ui/*.py` (4 files) | COMPLETE | 17 处体力显示移除 |
+| `tests/test_relationships.py` | COMPLETE | 3 个测试更新 |
+
+---
+
+## Decisions Made
+
+- **体力保留键值但不检查** — 理由：存档兼容
+- **EXP 公式用 `level * N`** — 理由：Excel 已有公式列，改动最小
+- **ATK/DEF/HP 成长提升 ~1.6-2.0x** — 理由：玩家 ATK 达 mob DEF 的 1.3-1.5 倍
+- **Lv99 突破率保持 0.01%** — 理由：走剧情突破
+- **GAUGE_MAX = 1000** — 理由：SPD 差异有区分度，溢出保留
+- **combat_action() 接口不变** — 理由：UI 层零修改
+
+---
+
+## Exact Next Step
+
+从上次会话摘要继续：异火系统（23→16种补全）、功法/技能书区分、炼药术熟练度十级、丹方 500+、药鼎道具、纳戒、拍卖行、货币系统（铜/银/金/远古币）
