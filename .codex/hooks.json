@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"from pathlib import Path; p = Path('$FILE_PATH'); print(f'[auto] 已修改: {p.name} ({p.suffix})')\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$FILE_PATH\" | grep -qE \"(engine|console|tui|gui|workbook)\\.py$\"; then cd D:/work/wordworld && python -m unittest discover -s tests -v 2>&1 | tail -20; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd D:/work/wordworld && python -m unittest discover -s tests -v 2>&1"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cp -u ~/.claude/session-data/*.tmp D:/work/wordworld/.claude/session-data/ 2>/dev/null; echo '[auto] 会话摘要已同步到项目'"
+          }
+        ]
+      }
+    ]
+  }
+}
