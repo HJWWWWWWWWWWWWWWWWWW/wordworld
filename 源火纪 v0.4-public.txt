@@ -1,0 +1,873 @@
+# WordWorld / 源火纪 v0.4-public 下一步计划
+
+## 公开发布版本：打包、截图、发布页、试玩反馈
+
+---
+
+# 一、阶段定位
+
+当前假设：
+
+```text
+v0.3-demo 已完成：
+- 第一章“青石镇试炼”完整化；
+- 早期敌人、技能、道具、装备成长线完成；
+- Boss 战完成；
+- 战斗日志优化；
+- 成长反馈优化；
+- docs/BALANCE.md 完成；
+- README / CHANGELOG / smoke test 已更新。
+```
+
+现在进入：
+
+```text
+v0.4-public：公开发布版本
+```
+
+这一阶段目标不是继续扩展第二章，也不是继续堆地图、道具、技能。
+
+v0.4 的核心目标是：
+
+> 让陌生玩家不用配置 Python，也能下载并试玩第一章 Demo。
+
+---
+
+# 二、v0.4 总目标
+
+v0.4-public 需要完成：
+
+```text
+1. Windows 可执行文件打包；
+2. 发布包结构整理；
+3. GitHub Release 发布；
+4. README 加入截图；
+5. 准备 15–30 秒演示视频 / GIF；
+6. 新增 docs/RELEASE.md；
+7. 新增 docs/PLAYER_GUIDE.md；
+8. 增加基础错误提示；
+9. 增加反馈入口；
+10. 更新 CHANGELOG / TODO / smoke test。
+```
+
+一句话目标：
+
+> v0.3 让游戏变得有点好玩，v0.4 让别人能方便地玩到它。
+
+---
+
+# 三、v0.4 禁止事项
+
+本阶段不要做：
+
+```text
+1. 不要新增第二章；
+2. 不要新增大量地图；
+3. 不要新增大量敌人；
+4. 不要新增大量装备；
+5. 不要新增复杂系统；
+6. 不要重写 GameEngine；
+7. 不要重做 UI 框架；
+8. 不要引入复杂依赖；
+9. 不要把 build/、dist/ 提交进源码仓库；
+10. 不要把 v0.4 包装成正式商业版。
+```
+
+本阶段只做：
+
+```text
+打包、发布、展示、说明、反馈。
+```
+
+---
+
+# 四、任务 1：Windows exe 打包
+
+## 4.1 目标
+
+让普通 Windows 玩家无需安装 Python，即可运行游戏。
+
+## 4.2 推荐方式
+
+使用 PyInstaller：
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji
+```
+
+如果 `--onefile` 兼容性不好，可以改成目录模式：
+
+```bash
+pyinstaller --windowed run_pygame.py --name Yuanhuoji
+```
+
+## 4.3 重点检查
+
+打包后必须确认：
+
+```text
+1. exe 可以启动；
+2. 能加载 story/text_game_event_schema_v4.xlsx；
+3. 能创建 saves/ 目录；
+4. 能保存游戏；
+5. 能读取游戏；
+6. 字体显示正常；
+7. Pygame 窗口标题正确；
+8. 关闭窗口不会报错；
+9. 没有缺失资源文件；
+10. 游戏路径中有中文时尽量不出错。
+```
+
+## 4.4 注意事项
+
+```text
+1. dist/ 不要提交进 Git；
+2. build/ 不要提交进 Git；
+3. .spec 文件默认不提交，除非确实需要维护；
+4. 打包产物放 GitHub Release；
+5. 源码仓库只保留打包脚本和打包说明。
+```
+
+---
+
+# 五、任务 2：新增打包说明文档
+
+新增文件：
+
+```text
+docs/BUILD.md
+```
+
+内容包括：
+
+```text
+1. Python 版本要求；
+2. 依赖安装方式；
+3. PyInstaller 安装方式；
+4. 打包命令；
+5. 打包后文件位置；
+6. 常见问题；
+7. 注意不要提交 dist/ 和 build/。
+```
+
+## BUILD.md 示例结构
+
+```markdown
+# 源火纪 打包说明
+
+## 一、环境要求
+
+## 二、安装依赖
+
+## 三、运行源码版
+
+## 四、打包 Windows exe
+
+## 五、打包后测试
+
+## 六、常见问题
+
+## 七、发布注意事项
+```
+
+---
+
+# 六、任务 3：整理发布包结构
+
+## 6.1 推荐发布包结构
+
+发布包建议命名：
+
+```text
+Yuanhuoji-v0.4-public-demo/
+```
+
+目录结构：
+
+```text
+Yuanhuoji-v0.4-public-demo/
+├─ Yuanhuoji.exe
+├─ README.txt
+├─ CHANGELOG.txt
+├─ PLAYER_GUIDE.txt
+├─ story/
+│  └─ text_game_event_schema_v4.xlsx
+└─ saves/
+   └─ .gitkeep
+```
+
+## 6.2 README.txt 内容
+
+发布包里的 README.txt 要比 GitHub README 更短，只给玩家看。
+
+内容包括：
+
+```text
+1. 游戏名；
+2. 当前版本；
+3. 启动方式；
+4. 基础操作；
+5. 存档说明；
+6. 当前可玩内容；
+7. 已知问题；
+8. 反馈方式。
+```
+
+## 6.3 PLAYER_GUIDE.txt 内容
+
+简短新手说明：
+
+```text
+1. 你是谁；
+2. 第一章目标是什么；
+3. 如何移动；
+4. 如何互动；
+5. 如何战斗；
+6. 如何保存；
+7. Demo 什么时候结束。
+```
+
+---
+
+# 七、任务 4：README 加入截图
+
+## 7.1 至少准备 5 张截图
+
+截图清单：
+
+```text
+1. 主界面 / 地图探索；
+2. 剧情事件；
+3. 战斗界面；
+4. 背包 / 装备界面；
+5. 第一章 Boss 或奖励界面。
+```
+
+## 7.2 截图目录
+
+建议新增：
+
+```text
+docs/screenshots/
+```
+
+文件命名：
+
+```text
+01_explore.png
+02_story.png
+03_combat.png
+04_inventory.png
+05_boss_reward.png
+```
+
+## 7.3 README 展示方式
+
+README 中增加：
+
+```markdown
+## 游戏截图
+
+### 地图探索
+![地图探索](docs/screenshots/01_explore.png)
+
+### 剧情事件
+![剧情事件](docs/screenshots/02_story.png)
+
+### 回合战斗
+![回合战斗](docs/screenshots/03_combat.png)
+
+### 背包装备
+![背包装备](docs/screenshots/04_inventory.png)
+
+### Boss 奖励
+![Boss 奖励](docs/screenshots/05_boss_reward.png)
+```
+
+---
+
+# 八、任务 5：准备 15–30 秒演示视频 / GIF
+
+## 8.1 视频目标
+
+让玩家快速理解游戏循环。
+
+演示流程：
+
+```text
+移动 → 触发事件 → 战斗 → 获得奖励 → 当前目标更新
+```
+
+## 8.2 视频长度
+
+```text
+15–30 秒即可。
+```
+
+不要做太长宣传片。
+
+## 8.3 视频内容顺序
+
+建议：
+
+```text
+1. 标题画面：源火纪 v0.4-public demo；
+2. 林烬在青石镇移动；
+3. 触发剧情事件；
+4. 进入战斗；
+5. 使用赤焰指；
+6. 击败敌人；
+7. 获得奖励；
+8. 当前目标更新；
+9. 显示下载试玩提示。
+```
+
+## 8.4 README 中加入链接
+
+如果 GIF 文件较小，可以放：
+
+```text
+docs/demo.gif
+```
+
+如果视频较大，不要放进仓库，可以放 Release 或外链。
+
+---
+
+# 九、任务 6：新增发布说明文档
+
+新增：
+
+```text
+docs/RELEASE.md
+```
+
+内容包括：
+
+```text
+1. 当前版本；
+2. 发布前检查清单；
+3. 打包步骤；
+4. 测试步骤；
+5. Release 标题模板；
+6. Release 描述模板；
+7. 发布后检查；
+8. 回滚方式。
+```
+
+## RELEASE.md 发布前检查清单
+
+```text
+1. python -m compileall src 通过；
+2. python scripts/smoke_test.py 通过；
+3. run_pygame.py 源码版可启动；
+4. exe 版可启动；
+5. 新建存档可玩；
+6. 保存 / 读取可用；
+7. 第一章可完成；
+8. Demo 结束提示正常；
+9. README 已更新；
+10. CHANGELOG 已更新；
+11. dist/ 和 build/ 未提交进 Git。
+```
+
+---
+
+# 十、任务 7：GitHub Release 准备
+
+## 10.1 Release 标题
+
+```text
+Yuanhuoji v0.4 Public Demo
+```
+
+## 10.2 Release 描述模板
+
+```markdown
+# 源火纪 v0.4 Public Demo
+
+原创玄幻文字 RPG / 轻量 2D RPG Demo。
+
+## 当前可玩内容
+
+- 第一章：青石镇试炼
+- 地图探索
+- 回合制战斗
+- 角色成长
+- 装备与道具
+- 技能系统
+- 第一章 Boss 战
+- 基础存档
+
+## 预计游玩时长
+
+20–30 分钟。
+
+## 下载方式
+
+下载压缩包后解压，运行：
+
+Yuanhuoji.exe
+
+## 基础操作
+
+- WASD / 方向键：移动
+- E / 回车：互动
+- I：背包
+- C：角色状态
+- M：菜单
+- Esc：返回
+
+## 当前版本说明
+
+这是开发中的公开试玩 Demo，不是完整正式版。
+
+## 已知问题
+
+- UI 仍然较简陋；
+- 数值仍需根据反馈调整；
+- 当前只开放第一章；
+- 可能存在部分路径或字体兼容问题。
+
+## 反馈方式
+
+欢迎通过 GitHub Issues 提交问题和建议。
+```
+
+---
+
+# 十一、任务 8：增加反馈入口
+
+## 11.1 README 增加反馈方式
+
+增加：
+
+```markdown
+## 反馈方式
+
+如果你遇到 Bug、数值问题、错字或玩法建议，可以通过 GitHub Issues 反馈。
+
+反馈时建议提供：
+
+1. 游戏版本；
+2. 操作系统；
+3. 问题描述；
+4. 复现步骤；
+5. 截图；
+6. 存档文件，如果方便。
+```
+
+## 11.2 游戏内增加反馈提示
+
+Demo 结束时可以显示：
+
+```text
+感谢试玩《源火纪》v0.4 Public Demo。
+
+如果你愿意反馈 Bug、数值体验或剧情建议，
+可以前往 GitHub Issues 提交反馈。
+```
+
+---
+
+# 十二、任务 9：增加基础错误提示
+
+## 12.1 目标
+
+让玩家遇到错误时知道发生了什么，而不是直接闪退。
+
+## 12.2 建议处理
+
+至少对以下情况增加友好提示：
+
+```text
+1. 找不到 story/text_game_event_schema_v4.xlsx；
+2. 找不到 saves/ 目录；
+3. 存档读取失败；
+4. 配置表加载失败；
+5. 字体加载失败；
+6. Pygame 初始化失败。
+```
+
+## 12.3 错误提示示例
+
+```text
+无法加载游戏配置表。
+
+请确认以下文件存在：
+story/text_game_event_schema_v4.xlsx
+
+如果你正在运行打包版，请不要单独移动 exe 文件。
+```
+
+---
+
+# 十三、任务 10：更新 smoke test
+
+更新：
+
+```text
+scripts/smoke_test.py
+```
+
+新增检查：
+
+```text
+1. story/text_game_event_schema_v4.xlsx 存在；
+2. saves/ 目录存在或可创建；
+3. GameEngine 初始化成功；
+4. 当前目标系统可调用；
+5. 当前地图存在；
+6. 第一章关键敌人存在；
+7. 第一章关键技能存在；
+8. 第一章关键道具存在；
+9. Pygame UI 可以 import；
+10. 打包相关脚本 / 文档存在。
+```
+
+运行：
+
+```bash
+python -m compileall src
+python scripts/smoke_test.py
+```
+
+---
+
+# 十四、任务 11：更新 README
+
+README 更新到：
+
+```text
+v0.4-public
+```
+
+必须包含：
+
+```text
+1. 项目简介；
+2. 当前版本；
+3. 下载方式；
+4. 源码运行方式；
+5. 打包版运行方式；
+6. 游戏截图；
+7. 当前可玩内容；
+8. 操作说明；
+9. 存档说明；
+10. 反馈方式；
+11. 已知问题；
+12. 下一版本计划。
+```
+
+---
+
+# 十五、任务 12：更新 CHANGELOG
+
+CHANGELOG.md 增加：
+
+```markdown
+## v0.4-public
+
+- 增加 Windows 打包说明
+- 准备公开试玩发布包
+- 新增 docs/BUILD.md
+- 新增 docs/RELEASE.md
+- 新增 docs/PLAYER_GUIDE.md
+- README 增加截图区域
+- 增加 GitHub Release 描述模板
+- 增加反馈入口
+- 增加基础错误提示
+- 更新 smoke test
+```
+
+---
+
+# 十六、任务 13：更新 TODO
+
+TODO.md 中更新下一步计划：
+
+```text
+高优先级：
+- 收集 v0.4 试玩反馈
+- 修复启动 / 打包问题
+- 修复第一章卡关点
+- 优化 UI 可读性
+- 调整数值
+
+中优先级：
+- 增加 Bug 反馈模板
+- 增加调试信息导出
+- 准备 v0.5-feedback
+- 开始设计第二章，但暂不大规模开发
+
+低优先级：
+- itch.io 页面
+- 宣传视频
+- 支持者版本
+- 更多章节
+```
+
+---
+
+# 十七、v0.4 验收标准
+
+v0.4 完成后必须满足：
+
+```text
+1. python run_pygame.py 可以启动；
+2. python -m compileall src 通过；
+3. python scripts/smoke_test.py 通过；
+4. Windows exe 可以启动；
+5. 打包版可以加载配置表；
+6. 打包版可以保存和读取；
+7. 打包版可以完成第一章；
+8. README 已更新到 v0.4-public；
+9. README 有截图；
+10. docs/BUILD.md 存在；
+11. docs/RELEASE.md 存在；
+12. docs/PLAYER_GUIDE.md 存在；
+13. CHANGELOG 已更新；
+14. TODO 已更新；
+15. GitHub Release 描述已准备；
+16. dist/ 和 build/ 没有提交进 Git；
+17. 陌生玩家按说明能下载试玩；
+18. 没有恢复任何原作 IP 专有名词；
+19. 没有把 Demo 包装成正式商业版；
+20. 没有新增大系统。
+```
+
+---
+
+# 十八、Codex 执行任务说明
+
+下面这段可以直接交给 Codex。
+
+---
+
+## Codex 任务：开发 v0.4-public 公开发布版本
+
+你现在接手 WordWorld / 源火纪 项目。
+
+当前 v0.3-demo 已完成或接近完成。
+本轮目标是开发 v0.4-public：公开发布版本。
+
+本轮不要新增第二章，不要新增大量地图，不要新增大量道具，不要重写 GameEngine。
+重点是让陌生玩家能够下载、运行、试玩、反馈。
+
+---
+
+## 本轮必须完成
+
+```text
+1. Windows exe 打包方案；
+2. docs/BUILD.md；
+3. docs/RELEASE.md；
+4. docs/PLAYER_GUIDE.md；
+5. README 截图区域；
+6. 发布包结构说明；
+7. GitHub Release 描述模板；
+8. 反馈入口；
+9. 基础错误提示；
+10. smoke test 更新；
+11. CHANGELOG 更新；
+12. TODO 更新。
+```
+
+---
+
+## 打包要求
+
+使用 PyInstaller。
+
+推荐命令：
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed run_pygame.py --name Yuanhuoji
+```
+
+如果单文件模式资源路径有问题，可以改用目录模式。
+
+要求：
+
+```text
+1. exe 能启动；
+2. 能加载 story/text_game_event_schema_v4.xlsx；
+3. 能保存；
+4. 能读取；
+5. 能完成第一章；
+6. dist/ 和 build/ 不提交进 Git。
+```
+
+---
+
+## 文档要求
+
+新增：
+
+```text
+docs/BUILD.md
+docs/RELEASE.md
+docs/PLAYER_GUIDE.md
+```
+
+README 更新到 v0.4-public，并加入：
+
+```text
+1. 当前版本；
+2. 下载方式；
+3. 源码运行方式；
+4. 打包版运行方式；
+5. 游戏截图；
+6. 当前可玩内容；
+7. 操作说明；
+8. 存档说明；
+9. 反馈方式；
+10. 已知问题；
+11. 下一版本计划。
+```
+
+---
+
+## 截图要求
+
+准备截图区域。
+
+至少规划 5 张截图：
+
+```text
+1. 地图探索；
+2. 剧情事件；
+3. 战斗界面；
+4. 背包装备；
+5. Boss 奖励。
+```
+
+截图目录：
+
+```text
+docs/screenshots/
+```
+
+---
+
+## Release 描述模板
+
+准备 GitHub Release 描述：
+
+```text
+Yuanhuoji v0.4 Public Demo
+
+原创玄幻文字 RPG / 轻量 2D RPG Demo。
+
+当前可体验：
+第一章：青石镇试炼
+
+预计游玩时长：
+20–30 分钟
+
+包含内容：
+- 地图探索
+- 回合制战斗
+- 角色成长
+- 装备与道具
+- 第一章主线
+- 基础存档
+```
+
+---
+
+## 错误提示要求
+
+至少处理：
+
+```text
+1. 配置表缺失；
+2. 存档目录缺失；
+3. 存档读取失败；
+4. 字体加载失败；
+5. Pygame 初始化失败。
+```
+
+错误提示必须尽量让玩家看懂。
+
+---
+
+## smoke test 更新
+
+更新 scripts/smoke_test.py，检查：
+
+```text
+1. GameEngine 初始化；
+2. 配置表存在；
+3. saves/ 可创建；
+4. 当前地图存在；
+5. 当前目标系统可调用；
+6. 第一章关键内容存在；
+7. Pygame UI 可以 import；
+8. docs/BUILD.md 存在；
+9. docs/RELEASE.md 存在；
+10. docs/PLAYER_GUIDE.md 存在。
+```
+
+运行：
+
+```bash
+python -m compileall src
+python scripts/smoke_test.py
+```
+
+---
+
+## 最终验收
+
+完成后必须满足：
+
+```text
+1. python run_pygame.py 可以启动；
+2. python -m compileall src 通过；
+3. python scripts/smoke_test.py 通过；
+4. Windows exe 可以启动；
+5. 打包版可以加载配置表；
+6. 打包版可以保存和读取；
+7. 打包版可以完成第一章；
+8. README 已更新；
+9. CHANGELOG 已更新；
+10. TODO 已更新；
+11. docs/BUILD.md 存在；
+12. docs/RELEASE.md 存在；
+13. docs/PLAYER_GUIDE.md 存在；
+14. GitHub Release 描述已准备；
+15. dist/ 和 build/ 没有提交进 Git；
+16. 没有新增大系统；
+17. 没有扩展第二章；
+18. 没有恢复原作 IP 专有名词。
+```
+
+---
+
+# 十九、v0.4 完成后的下一步
+
+v0.4 完成后，下一阶段是：
+
+```text
+v0.5-feedback：反馈和留存版本
+```
+
+v0.5 的重点是：
+
+```text
+1. GitHub Issue 模板；
+2. Bug 反馈流程；
+3. 调试信息导出；
+4. 开发日志；
+5. 玩家反馈整理；
+6. UI 可读性优化；
+7. 第一章数值微调；
+8. 第二章设计文档，但不急着开发。
+```
+
+v0.4 的核心任务不是让游戏变大，而是：
+
+> 让别人能玩到它，并愿意告诉你哪里不好玩。

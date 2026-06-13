@@ -1,0 +1,252 @@
+src\wordworld\data\technique_data.py:12:    "desc": "[火系功法] 以烈焰斗气强化火属性攻击力。",
+src\wordworld\data\technique_data.py:144:    "desc": "[火系功法] 离火归元，斗气上限大增。",
+src\wordworld\data\technique_data.py:177:    "desc": "[火系功法] 丹火养气，斗气自生不息。",
+src\wordworld\data\technique_data.py:408:    "desc": "[冰系功法] 太阴月华，斗气与寒冰双修。",
+src\wordworld\data\technique_data.py:628:    "desc": "[雷系功法] 雷元归一，斗气上限大增。",
+src\wordworld\data\technique_data.py:958:    "desc": "[木系功法] 森林吐息，斗气上限大增。",
+src\wordworld\data\technique_data.py:1211:    "desc": "[土系功法] 矿脉吸灵，斗气与土攻。",
+src\wordworld\data\technique_data.py:1310:    "desc": "[土系功法] 大地归元，斗气与土攻。",
+src\wordworld\data\technique_data.py:1530:    "desc": "[毒系功法] 毒元归一，斗气大增。",
+src\wordworld\core\engine.py:83:    "rel_player_yao_lao",    # 药老-导师
+src\wordworld\core\engine.py:288:# ── 异火系统 ───────────────────────────────────────────────
+src\wordworld\core\engine.py:361:    _story_phase("fallen_genius", "天才陨落", "斗气持续衰退，族内试炼迫近。", "稳住根基并重新证明自己。", "失败会失去族内资源与信任。", 2, "level>=2", "reputation:+3,rel:npc_xiao_zhan:+3", [
+src\wordworld\core\engine.py:362:        ("查明斗气衰退", "观察身体与戒指的异常。", "soul>=5", "soul:+1"),
+src\wordworld\core\engine.py:365:    _story_phase("three_year_pact", "退婚与三年之约", "云岚宗登门退婚，萧家尊严受到挑战。", "维护家族尊严并立下三年之约。", "软弱回应会让萧家声望受损。", 3, "reputation>=5", "flag:three_year_pact=1,rel:npc_nalan_yanran:-10", [
+src\wordworld\core\engine.py:366:        ("应对退婚", "在大厅冲突中维护萧家尊严。", "reputation>=5", "rel:npc_xiao_zhan:+5"),
+src\wordworld\core\engine.py:370:        ("药老现身", "确认斗气流失的真正原因。", "soul>=6", "flag:ring_awakened=1"),
+src\wordworld\core\engine.py:371:        ("学习炼药与焚决", "建立师徒信任并选择成长路线。", "adventure_points>=3", "rel:npc_yao_lao:+10,alchemy:+3"),
+src\wordworld\core\engine.py:375:        ("解决家族冲突", "保护萧家利益并赢得成人认可。", "training_wins>=2", "reputation:+5"),
+src\wordworld\core\engine.py:383:    _story_phase("desert_flame", "塔戈尔沙漠与青莲地心火", "异火线索指向蛇人族领地。", "深入沙漠并夺取青莲地心火。", "异火争夺失败会严重拖慢成长。", 6, "level>=10", "item:+item_green_lotus_flame,rel:npc_cai_lin:+15,douqi:+20", [
+src\wordworld\core\engine.py:385:        ("寻找青莲地心火", "追踪地穴中的异火线索。", "soul>=12", "flag:green_lotus_found=1"),
+src\wordworld\core\engine.py:386:        ("美杜莎神殿争夺", "在多方冲突中取得异火并保留转圜余地。", "level>=10,rel:npc_cai_lin>=-40", "rel:npc_cai_lin:+10"),
+src\wordworld\core\engine.py:390:        ("处理纳兰家烙毒", "以异火与炼药能力换取关键人脉。", "soul>=12", "reputation:+4"),
+src\wordworld\core\engine.py:393:    _story_phase("yunlan_duel", "三年之约决战", "约定期限已至，你必须登上云岚宗。", "击败纳兰嫣然并从宗门追击中脱身。", "失败会让三年努力失去意义。", 8, "level>=15,flag:three_year_pact=1", "flag:rival_resolved=1,flag:yunlan_hostile=1,reputation:+20", [
+src\wordworld\core\engine.py:394:        ("登上云岚宗", "突破宗门压力并抵达决战场。", "level>=15", "reputation:+5"),
+src\wordworld\core\engine.py:395:        ("击败纳兰嫣然", "兑现三年之约。", "flag:three_year_pact=1", "rel:npc_nalan_yanran:+20,reputation:+10"),
+src\wordworld\core\engine.py:396:        ("再上云岚宗击杀云棱", "处理萧家遇袭的直接责任人。", "reputation>=20", "flag:yunleng_defeated=1"),
+src\wordworld\core\engine.py:410:    _story_phase("fallen_heart", "炼气塔暴动与黑盟入侵", "强榜大赛后，陨落心炎冲破封印，韩枫也趁乱召集黑盟进攻内院。", "协助学院抵挡黑盟，并在封印崩溃时直面陨落心炎。", "黑盟与异火同时失控会彻底摧毁内院。", 11, "level>=25,flag:strong_rank_won=1", "flag:xiao_yan_trapped_in_tower=1,flag:han_feng_hostile=1,reputation:+10", [
+src\wordworld\core\engine.py:416:    _story_phase("black_corner_war", "收服陨落心炎与清算韩枫", "被困塔底两年后，你必须炼化陨落心炎、破塔归来，并清算韩枫与黑盟。", "带着异火重返内院，反攻枫城并摧毁韩枫肉身。", "若无法脱困，内院和萧门都将长期承受黑盟威胁。", 12, "level>=28,flag:xiao_yan_trapped_in_tower=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1,reputation:+15,douqi:+30", [
+src\wordworld\core\engine.py:417:        ("炼化陨落心炎", "在岩浆世界承受异火炼体并完成融合。", "soul>=25,flag:fallen_heart_unstable=1", "item:+item_fallen_heart_flame"),
+src\wordworld\core\engine.py:420:        ("发现魂殿接应", "确认韩枫灵魂被魂殿救走。", "soul>=25,flag:han_feng_body_destroyed=1", "flag:han_feng_escaped=1,flag:soul_hall_exposed=1"),
+src\wordworld\core\engine.py:422:    _story_phase("yunlan_war", "重返加玛与云岚宗大战", "父亲失踪、萧家遭难，线索指向云岚宗与魂殿。", "救援萧家、击败云山并重建故土秩序。", "拖延会让萧家与盟友被逐个击破。", 13, "level>=30,flag:first_yunlan_escape=1", "flag:yan_alliance_founded=1,reputation:+20", [
+src\wordworld\core\engine.py:423:        ("追查父亲失踪", "确认萧家危机与魂殿介入。", "reputation>=35", "flag:xiao_family_crisis=1"),
+src\wordworld\core\engine.py:424:        ("击败云山，药老被掳", "终结云岚宗威胁，但魂殿护法趁乱掳走药老。", "level>=30,flag:yunlan_hostile=1", "flag:yunlan_defeated=1,flag:yao_lao_captured=1"),
+src\wordworld\core\engine.py:425:        ("建立炎盟", "联合加玛帝国盟友保护萧家。", "reputation>=45", "flag:yan_alliance_founded=1"),
+src\wordworld\core\engine.py:432:    _story_phase("return_black_corner", "重返黑角域", "魂殿线索与韩枫逃亡方向都指向黑角域。", "清算魔炎谷、擒获韩枫并取得前往中州的线索。", "缺少魂殿情报便无法继续追查药老。", 15, "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1,flag:mentor_prison_known=1,reputation:+15", [
+src\wordworld\core\engine.py:434:        ("擒获韩枫灵魂", "击败韩枫与魂殿接应者。", "level>=35,flag:han_feng_escaped=1", "flag:han_feng_captured=1"),
+src\wordworld\core\engine.py:435:        ("取得药老去向线索", "从韩枫与魂殿护法处确认药老被带往中州。", "soul>=30", "flag:mentor_prison_known=1"),
+src\wordworld\core\engine.py:442:    _story_phase("zhongzhou_arrival", "进入中州", "药老被魂殿掳走，新的线索指向强者云集的中州。", "在中州立足、寻找星陨阁并追查魂殿。", "没有据点与情报便无法展开营救。", 16, "level>=36,flag:mentor_prison_known=1", "flag:star_pavilion_found=1,reputation:+15", [
+src\wordworld\core\engine.py:447:        ("找到风尊者与星陨阁", "联系药老旧友并建立营救据点。", "reputation>=50", "flag:star_pavilion_found=1,rel:npc_feng_zunzhe:+15"),
+src\wordworld\core\engine.py:454:    _story_phase("dan_meeting_flame", "丹会与三千焱炎火", "丹塔大会能提供声望、盟友与接近三千焱炎火的机会。", "赢得丹会并收服星域异火。", "失败会失去营救药老的重要支援。", 18, "level>=40,alchemy>=30,soul>=30,flag:dan_meeting_qualified=1", "alchemy:+15,reputation:+20", [
+src\wordworld\core\engine.py:457:        ("进入星域收服异火", "处理魂殿干扰并取得三千焱炎火。", "level>=40,flag:dan_meeting_won=1", "item:+item_three_thousand_flame"),
+src\wordworld\core\engine.py:459:    _story_phase("save_mentor", "营救药老", "魂殿囚禁着药老，营救时机终于成熟。", "突袭亡魂山脉并救回药老灵魂。", "失败将失去导师和对抗魂殿的核心盟友。", 19, "level>=45,flag:star_pavilion_found=1,rel:npc_yao_lao>=60", "flag:yao_lao_rescued=1,rel:npc_yao_lao:+20,reputation:+20", [
+src\wordworld\core\engine.py:460:        ("突袭魂殿分殿", "依靠丹塔与星陨阁情报展开营救。", "reputation>=60", "flag:yao_lao_rescued=1"),
+src\wordworld\core\engine.py:461:        ("撤回星陨阁", "保护重伤的药老灵魂撤离。", "soul>=40,flag:yao_lao_rescued=1", "flag:mentor_soul_secured=1"),
+src\wordworld\core\engine.py:464:    _story_phase("ancient_ruins", "远古遗迹", "远古遗迹现世，其中的斗圣骸骨是复活药老的关键。", "探索遗迹、取得龙凰本源果与斗圣骸骨。", "无法取得骸骨便不能为药老重塑躯体。", 20, "level>=48,soul>=35,flag:saint_bones_needed=1", "soul:+10", [
+src\wordworld\core\engine.py:470:    _story_phase("revive_mentor", "复活药老", "斗圣骨骸已经到手，可以为药老重塑躯体。", "炼制新躯体并让药老完成灵魂融合。", "拖延会让魂殿再次找到虚弱的药老灵魂。", 21, "alchemy>=42,flag:saint_bones_acquired=1,flag:mentor_soul_secured=1", "flag:yao_lao_revived=1,reputation:+20", [
+src\wordworld\core\engine.py:471:        ("炼制斗圣躯体", "使用斗圣骸骨与异火完成躯体炼制。", "alchemy>=42,flag:saint_bones_acquired=1", "flag:saint_body_refined=1"),
+src\wordworld\core\engine.py:472:        ("药老复活", "让药老灵魂与新躯体完成融合。", "soul>=45,flag:saint_body_refined=1", "flag:yao_lao_revived=1,rel:npc_yao_lao:+15"),
+src\wordworld\core\engine.py:474:    _story_phase("flower_sect", "花宗与云韵传承", "药老复活后，花宗传承纷争将云韵卷入危机，也影响中州盟友格局。", "帮助云韵取得花宗传承并争取花宗支持。", "花宗落入敌对势力会削弱未来联盟。", 22, "level>=50,flag:yao_lao_revived=1", "flag:flower_sect_allied=1,rel:npc_yun_yun:+15,reputation:+10", [
+src\wordworld\core\engine.py:479:    _story_phase("dragon_island_legacy", "龙岛与龙皇血脉", "龙凰本源果被送往分裂的古龙岛，紫研需要完成血脉觉醒。", "帮助紫研觉醒龙皇血脉并稳住东龙岛。", "紫研失败会让太虚古龙族继续分裂。", 23, "level>=50,rel:npc_ziyan>=35,flag:dragon_phoenix_fruit_acquired=1", "flag:dragon_emperor_awakened=1,rel:npc_ziyan:+15,reputation:+10", [
+src\wordworld\core\engine.py:484:    _story_phase("gu_clan_tomb", "古族成人礼与天墓", "古族成人礼与天墓开启提供了接触萧族先祖的机会。", "赢得古族认可、获得萧玄传承，并强化星陨阁。", "失败会削弱古族联盟与血脉成长。", 24, "level>=52,rel:npc_xun_er>=60", "rel:npc_gu_yuan:+20,douqi:+50", [
+src\wordworld\core\engine.py:485:        ("参加古族成人礼", "在远古种族面前证明实力。", "reputation>=75", "rel:npc_gu_yuan:+10"),
+src\wordworld\core\engine.py:490:    _story_phase("northwest_fortress_war", "玄黄要塞与西北大陆大战", "魂殿联军进攻西北大陆，炎盟与萧家在玄黄要塞陷入苦战。", "返回故土、守住要塞并稳定西北联盟。", "故土失守会让天府联盟失去根基。", 25, "level>=54,flag:yan_alliance_founded=1", "flag:northwest_front_secured=1,reputation:+18", [
+src\wordworld\core\engine.py:492:        ("守卫萧家与炎盟", "击退魂殿联军对西北大陆的进攻。", "level>=54", "reputation:+10"),
+src\wordworld\core\engine.py:501:    _story_phase("tianfu_alliance", "建立天府联盟", "魂殿全面施压，单一势力已无法抵抗。", "联合星陨阁、丹塔、炎盟与伙伴势力。", "联盟失败会让各方被逐个击破。", 26, "flag:star_pavilion_rebuilt=1,flag:yan_alliance_founded=1,reputation>=90", "flag:tianfu_alliance_founded=1,reputation:+20", [
+src\wordworld\core\engine.py:505:        ("建立天府联盟", "形成能够正面对抗魂殿的联盟。", "flag:star_pavilion_rebuilt=1", "flag:tianfu_alliance_founded=1"),
+src\wordworld\core\engine.py:507:    _story_phase("nether_spring", "九幽黄泉与妖暝", "建立天府联盟后，需要争取九幽地冥蟒族并强化彩鳞血脉。", "救出妖暝、取得妖圣精血并争取魔兽盟友。", "缺少魔兽盟友会让联盟侧翼空虚。", 27, "level>=58,flag:tianfu_alliance_founded=1", "flag:nether_python_allied=1,rel:npc_cai_lin:+15,reputation:+10", [
+src\wordworld\core\engine.py:508:        ("深入九幽黄泉", "帮助彩鳞寻找血脉突破机缘。", "rel:npc_cai_lin>=20", "rel:npc_cai_lin:+10"),
+src\wordworld\core\engine.py:517:    _story_phase("soul_hall_war", "血洗魂殿人殿", "天府联盟成立后，双方开始争夺中州主动权。", "摧毁魂殿核心分殿并夺回灵魂本源。", "若魂殿仍掌握灵魂本源，联盟将持续受制。", 29, "level>=62,flag:tianfu_alliance_founded=1", "flag:soul_hall_weakened=1,soul:+15,reputation:+20", [
+src\wordworld\core\engine.py:518:        ("血洗魂殿人殿", "摧毁魂殿灵魂收集据点。", "reputation>=105", "flag:soul_hall_core_exposed=1"),
+src\wordworld\core\engine.py:520:        ("逼退魂殿殿主", "迫使魂殿收缩，但殿主仍未被彻底击败。", "level>=62", "flag:soul_hall_weakened=1"),
+src\wordworld\core\engine.py:527:    _story_phase("post_demon_wars", "魂殿殿主与北龙王终战", "净莲妖火之后，魂殿殿主与逃亡的北龙王先后发动反扑。", "击败两名强敌并完成古龙族统一。", "残余强敌会破坏大陆联盟。", 31, "level>=66,flag:north_dragon_escaped=1,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1,flag:dragon_clan_unified=1,reputation:+20", [
+src\wordworld\core\engine.py:528:        ("击败魂殿殿主", "终结魂殿在中州的公开统治。", "level>=66,flag:soul_hall_weakened=1", "flag:soul_hall_defeated=1"),
+src\wordworld\core\engine.py:530:        ("统一太虚古龙族", "彻底结束古龙族分裂。", "flag:north_dragon_escaped=1", "flag:dragon_clan_unified=1"),
+src\wordworld\core\engine.py:537:    _story_phase("ancient_clan_war", "远古种族联盟战", "魂族开始夺取各族帝玉，远古种族面临覆灭。", "协调古族、古龙族与盟友，并救回被囚的父亲。", "联盟破裂会让魂族打开古帝洞府。", 33, "flag:dragon_clan_unified=1,flag:hun_clan_hostile=1", "flag:ancient_alliance=1,rel:npc_xiao_zhan:+20,reputation:+25", [
+src\wordworld\core\engine.py:538:        ("确认魂族夺玉计划", "整合药族幸存者与古族情报。", "flag:medicine_clan_survivors_saved=1", "flag:emperor_jade_crisis=1"),
+src\wordworld\core\engine.py:541:        ("协调远古种族盟友", "争取古族与统一后的太虚古龙族共同作战。", "rel:npc_gu_yuan>=30,flag:dragon_clan_unified=1", "flag:ancient_alliance=1"),
+src\wordworld\core\engine.py:543:    _story_phase("ancient_emperor", "古帝洞府", "魂族集齐八块陀舍古帝玉并打开洞府，成帝传承成为最后争夺。", "追入洞府，争夺帝品雏丹并取得迎战魂天帝的传承。", "失败会让魂天帝独占成帝契机。", 34, "level>=70,flag:ancient_alliance=1", "flag:emperor_cave_contested=1", [
+src\wordworld\core\engine.py:546:        ("魂天帝夺丹成帝", "争夺失败后，应对魂天帝完成突破的危机。", "level>=72,flag:embryonic_pill_contested=1", "flag:soul_emperor_ascended=1"),
+src\wordworld\core\engine.py:547:        ("接受古帝传承", "在魂天帝成帝后，获得迎战他的最后力量。", "flag:emperor_soul_awakened=1,flag:soul_emperor_ascended=1", "flag:emperor_legacy=1,douqi:+100"),
+src\wordworld\core\engine.py:549:    _story_phase("final_war", "双帝之战", "魂天帝突破，大陆已无退路。", "集结联军并完成最终决战。", "失败意味着大陆秩序覆灭。", 35, "level>=80,flag:emperor_legacy=1", "flag:soul_emperor_defeated=1,reputation:+100", [
+src\wordworld\core\engine.py:551:        ("突破斗帝", "以古帝传承与异火完成最终突破。", "level>=80,flag:emperor_legacy=1", "flag:xiao_emperor_awakened=1"),
+src\wordworld\core\engine.py:552:        ("迎战魂天帝", "封印魂天帝并终结魂族战争。", "flag:xiao_emperor_awakened=1", "flag:soul_emperor_defeated=1"),
+src\wordworld\core\engine.py:554:    _story_phase("five_emperors", "五帝破空", "双帝之战数十年后，萧炎开启源气通道，斗气大陆再次出现五位斗帝。", "安排大陆后事，并与薰儿、彩鳞、古元和烛坤前往新的位面。", "未知位面远比斗气大陆危险，必须在出发前完成交接。", 36, "flag:soul_emperor_defeated=1", "flag:story_finished=1", [
+src\wordworld\core\engine.py:555:        ("开启源气通道", "引来源气，让斗气大陆重新拥有晋升斗帝的可能。", "flag:xiao_emperor_awakened=1", "flag:source_qi_channel_opened=1"),
+src\wordworld\core\engine.py:556:        ("见证五帝并立", "等待薰儿、彩鳞、古元与烛坤完成突破。", "flag:source_qi_channel_opened=1", "flag:five_emperors_gathered=1"),
+src\wordworld\core\engine.py:557:        ("安排大陆后事", "将萧族、古族、太虚古龙族与天府联盟交给可靠的后来者。", "reputation>=150,flag:five_emperors_gathered=1", "reputation:+20"),
+src\wordworld\core\engine.py:566:    "强榜大赛", "黑角域大战", "陨落心炎与天焚炼气塔", "云岚宗大战",
+src\wordworld\core\engine.py:567:    "丹会", "三千焱炎火", "营救药老", "远古遗迹", "古族成人礼",
+src\wordworld\core\engine.py:575:    "青莲地心火争夺": ("塔戈尔沙漠与青莲地心火", "美杜莎神殿争夺"),
+src\wordworld\core\engine.py:581:    "云岚宗大战": ("重返加玛与云岚宗大战", "击败云山，药老被掳"),
+src\wordworld\core\engine.py:583:    "三千焱炎火": ("丹会与三千焱炎火", "进入星域收服异火"),
+src\wordworld\core\engine.py:584:    "营救药老": ("营救药老", "突袭魂殿分殿"),
+src\wordworld\core\engine.py:586:    "古族成人礼": ("古族成人礼与天墓", "参加古族成人礼"),
+src\wordworld\core\engine.py:587:    "天墓与萧玄": ("古族成人礼与天墓", "接受萧玄传承"),
+src\wordworld\core\engine.py:592:    "双帝之战": ("双帝之战", "迎战魂天帝"),
+src\wordworld\core\engine.py:598:    "药老被魂殿掳走": ("重返加玛与云岚宗大战", "击败云山，药老被掳"),
+src\wordworld\core\engine.py:602:    "太虚古龙统一": ("魂殿殿主与北龙王终战", "统一太虚古龙族"),
+src\wordworld\core\engine.py:603:    "魂殿决战": ("魂殿殿主与北龙王终战", "击败魂殿殿主"),
+src\wordworld\core\engine.py:609:    "药老复活": ("复活药老", "药老复活"),
+src\wordworld\core\engine.py:616:    "星陨阁强化": ("古族成人礼与天墓", "回归并强化星陨阁"),
+src\wordworld\core\engine.py:618:    "玄黄要塞大战": ("玄黄要塞与西北大陆大战", "守卫萧家与炎盟"),
+src\wordworld\core\engine.py:621:    "魂天帝夺丹成帝": ("古帝洞府", "魂天帝夺丹成帝"),
+src\wordworld\core\engine.py:789:    # soul_hall_war: 魂殿总部天罡殿
+src\wordworld\core\engine.py:793:    # ancient_emperor: 古帝异火广场
+src\wordworld\core\engine.py:820:    # yunlan_war: 重返加玛与云岚宗大战
+src\wordworld\core\engine.py:841:    # post_demon_wars: 魂殿殿主与北龙王终战
+src\wordworld\core\engine.py:985:        "title": "萧家族内试炼",
+src\wordworld\core\engine.py:1063:        # 合并23异火
+src\wordworld\core\engine.py:1165:        self.last_message = "斗气大陆的故事由此开始。"
+src\wordworld\core\engine.py:1190:                "name": self.npc_names.get("player", "萧炎"),
+src\wordworld\core\engine.py:1246:            player.setdefault("name", nested_player.get("name", "萧炎"))
+src\wordworld\core\engine.py:1281:        player.setdefault("name", self.npc_names.get("player", "萧炎"))
+src\wordworld\core\engine.py:1738:                logs.append(f"持续恢复斗气 {self.player['douqi'] - before}")
+src\wordworld\core\engine.py:1763:            name = "生命持续恢复" if status_id == "hp_regen" else "斗气持续恢复"
+src\wordworld\core\engine.py:1851:            logs.append(f"Lv3【回风】返还{refund}斗气并增加连击")
+src\wordworld\core\engine.py:1918:                logs.append(f"斗技恢复{value}斗气")
+src\wordworld\core\engine.py:1929:                logs.append(f"扰乱斗气造成{value}伤害")
+src\wordworld\core\engine.py:2420:            action_text = "药老尚未苏醒，你只能感知戒指异动、锤炼灵魂。"
+src\wordworld\core\engine.py:2423:            action_text = "你依照药老指导运转斗气，完成了一轮修炼。"
+src\wordworld\core\engine.py:2693:            "name": "萧家陪练弟子",
+src\wordworld\core\engine.py:2833:            f"{self.player['name']} 生命 {self.player['hp']}｜斗气 {self.player['douqi']}"
+src\wordworld\core\engine.py:2970:            # 保留最后一轮普通攻击所需的斗气余量，避免高消耗技能无意义溢伤。
+src\wordworld\core\engine.py:3168:            logs.append(f"恢复 {self.player['douqi'] - before} 点斗气")
+src\wordworld\core\engine.py:3272:            logs.append("你凝聚斗气防守")
+src\wordworld\core\engine.py:3284:            logs.append(f"你凝神蓄力，斗气恢复 {CHARGE_DOUQI_PER_TURN} 点，下一击将威力倍增！")
+src\wordworld\core\engine.py:3337:                    self.last_message = "斗气不足，无法施展该斗技。"
+src\wordworld\core\engine.py:3844:            logs.append(f"功法运转：恢复{douqi_regen}斗气")
+src\wordworld\core\engine.py:3890:        """读取已装备异火的属性加成。"""
+src\wordworld\core\engine.py:3902:        """读取已装备异火的炼药加成。"""
+src\wordworld\core\engine.py:3914:        """计算玩家有效速度（基础+装备+功法+异火）。"""
+src\wordworld\core\engine.py:3963:        """计算玩家有效斗气上限（基础上限+功法固定/百分比加成）。"""
+src\wordworld\core\engine.py:4010:    # ── 异火系统 ─────────────────────────────────────────────
+src\wordworld\core\engine.py:4013:        """装备异火（提供战斗和炼药被动加成）。"""
+src\wordworld\core\engine.py:4016:            self.last_message = "找不到该异火。"
+src\wordworld\core\engine.py:4019:            self.last_message = "背包中没有该异火。"
+src\wordworld\core\engine.py:4031:        self.last_message = f"装备异火：{flame['name']}（{tier_name}，攻击+{atk_bonus}）"
+src\wordworld\core\engine.py:4035:        """卸下异火。"""
+src\wordworld\core\engine.py:4038:            self.last_message = "当前未装备异火。"
+src\wordworld\core\engine.py:4044:        self.last_message = f"收起异火：{flame.get('name', fid)}"
+src\wordworld\core\engine.py:4139:        # 成功率：基础 + 品级差 + 药鼎加成 + 异火加成
+src\wordworld\core\engine.py:4403:        # 异火装备
+src\wordworld\core\engine.py:4589:        # 消耗品/材料/异火
+src\wordworld\core\engine.py:4606:                # 顶级物品（tier>=saint）或异火：使用远古币
+src\wordworld\data\skill_book_data.py:365:    "desc": "[火系] 以焚决催动吞噬异火之力。",
+src\wordworld\data\skill_book_data.py:1821:    "desc": "[木系] 森林吐息恢复HP和斗气。",
+src\wordworld\data\skill_book_data.py:3451:    "desc": "[辅助] 消耗斗气恢复生命。",
+src\wordworld\data\skill_book_data.py:3511:    "desc": "[辅助] 恢复斗气的法门。",
+src\wordworld\data\skill_book_data.py:3526:    "desc": "[辅助] 大量恢复斗气。",
+src\wordworld\data\skill_book_data.py:3533:    "name": "《斗气泉涌》",
+src\wordworld\data\skill_book_data.py:3538:    "skill_name": "斗气泉涌",
+src\wordworld\data\skill_book_data.py:3541:    "desc": "[辅助] 斗气如泉涌般恢复。",
+src\wordworld\data\skill_book_data.py:3571:    "desc": "[辅助] 生成斗气护盾吸收伤害。",
+src\wordworld\data\skill_book_data.py:3736:    "desc": "[辅助] 进入冥想恢复HP和斗气。",
+src\wordworld\data\skill_book_data.py:3766:    "desc": "[辅助] 斗气温养经脉。",
+src\wordworld\data\skill_book_data.py:3863:    "name": "《斗气燃烧》",
+src\wordworld\data\skill_book_data.py:3868:    "skill_name": "斗气燃烧",
+src\wordworld\data\skill_book_data.py:3871:    "desc": "[辅助] 燃烧斗气换取攻击提升。",
+src\wordworld\data\skill_book_data.py:3886:    "desc": "[辅助] 消耗生命换取大量斗气。",
+src\wordworld\data\skill_book_data.py:3901:    "desc": "[辅助] 链接灵魂恢复生命和斗气。",
+src\wordworld\data\skill_book_data.py:3946:    "desc": "[辅助] 吸取敌人斗气为己用。",
+src\wordworld\data\skill_mastery_data.py:23:        3: ("回风", "施放后返还20%斗气消耗，并额外获得1层连击。"),
+src\wordworld\data\skill_mastery_data.py:39:        3: ("凝练", "斗气消耗降低20%，并使本次伤害提高10%。"),
+src\wordworld\data\skill_mastery_data.py:45:    3: ("运转自如", "斗气消耗降低25%，原有效果提高25%。"),
+src\wordworld\data\loot_table.py:1:"""斗破苍穹 RPG — 掉落表（自动生成）"""
+src\wordworld\ui\tui.py:155:            f"斗气 {p['douqi']}  资金 {wallet_display(p.get('wallet', {}))}",
+src\wordworld\ui\tui.py:297:            f"斗气 {self.game.player['douqi']}",
+src\wordworld\ui\tui.py:837:            yield Static("欢迎来到斗气大陆。你的传奇，由此开始。", id="hub-msg")
+src\wordworld\ui\tui.py:885:            f"  斗气 {p['douqi']}"
+src\wordworld\data\item_data.py:1:"""斗破苍穹 RPG — 道具数据（自动生成）"""
+src\wordworld\data\item_data.py:192:    "desc": "七品丹药，药老成名之作，蕴含阴阳二气。",
+src\wordworld\data\item_data.py:242:    "desc": "加快斗气凝聚的基础药散。",
+src\wordworld\data\item_data.py:288:    "name": "斗气凝丹",
+src\wordworld\data\item_data.py:318:    "name": "星辰斗气丹",
+src\wordworld\data\item_data.py:342:    "desc": "同时恢复气血与斗气的二品丹药。",
+src\wordworld\data\item_data.py:1122:    "desc": "每回合恢复10斗气，持续5回合。",
+src\wordworld\data\item_data.py:1132:    "desc": "每回合恢复25斗气，持续5回合。",
+src\wordworld\data\item_data.py:2028:    "name": "异火种子",
+src\wordworld\data\item_data.py:2032:    "desc": "异火的微弱火种。",
+src\wordworld\data\item_data.py:2062:    "desc": "魂殿高阶成员体内提炼的黑血。",
+src\wordworld\data\item_data.py:2302:    "desc": "可储存大量斗气的水晶。",
+src\wordworld\data\item_data.py:2732:    "desc": "异火榜排名第一，古帝的本命火焰。",
+src\wordworld\data\item_data.py:2742:    "desc": "异火榜排名第二，可吞噬万物化为虚无。",
+src\wordworld\data\item_data.py:2752:    "desc": "异火榜排名第三，可净化一切杂质。",
+src\wordworld\data\item_data.py:2762:    "desc": "异火榜排名第四，古族传承之火。",
+src\wordworld\data\item_data.py:2772:    "desc": "异火榜排名第五，蕴含磅礴生机。",
+src\wordworld\data\item_data.py:2782:    "desc": "异火榜排名第六，可破灭一切。",
+src\wordworld\data\item_data.py:2792:    "desc": "异火榜排名第七，九幽之下孕育的金色火焰。",
+src\wordworld\data\item_data.py:2802:    "desc": "异火榜排名第八，业火焚罪、红莲净世。",
+src\wordworld\data\item_data.py:2812:    "desc": "异火榜排名第九，又名三千星空焱炎火。",
+src\wordworld\data\item_data.py:2822:    "desc": "异火榜排名第十，风炎交融的奇火。",
+src\wordworld\data\item_data.py:2832:    "desc": "异火榜排名第十一，药老的本命火焰。",
+src\wordworld\data\item_data.py:2842:    "desc": "异火榜排名第十二，九龙环绕、雷火齐鸣。",
+src\wordworld\data\item_data.py:2852:    "desc": "异火榜排名第十三，地心孕育的龟形火焰。",
+src\wordworld\data\item_data.py:2862:    "desc": "异火榜排名第十四，透明无色、直攻内心。",
+src\wordworld\data\item_data.py:2872:    "desc": "异火榜排名第十五，深海之心孕育的奇焰。",
+src\wordworld\data\item_data.py:2882:    "desc": "异火榜排名第十六，火山口万年不灭的火焰。",
+src\wordworld\data\item_data.py:2892:    "desc": "异火榜排名第十七，风雷交加而成的紫青火焰。",
+src\wordworld\data\item_data.py:2902:    "desc": "异火榜排名第十八，萧炎获得的第一种异火，生于青莲。",
+src\wordworld\data\item_data.py:2912:    "desc": "异火榜排名第十九，龙血凤骨诞生的双色火焰。",
+src\wordworld\data\item_data.py:2922:    "desc": "异火榜排名第二十，传说来自六道轮回。",
+src\wordworld\data\item_data.py:2932:    "desc": "异火榜排名第二十一，万兽灵魂燃烧的火焰。",
+src\wordworld\data\item_data.py:2942:    "desc": "异火榜排名第二十二，玄黄之气凝聚而成。",
+src\wordworld\data\item_data.py:2952:    "desc": "异火榜排名第二十三，蕴含剧毒的诡异绿焰。",
+src\wordworld\data\item_data.py:2958:    "name": "焚决·残卷",
+src\wordworld\data\item_data.py:2962:    "desc": "药老传授的神秘功法残卷，可吞噬异火进化。",
+src\wordworld\data\item_data.py:2968:    "name": "八极崩·手札",
+src\wordworld\data\item_data.py:2972:    "desc": "记载地阶斗技八极崩的修炼手札。",
+src\wordworld\data\item_data.py:3032:    "desc": "放置于身旁可加速斗气修炼。",
+src\wordworld\data\item_data.py:3412:    "desc": "生成抵挡一次攻击的斗气护盾。",
+src\wordworld\data\item_data.py:3618:    "name": "萧家族徽",
+src\wordworld\data\item_data.py:3622:    "desc": "萧家的族徽，乌坦城萧家的身份证明。",
+src\wordworld\data\item_data.py:3672:    "desc": "古族发放的通行令牌。",
+src\wordworld\data\item_data.py:3678:    "name": "魂殿令牌",
+src\wordworld\data\item_data.py:3682:    "desc": "从魂殿使者身上缴获的令牌。",
+src\wordworld\data\item_data.py:3718:    "name": "药老之戒",
+src\wordworld\data\item_data.py:3722:    "desc": "母亲留给萧炎的黑色戒指，药老灵魂栖身之所。",
+src\wordworld\data\item_data.py:3732:    "desc": "药老赠予萧炎的修炼用重尺，重逾千斤。",
+src\wordworld\data\item_data.py:3832:    "desc": "标注太虚古龙族所在的龙岛航线。",
+src\wordworld\data\item_data.py:3908:    "name": "魂殿分殿钥匙",
+src\wordworld\data\item_data.py:3912:    "desc": "从魂殿护法身上缴获的分殿钥匙。",
+src\wordworld\data\item_data.py:3932:    "desc": "父亲萧战写给萧炎的家书。",
+src\wordworld\data\item_data.py:3938:    "name": "药老的手札",
+src\wordworld\data\item_data.py:3942:    "desc": "药老亲笔所写的修炼笔记。",
+src\wordworld\data\item_data.py:3952:    "desc": "云岚宗宗主云韵的亲笔信。",
+src\wordworld\data\item_data.py:3992:    "desc": "药老逆徒韩枫的纳戒，其中或许藏有秘密。",
+src\wordworld\data\item_data.py:3998:    "name": "魂殿护法的灵魂印记",
+src\wordworld\data\item_data.py:4002:    "desc": "击败魂殿护法后获得的战利品。",
+src\wordworld\data\item_data.py:4018:    "name": "太虚古龙逆鳞",
+src\wordworld\data\item_data.py:4022:    "desc": "太虚古龙王的逆鳞信物。",
+src\wordworld\data\flame_data.py:11:    "desc": "异火榜第1。古帝的本命火焰，异火榜第一，可焚尽万物。",
+src\wordworld\data\flame_data.py:22:    "desc": "异火榜第2。异火榜第二，可吞噬一切化为虚无，诞生灵智。",
+src\wordworld\data\flame_data.py:33:    "desc": "异火榜第3。异火榜第三，可净化万物杂质，妖莲形态。",
+src\wordworld\data\flame_data.py:44:    "desc": "异火榜第4。异火榜第四，古族传承之火，金光焚天。",
+src\wordworld\data\flame_data.py:55:    "desc": "异火榜第5。异火榜第五，蕴含磅礴生机，火焰如生命之树。",
+src\wordworld\data\flame_data.py:66:    "desc": "异火榜第6。异火榜第六，可破灭八方，毁灭之力。",
+src\wordworld\data\flame_data.py:77:    "desc": "异火榜第7。异火榜第七，九幽之下孕育的金色火焰。",
+src\wordworld\data\flame_data.py:88:    "desc": "异火榜第8。异火榜第八，业火焚罪、红莲净世。",
+src\wordworld\data\flame_data.py:99:    "desc": "异火榜第9。异火榜第九，又名三千星空焱炎火。",
+src\wordworld\data\flame_data.py:110:    "desc": "异火榜第10。异火榜第十，风炎交融的奇火。",
+src\wordworld\data\flame_data.py:121:    "desc": "异火榜第11。异火榜第十一，药老的本命火焰，极寒之焰。",
+src\wordworld\data\flame_data.py:132:    "desc": "异火榜第12。异火榜第十二，九龙环绕、雷火齐鸣。",
+src\wordworld\data\flame_data.py:143:    "desc": "异火榜第13。异火榜第十三，地心孕育的龟形火焰。",
+src\wordworld\data\flame_data.py:154:    "desc": "异火榜第14。异火榜第十四，透明无色、直攻内心。",
+src\wordworld\data\flame_data.py:165:    "desc": "异火榜第15。异火榜第十五，深海之心孕育的奇焰。",
+src\wordworld\data\flame_data.py:176:    "desc": "异火榜第16。异火榜第十六，火山口万年不灭的暗红火焰。",
+src\wordworld\data\flame_data.py:187:    "desc": "异火榜第17。异火榜第十七，风雷交加而成的紫青火焰。",
+src\wordworld\data\flame_data.py:198:    "desc": "异火榜第18。异火榜第十八，萧炎获得的第一种异火。",
+src\wordworld\data\flame_data.py:209:    "desc": "异火榜第19。异火榜第十九，龙血凤骨诞生的双色火焰。",
+src\wordworld\data\flame_data.py:220:    "desc": "异火榜第20。异火榜第二十，传说来自六道轮回。",
+src\wordworld\data\flame_data.py:231:    "desc": "异火榜第21。异火榜第二十一，万兽灵魂燃烧的火焰。",
+src\wordworld\data\flame_data.py:242:    "desc": "异火榜第22。异火榜第二十二，玄黄之气凝聚而成。",
+src\wordworld\data\flame_data.py:253:    "desc": "异火榜第23。异火榜第二十三，蕴含剧毒的诡异绿焰。",
+src\wordworld\data\equipment_data.py:1:"""斗破苍穹 RPG — 装备数据（自动生成）"""
+src\wordworld\ui\console.py:265:               f"  斗气 {game.player['douqi']}"
+src\wordworld\ui\console.py:283:    print("  5.炼药        6.拍卖        7.功法        8.异火")
+src\wordworld\ui\console.py:302:        f"生命 {p['hp']}/{p['max_hp']}  斗气 {p['douqi']}/{game.attribute_rules['douqi']['max']}"
+src\wordworld\ui\console.py:402:            f"斗气 {game.player['douqi']}/{game.attribute_rules['douqi']['max']}",
+src\wordworld\ui\console.py:404:            "  1. 修炼 —— 消耗体力，运转斗气获得经验",
+src\wordworld\ui\console.py:587:    print("斗破苍穹：沉浸式回合制 RPG")
+
+[Showing results with pagination = limit: 250]

@@ -1,0 +1,44 @@
+# Session: 2026-06-13
+**Date:** 2026-06-13
+**Started:** 14:33
+**Last Updated:** 14:49
+**Project:** wordworld
+**Branch:** master
+**Worktree:** D:\work\wordworld
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 对照根目录下的改造计划.txt进行项目改造；
+- 对照源火纪 v0.1-demo，再此修正
+
+### Files Modified
+- D:\work\wordworld\scripts\migrate_to_original_world.py
+- D:\work\wordworld\run.py
+- D:\work\wordworld\run_gui.py
+- D:\work\wordworld\README.md
+- D:\work\wordworld\CLAUDE.md
+- D:\work\wordworld\.gitignore
+- D:\work\wordworld\scripts\smoke_test.py
+- D:\work\wordworld\CHANGELOG.md
+- D:\work\wordworld\TODO.md
+- D:\work\wordworld\docs\BUILD.md
+- D:\work\wordworld\src\wordworld\core\engine.py
+- D:\work\wordworld\src\wordworld\ui\console.py
+
+### Tools Used
+Read, TaskCreate, TaskUpdate, Bash, Glob, Grep, Write, Edit
+
+### Stats
+- Total user messages: 2
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```
