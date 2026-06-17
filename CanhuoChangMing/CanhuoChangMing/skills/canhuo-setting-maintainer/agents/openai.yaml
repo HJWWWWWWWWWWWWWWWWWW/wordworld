@@ -1,0 +1,6 @@
+interface:
+  display_name: "残火长明设定维护"
+  short_description: "统一维护九部章卡、人物势力、连续性约束与分类汇总流程"
+  default_prompt: "Use $canhuo-setting-maintainer to update the novel setting while preserving all canonical constraints."
+policy:
+  allow_implicit_invocation: true
