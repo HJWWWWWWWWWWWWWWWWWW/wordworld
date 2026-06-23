@@ -1,0 +1,37 @@
+# Session: 2026-06-16
+**Date:** 2026-06-16
+**Started:** 10:35
+**Last Updated:** 11:43
+**Project:** ElectronicOfficeSystem
+**Branch:** main
+**Worktree:** D:\work\ElectronicOfficeSystem
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 当前维修机列表中维修完成后的设备是进入缓存库还是正式库？
+- 编辑维修记录弹窗中并没有这个控制选项吧
+- 不需要
+- 在RepairRegistrationWindow当中，如果我勾选上了更换设备，那么同时要增加一条缓存库的出库记录，如果勾选了换新那么要增加一条正式库的其他出库记录；同时勾选发货时，物流单中的设备应该是更换后的设备才对；这逻辑对不对，你先检验后再回答我
+- 需要，同时当前发货物流单设备这里有BUG，当我更换设备和可发货同时勾选上时，它仍会把旧设备的信息添加到发货单当中；
+- 给我一个sql命令，我需要将之前错误生成的生命周期数据修正过来；
+
+### Files Modified
+- D:\work\ElectronicOfficeSystem\lnstallation\lnstallationDB.py
+
+### Tools Used
+Grep, Read, TaskCreate, TaskUpdate, Edit, Bash
+
+### Stats
+- Total user messages: 6
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```

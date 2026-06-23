@@ -1,0 +1,35 @@
+# Session: 2026-06-16
+**Date:** 2026-06-16
+**Started:** 08:58
+**Last Updated:** 09:33
+**Project:** ElectronicOfficeSystem
+**Branch:** main
+**Worktree:** D:\work\ElectronicOfficeSystem
+
+---
+<!-- ECC:SUMMARY:START -->
+## Session Summary
+
+### Tasks
+- 你先找到ProductionInWindow页面中的编辑入库记录弹框的具体代码在哪
+- 弹窗中的导入明细表按钮的二次导入时会检索更新和追加数据对吧？
+- 现在这个有一个BUG，就是当我二次导入时，我导入数据和表格中的数据一样时，也会报匹配更新成功；我需要的是只有数据被修改的才更新成功，数据未被修改在失败一栏上方显示未更新多少条就行；
+- 检查一下，当前导入时是否会出现新ID不导入的情况发生？
+
+### Files Modified
+- D:\work\ElectronicOfficeSystem\production\ProductionInWindow.py
+
+### Tools Used
+Grep, Glob, Read, Edit
+
+### Stats
+- Total user messages: 4
+<!-- ECC:SUMMARY:END -->
+
+### Notes for Next Session
+-
+
+### Context to Load
+```
+[relevant files]
+```
