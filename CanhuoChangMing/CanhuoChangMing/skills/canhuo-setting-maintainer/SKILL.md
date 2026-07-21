@@ -20,16 +20,17 @@ description: Maintain and extend the Chinese fantasy novel repository 《残火�
 
 ## 标准工作流
 
-1. 先扫描相关正式章节卡、人物志、势力文档和全局基准。
-2. 列出受影响的人物、时间、地点、九灯、遗物与后续章节。
-3. 修改原始来源文档，不直接把分类汇总当作来源编辑。
-4. 检查同名人物、死亡/失踪状态、信息知情范围与跨州旅行时间。
-5. 涉及人物时，按 [references/character-faction-rules.md](references/character-faction-rules.md) 建档。
-6. 涉及章卡或终局时，按 [references/plot-ending-rules.md](references/plot-ending-rules.md) 修改。
-7. 运行 `scripts/check_continuity.ps1`。
-8. 运行 `scripts/rebuild_summaries.ps1`。
-9. 再运行一次连续性检查，确认汇总无缺失来源。
-10. 涉及正文初稿时，运行 `scripts/check_drafts.ps1`，检查已完成章节连续、净汉字数与现代措辞。
+1. 涉及正文创作、续写、扩写或重写时，必须先完整读取当前分部文件夹内的 `00_正文创作与校验总约束.txt`，再完整读取仓库根目录的 `叙事风格.txt` 与 `段落示范.txt`；未读完不得动笔，不得用摘要或记忆代替全文。
+2. 先扫描相关正式章节卡、上一章正文末尾、当前分部连续性账目、人物志、势力文档和全局基准。
+3. 列出受影响的人物、时间、地点、九灯、遗物与后续章节。
+4. 修改原始来源文档，不直接把分类汇总当作来源编辑。
+5. 检查同名人物、死亡/失踪状态、信息知情范围与跨州旅行时间。
+6. 涉及人物时，按 [references/character-faction-rules.md](references/character-faction-rules.md) 建档。
+7. 涉及章卡或终局时，按 [references/plot-ending-rules.md](references/plot-ending-rules.md) 修改。
+8. 运行 `scripts/check_continuity.ps1`。
+9. 运行 `scripts/rebuild_summaries.ps1`。
+10. 再运行一次连续性检查，确认汇总无缺失来源。
+11. 涉及正文初稿时，运行 `scripts/check_drafts.ps1`，检查已完成章节连续、正文剔除标题后不少于3000纯汉字、总约束副本一致、现代措辞与风格风险。
 
 ## 编辑原则
 
@@ -56,7 +57,7 @@ description: Maintain and extend the Chinese fantasy novel repository 《残火�
 
 ### 改终局
 
-不得将开放式结尾封死。林烬最终点火后失踪，不确认死亡或归来；最后炉火来源不明。
+不得将开放式结尾封死。林烬在封印前立域、封印时承天，界线重现后随一粒无法辨认的火花失踪；不确认火花归属、死亡或归来，最后炉火来源不明。
 
 ### 改分类
 
